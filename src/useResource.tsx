@@ -46,14 +46,14 @@ const getTriggerDependencies = (
 
 const getMessageQueueData = (data: boolean | object = false) => {
   return [false, ""];
-  if (typeof data === "object") {
-    const isAvailable = true;
-    const keyName = data?.keyName || "";
-    return [isAvailable, keyName];
-  }
-  const isAvailable = data;
-  const keyName = `${Date.now()}`;
-  return [isAvailable, keyName];
+  // if (typeof data === "object") {
+  //   const isAvailable = true;
+  //   const keyName = data?.keyName || "";
+  //   return [isAvailable, keyName];
+  // }
+  // const isAvailable = data;
+  // const keyName = `${Date.now()}`;
+  // return [isAvailable, keyName];
 };
 
 interface DebugObject {
@@ -86,10 +86,11 @@ interface DebugObject {
  */
 export const useResource = (
   defaultConfig: AxiosRequestConfig,
+  resourceName: string = "resource",
+  CustomContext = ResourceContext,
   triggerOn: string | boolean | any[] = "onMount",
-  useMessageQueue: boolean | object = false,
   onMountCallback = (customAxios: AxiosInstance) => {},
-  resourceName: string = ""
+  useMessageQueue: boolean | object = false
 ) => {
   const [data, setData] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -104,9 +105,8 @@ export const useResource = (
     defaultConfigRef.current
   );
 
-  const [isMessageQueueAvailable, messageQueueName] = getMessageQueueData(
-    useMessageQueue
-  );
+  const [isMessageQueueAvailable, messageQueueName] =
+    getMessageQueueData(useMessageQueue);
 
   const pushToDebug = useCallback((message: string = "", data: object = {}) => {
     console.log(message);
@@ -287,7 +287,7 @@ export const useResource = (
     };
     return (
       <div className={`resource-${resourceName}`}>
-        <ResourceContext.Provider value={{ [resourceName]: resourceData }}>
+        <CustomContext.Provider value={{ [resourceName]: resourceData }}>
           {contextOnly ? (
             <div className="context-only">
               <div className="content">{children}</div>
@@ -303,7 +303,7 @@ export const useResource = (
               )}
             </div>
           )}
-        </ResourceContext.Provider>
+        </CustomContext.Provider>
       </div>
     );
   };
