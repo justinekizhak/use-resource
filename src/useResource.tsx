@@ -276,11 +276,18 @@ export const useResource = (
     const errorMessage = errorData
       ? errorData?.message || "Something went wrong. Please try again."
       : "";
+
+    const resourceData = {
+      data,
+      isLoading,
+      errorData,
+      refetch,
+      debug,
+      cancel
+    };
     return (
       <div className={`resource-${resourceName}`}>
-        <ResourceContext.Provider
-          value={{ data, isLoading, errorData, refetch, debug, cancel }}
-        >
+        <ResourceContext.Provider value={{ [resourceName]: resourceData }}>
           {contextOnly ? (
             <div className="context-only">
               <div className="content">{children}</div>
