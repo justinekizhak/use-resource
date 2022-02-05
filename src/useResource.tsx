@@ -45,6 +45,7 @@ const getTriggerDependencies = (
 };
 
 const getMessageQueueData = (data: boolean | object = false) => {
+  return [false, ""];
   if (typeof data === "object") {
     const isAvailable = true;
     const keyName = data?.keyName || "";
@@ -244,18 +245,33 @@ export const useResource = (
     controllerInstance.current.abort();
   };
 
+  type jsxComponent =
+    | boolean
+    | ReactChild
+    | ReactFragment
+    | ReactPortal
+    | null
+    | undefined;
+  const defaultLoadingComponent = () => (
+    <div className="loading"> Loading... </div>
+  );
+  const defaultErrorComponent = (errorMessage: string, errorData: any) => (
+    <div className="error-message"> {errorMessage} </div>
+  );
+
   const Container = ({
     children,
-    contextOnly = false
+    contextOnly = false,
+    loadingComponent = defaultLoadingComponent,
+    errorComponent = defaultErrorComponent
   }: {
-    children:
-      | boolean
-      | ReactChild
-      | ReactFragment
-      | ReactPortal
-      | null
-      | undefined;
+    children: jsxComponent;
     contextOnly?: boolean;
+    loadingComponent?: () => jsxComponent;
+    errorComponent?: (
+      errorMessage: string,
+      errorData: AxiosError | undefined
+    ) => jsxComponent;
   }) => {
     const errorMessage = errorData
       ? errorData?.message || "Something went wrong. Please try again."
@@ -263,7 +279,7 @@ export const useResource = (
     return (
       <div className={`resource-${resourceName}`}>
         <ResourceContext.Provider
-          value={{ data, isLoading, errorData, refetch }}
+          value={{ data, isLoading, errorData, refetch, debug, cancel }}
         >
           {contextOnly ? (
             <div className="context-only">
@@ -272,9 +288,9 @@ export const useResource = (
           ) : (
             <div className="context-with-handler">
               {isLoading ? (
-                <div className="loading"> Loading... </div>
+                loadingComponent()
               ) : errorMessage ? (
-                <div className="error-message"> {errorMessage} </div>
+                errorComponent(errorMessage, errorData)
               ) : (
                 <div className="content">{children}</div>
               )}
