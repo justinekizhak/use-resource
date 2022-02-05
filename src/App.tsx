@@ -7,7 +7,11 @@ export default function App() {
   const getConfig = (pageNum = pageNumber) => ({
     url: `https://jsonplaceholder.typicode.com/todos/${pageNum}`
   });
-  const { data, Container, refetch } = useResource(getConfig());
+  const { data, Container, refetch } = useResource(
+    getConfig(),
+    undefined,
+    true
+  );
 
   const handleClick = () => {
     const newPageNumber = pageNumber + 1;

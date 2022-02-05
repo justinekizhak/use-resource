@@ -45,9 +45,13 @@ const getTriggerDependencies = (
 };
 
 const getMessageQueueData = (data: boolean | object = false) => {
-  // TODO: Need to implement this
-  const isAvailable = false;
-  const keyName = "";
+  if (typeof data === "object") {
+    const isAvailable = true;
+    const keyName = data?.keyName || "";
+    return [isAvailable, keyName];
+  }
+  const isAvailable = data;
+  const keyName = `${Date.now()}`;
   return [isAvailable, keyName];
 };
 
@@ -167,7 +171,7 @@ export const useResource = (
 
   const pushToMessageQueue = useCallback(
     (data) => {
-      pushToDebug("Pushing to message queue.", data);
+      pushToDebug("PUSHING TO MESSAGE QUEUE: ", data);
     },
     [pushToDebug]
   );
@@ -225,12 +229,12 @@ export const useResource = (
 
   useEffect(() => {
     const callback = () => {
-      pushToDebug("Initializing");
+      pushToDebug("INITIALIZING");
       if (isMountTriggerable) {
-        pushToDebug("On mount triggering");
+        pushToDebug("ON MOUNT TRIGGERING");
         refetch();
       } else {
-        pushToDebug("Skipping on mount trigger");
+        pushToDebug("SKIPPING ON MOUNT TRIGGER");
       }
     };
     callback();
