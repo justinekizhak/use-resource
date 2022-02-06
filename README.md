@@ -14,15 +14,15 @@ Features:
 2. Error handling
 3. Refetching data
 
-```
+```jsx
 import { useResource } from "./lib/useResource";
 import { useState } from "react";
 
 export default function App() {
   const [pageNumber, setPageNumber] = useState(1);
-  const getConfig = (_pageNumber = pageNumber)  => {
-        url: `https://jsonplaceholder.typicode.com/todos/${_pageNumber}`
-    }
+  const getConfig = (_pageNumber = pageNumber) => {
+    url: `https://jsonplaceholder.typicode.com/todos/${_pageNumber}`;
+  };
 
   const { data, Container, refetch } = useResource(getConfig(), "todoDetails");
 
