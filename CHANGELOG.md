@@ -18,8 +18,6 @@ Thanks for all your work!
 
 :heart: Justine Kizhakkinedath ([@justinekizhak](https://github.com/justinekizhak))
 
-:heart: null[@paushtikkswitch](https://github.com/paushtikkswitch)
-
 #### 🚀 Enhancement
 
 - feat: Update package name ([@justinekizhak](https://github.com/justinekizhak))
@@ -41,7 +39,6 @@ Thanks for all your work!
 - Refactor and cleanup ([@justinekizhak](https://github.com/justinekizhak))
 - Add global context provider ([@justinekizhak](https://github.com/justinekizhak))
 - Improve custom context logic ([@justinekizhak](https://github.com/justinekizhak))
-- Add gitignore file ([@paushtikkswitch](https://github.com/paushtikkswitch))
 - Update resource context ([@justinekizhak](https://github.com/justinekizhak))
 - Add support for custom loader and error component ([@justinekizhak](https://github.com/justinekizhak))
 - Add logic for the message queue ([@justinekizhak](https://github.com/justinekizhak))
@@ -49,5 +46,4 @@ Thanks for all your work!
 
 #### Authors: 2
 
-- [@paushtikkswitch](https://github.com/paushtikkswitch)
 - Justine Kizhakkinedath ([@justinekizhak](https://github.com/justinekizhak))
