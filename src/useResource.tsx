@@ -21,7 +21,16 @@ import {
   ErrorComponentType,
   LoadingComponentType,
   UseResourceType,
-  ContextContainerPropsType
+  ContextContainerPropsType,
+  OnSuccessType,
+  BeforeTaskType,
+  TaskType,
+  OnFailureType,
+  OnFinalType,
+  NextType,
+  ChainedRequestConfigType,
+  AccumulatorType,
+  BaseConfigType
 } from "./interfaces";
 import { GlobalResourceContext } from "./resourceContext";
 
@@ -72,6 +81,37 @@ export const defaultErrorComponent: ErrorComponentType = (
   errorData: any
 ) => <div className="error-message"> {errorMessage} </div>;
 
+export const getBaseConfig = (
+  baseConfig: BaseConfigType,
+  index = 0
+): AxiosRequestConfig => {
+  const useRequestChaining = Array.isArray(baseConfig);
+  if (useRequestChaining && baseConfig.length === 0) {
+    throw new Error("Please pass in the request config");
+  }
+  const defaultConfig: AxiosRequestConfig = useRequestChaining
+    ? baseConfig[index]["baseConfig"]
+    : baseConfig;
+
+  return defaultConfig;
+};
+
+const defaultNext: NextType = (data) => [data];
+
+const getErrorMessage = (
+  errorData: AxiosError | AxiosResponse | undefined
+): string => {
+  const defaultErrorMessage = "Something went wrong. Please try again.";
+  const err = errorData as AxiosError;
+  if (err?.response?.data?.message) {
+    return err.response.data.message || defaultErrorMessage;
+  }
+  if (err?.message) {
+    return err.message || defaultErrorMessage;
+  }
+  return "";
+};
+
 /**
  * Input parameters:
  * 1. axiosParams,
@@ -95,7 +135,7 @@ export const defaultErrorComponent: ErrorComponentType = (
  * 7. Provider
  */
 export const useResource: UseResourceType = (
-  defaultConfig: AxiosRequestConfig,
+  baseConfig: BaseConfigType,
   resourceName: string = "resource",
   options: UseResourceOptionsType = {},
   advancedOptions: UseResourceAdvancedOptionsType = {}
@@ -111,13 +151,20 @@ export const useResource: UseResourceType = (
     useMessageQueue = false
   } = advancedOptions;
 
+  const useRequestChaining = Array.isArray(baseConfig);
+  if (useRequestChaining && baseConfig.length === 0) {
+    throw new Error("Please pass in the request config");
+  }
+  const defaultConfig = getBaseConfig(baseConfig);
+
   const [data, setData] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  const [errorData, setErrorData] = useState<AxiosError>();
+  const [errorData, setErrorData] = useState<AxiosError | AxiosResponse>();
   const [debug, setDebug] = useState<DebugObject[]>([]);
   const axiosInstance = useRef<AxiosInstance>(axios);
   const controllerInstance = useRef<AbortController>(new AbortController());
   const defaultConfigRef = useRef<AxiosRequestConfig>(defaultConfig);
+  const baseConfigRef = useRef(baseConfig);
 
   const [triggerDeps, isMountTriggerable] = getTriggerDependencies(
     triggerOn,
@@ -135,13 +182,15 @@ export const useResource: UseResourceType = (
     setDebug((oldData) => [...oldData, fullData]);
   }, []);
 
-  const beforeTask = useCallback(() => {
+  const beforeTask: BeforeTaskType = useCallback(() => {
     pushToDebug("[FETCHING RESOURCE] BEFORE TASK");
     setIsLoading(true);
+    setData({});
+    setErrorData(undefined);
   }, [pushToDebug]);
 
-  const task = useCallback(
-    async (customConfig) => {
+  const task: TaskType = useCallback(
+    async (customConfig, acc = [], next = defaultNext) => {
       const axiosConfig = {
         signal: controllerInstance.current.signal,
         ...defaultConfigRef.current,
@@ -149,43 +198,48 @@ export const useResource: UseResourceType = (
       };
       pushToDebug("[FETCHING RESOURCE] TASK TRIGGERED", axiosConfig);
       const res = await axiosInstance.current(axiosConfig);
-      return res;
+      return next(res);
     },
     [pushToDebug]
   );
 
-  const onSuccess = useCallback(
-    (res: AxiosResponse) => {
-      const _data = res?.data;
+  const onSuccess: OnSuccessType = useCallback(
+    (res, acc = [], next = defaultNext) => {
+      const _res = res as AxiosResponse;
+      const _data = _res?.data;
       setData(_data);
       pushToDebug("[FETCHING RESOURCE] TASK SUCCESS", _data);
     },
     [pushToDebug]
   );
 
-  const onFailure = useCallback(
-    (error) => {
-      if (error.response) {
+  const onFailure: OnFailureType = useCallback(
+    (error, acc = [], next = defaultNext) => {
+      if (!error) {
+        return;
+      }
+      const _error: AxiosError = error;
+      if (_error.response) {
         pushToDebug(
           "[FETCHING RESOURCE] RESPONSE ERROR RECEIVED",
-          error.response
+          _error.response
         );
-        setErrorData(error.response);
-      } else if (error.request) {
+        setErrorData(_error.response);
+      } else if (_error.request) {
         pushToDebug(
           "[FETCHING RESOURCE] REQUEST ERROR RECEIVED",
-          error.request
+          _error.request
         );
-        setErrorData(error.request);
+        setErrorData(_error.request);
       } else {
         pushToDebug("[FETCHING RESOURCE] SYSTEM ERROR RECEIVED", error);
-        setErrorData(error);
+        setErrorData(_error);
       }
     },
     [pushToDebug]
   );
 
-  const onFinal = useCallback(() => {
+  const onFinal: OnFinalType = useCallback(() => {
     pushToDebug("[FETCHING RESOURCE] TASK END");
     setIsLoading(false);
   }, [pushToDebug]);
@@ -198,30 +252,71 @@ export const useResource: UseResourceType = (
   );
 
   const refetch = useCallback(
-    (customConfig: AxiosRequestConfig = {}) => {
-      const fullTask = async () => {
-        try {
-          beforeTask();
-          const res = await task(customConfig);
-          onSuccess(res);
-        } catch (error) {
-          onFailure(error);
-        } finally {
-          onFinal();
+    (customConfig: BaseConfigType = {}) => {
+      const taskMaster = (
+        index = 0,
+        acc: AccumulatorType = [],
+        next: NextType = defaultNext,
+        _baseConfig = getBaseConfig(customConfig, index),
+        _beforeTask = beforeTask,
+        _task = task,
+        _onSuccess = onSuccess,
+        _onFailure = onFailure,
+        _onFinal = onFinal
+      ) => {
+        const fullTask = async () => {
+          try {
+            _beforeTask(acc, next);
+            const res = await _task(_baseConfig, acc, next);
+            _onSuccess(res[index], acc, next);
+          } catch (error) {
+            _onFailure(error, acc, next);
+          } finally {
+            _onFinal(acc, next);
+          }
+        };
+        if (isMessageQueueAvailable) {
+          pushToMessageQueue({
+            key: messageQueueName,
+            beforeTask: _beforeTask,
+            task: _task,
+            onSuccess: _onSuccess,
+            onFailure: _onFailure,
+            onFinal: _onFinal,
+            fullTask
+          });
+        } else {
+          fullTask();
         }
       };
-      if (isMessageQueueAvailable) {
-        pushToMessageQueue({
-          key: messageQueueName,
-          beforeTask,
-          task,
-          onSuccess,
-          onFailure,
-          onFinal,
-          fullTask
-        });
+      if (!useRequestChaining) {
+        taskMaster();
       } else {
-        fullTask();
+        pushToDebug("REQUEST CHAIN");
+        const acc: AccumulatorType = [];
+        const next: NextType = (data) => [...acc, data];
+        const baseConfigList = baseConfigRef.current as ChainedRequestConfigType[];
+        baseConfigList.forEach((requestChain, index) => {
+          const {
+            baseConfig,
+            beforeTask,
+            task,
+            onSuccess,
+            onFailure,
+            onFinal
+          } = requestChain;
+          taskMaster(
+            index,
+            acc,
+            next,
+            baseConfig,
+            beforeTask,
+            task,
+            onSuccess,
+            onFailure,
+            onFinal
+          );
+        });
       }
     },
     [
@@ -232,7 +327,9 @@ export const useResource: UseResourceType = (
       onFinal,
       isMessageQueueAvailable,
       pushToMessageQueue,
-      messageQueueName
+      messageQueueName,
+      useRequestChaining,
+      pushToDebug
     ]
   );
 
@@ -272,9 +369,7 @@ export const useResource: UseResourceType = (
   }: ContextContainerPropsType) => {
     const { dispatch } = useContext(GlobalResourceContext);
 
-    const errorMessage = errorData
-      ? errorData?.message || "Something went wrong. Please try again."
-      : "";
+    const errorMessage = getErrorMessage(errorData);
 
     const contextResource = useMemo(() => {
       const resourceData: ResourceType = {
