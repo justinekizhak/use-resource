@@ -1,9 +1,26 @@
 {
-  "name": "useresource-v1",
+  "name": "@justinekizhak/useResource",
   "version": "1.0.0",
   "description": "",
   "keywords": [],
-  "main": "src/index.tsx",
+  "license": "MIT",
+  "private": false,
+  "source": "./src",
+  "files": [
+    "dist"
+  ],
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "browser": "./dist/index.js",
+      "require": "./dist/index.js",
+      "node": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
   "dependencies": {
     "axios": "0.25.0",
     "react": "17.0.2",
@@ -11,20 +28,35 @@
     "react-scripts": "4.0.3"
   },
   "devDependencies": {
+    "@auto-it/all-contributors": "^10.32.6",
+    "@auto-it/conventional-commits": "^10.32.6",
+    "@auto-it/first-time-contributor": "^10.32.6",
     "@types/react": "17.0.20",
     "@types/react-dom": "17.0.9",
+    "auto": "^10.32.6",
     "typescript": "4.4.2"
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "yarn tsc",
     "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "release": "auto shipit --base-branch=main"
   },
   "browserslist": [
     ">0.2%",
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+  "repository": "justinekizhak/useResource",
+  "author": "Justine Kizhakkinedath <justine@kizhak.com>",
+  "auto": {
+    "plugins": [
+      "npm",
+      "all-contributors",
+      "conventional-commits",
+      "first-time-contributor"
+    ]
+  }
 }
