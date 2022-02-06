@@ -1,5 +1,10 @@
 import { ReactChild, ReactFragment, ReactPortal } from "react";
-import { AxiosInstance, AxiosRequestConfig } from "axios";
+import {
+  AxiosError,
+  AxiosInstance,
+  AxiosRequestConfig,
+  AxiosResponse
+} from "axios";
 
 export interface DebugObject {
   timestamp: string;
@@ -78,3 +83,47 @@ export type UseResourceType = (
   options?: UseResourceOptionsType,
   advancedOptions?: UseResourceAdvancedOptionsType
 ) => UseResourceReturnType;
+
+export type AccumulatorType = object[] | AxiosResponse[];
+export type NextType = (
+  data: AccumulatorType | AxiosResponse
+) => AccumulatorType;
+
+export type BeforeTaskType = (
+  accumulator?: AccumulatorType,
+  next?: NextType
+) => AccumulatorType | void;
+
+export type TaskType = (
+  customConfig: AxiosRequestConfig,
+  accumulator?: AccumulatorType,
+  next?: NextType
+) => Promise<AccumulatorType>;
+
+export type OnSuccessType = (
+  response: AxiosResponse | object,
+  accumulator?: AccumulatorType,
+  next?: NextType
+) => AccumulatorType | void;
+
+export type OnFailureType = (
+  error: any | AxiosError,
+  accumulator?: AccumulatorType,
+  next?: NextType
+) => AccumulatorType | void;
+
+export type OnFinalType = (
+  accumulator?: AccumulatorType,
+  next?: NextType
+) => AccumulatorType | void;
+
+export interface ChainedRequestConfigType {
+  baseConfig: AxiosRequestConfig;
+  beforeTask?: BeforeTaskType;
+  task?: TaskType;
+  onSuccess?: OnSuccessType;
+  onFailure?: OnFailureType;
+  onFinal?: OnFinalType;
+}
+
+export type BaseConfigType = AxiosRequestConfig | ChainedRequestConfigType[];
