@@ -1,3 +1,15 @@
+# v1.2.1 (Sun Feb 06 2022)
+
+#### ⚠️ Pushed to `main`
+
+- Update README.md ([@justinekizhak](https://github.com/justinekizhak))
+
+#### Authors: 1
+
+- Justine Kizhakkinedath ([@justinekizhak](https://github.com/justinekizhak))
+
+---
+
 # v1.2.0 (Sun Feb 06 2022)
 
 :tada: This release contains work from new contributors! :tada:
