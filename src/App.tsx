@@ -1,7 +1,7 @@
 import "./styles.css";
-import { useResource } from "./useResource";
+import { useResource } from "./lib/useResource";
 import { useState } from "react";
-import { ChainedRequestConfigType } from "./interfaces";
+import { ChainedRequestConfigType } from "./lib/interfaces";
 
 export default function App() {
   const [pageNumber, setPageNumber] = useState(1);
