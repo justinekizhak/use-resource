@@ -49,7 +49,7 @@
     "not ie <= 11",
     "not op_mini all"
   ],
-  "repository": "https://github.com/justinekizhak/useResource",
+  "repository": "https://github.com/justinekizhak/use-resource",
   "author": "Justine Kizhakkinedath <justine@kizhak.com>",
   "auto": {
     "plugins": [
