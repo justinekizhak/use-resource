@@ -27,7 +27,7 @@ export type ResourceType = {
   errorData: object | null | undefined;
   debug: DebugObject[];
   cancel: any;
-  refetch: (customConfig: AxiosRequestConfig) => void;
+  refetch: (customConfig: BaseConfigType) => void;
 };
 
 export type ResourceContextState = {
@@ -36,7 +36,7 @@ export type ResourceContextState = {
 
 export type ResourceContextType = ResourceContextState | null | undefined;
 
-export type UseResourceOptionsType = {
+export type UseResourceBasicOptionsType = {
   CustomContext?:
     | React.Context<ResourceContextType>
     | null
@@ -77,11 +77,12 @@ export interface UseResourceReturnType extends ResourceType {
   Container: ContextContainerType;
 }
 
+export type BaseConfigType = AxiosRequestConfig | ChainedRequestConfigType[];
+
 export type UseResourceType = (
-  defaultConfig: AxiosRequestConfig,
+  defaultConfig: BaseConfigType,
   resourceName: string,
-  options?: UseResourceOptionsType,
-  advancedOptions?: UseResourceAdvancedOptionsType
+  options?: UseResourceOptionsType
 ) => UseResourceReturnType;
 
 export type AccumulatorType = object[] | AxiosResponse[];
@@ -125,4 +126,6 @@ export interface ChainedRequestConfigType extends Object {
   onFinal?: OnFinalType;
 }
 
-export type BaseConfigType = AxiosRequestConfig | ChainedRequestConfigType[];
+export interface UseResourceOptionsType
+  extends UseResourceBasicOptionsType,
+    UseResourceAdvancedOptionsType {}

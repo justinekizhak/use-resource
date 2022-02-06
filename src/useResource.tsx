@@ -29,7 +29,6 @@ import {
   OnFinalType,
   NextType,
   ChainedRequestConfigType,
-  AccumulatorType,
   BaseConfigType,
   AccumulatorContainer
 } from "./interfaces";
@@ -199,15 +198,10 @@ const defaultAccumulator = { current: [] };
 
 /**
  * Input parameters:
- * 1. axiosParams,
- * 2. triggerOn: Default value: true
- *      Accepts: boolean: false -> none; true -> onMount
- *              array: array of dependencies
- * 3. use message queue: Default value: false
- *      Accepts: boolean
- *                object
- * 4. onMountHook:
- *      Can be used to inject interceptors
+ * 1. baseConfig,
+ * 2. resourceName
+ * 3. options
+ * 4. advancedOptions
  *
  *
  * Returns:
@@ -217,24 +211,21 @@ const defaultAccumulator = { current: [] };
  * 4. refetch
  * 5. debug
  * 6. cancel
- * 7. Provider
+ * 7. Container
  */
 export const useResource: UseResourceType = (
   baseConfig: BaseConfigType,
   resourceName: string = "resource",
-  options: UseResourceOptionsType = {},
-  advancedOptions: UseResourceAdvancedOptionsType = {}
+  options: UseResourceOptionsType = {}
 ) => {
   const {
     CustomContext = null,
     triggerOn = "onMount",
-    onMountCallback = (customAxios: AxiosInstance) => {}
-  } = options;
-  const {
+    onMountCallback = (customAxios: AxiosInstance) => {},
     globalLoadingComponent = defaultLoadingComponent,
     globalErrorComponent = defaultErrorComponent,
     useMessageQueue = false
-  } = advancedOptions;
+  } = options;
 
   const useRequestChaining = Array.isArray(baseConfig);
   if (useRequestChaining && baseConfig.length === 0) {
@@ -260,12 +251,18 @@ export const useResource: UseResourceType = (
     useMessageQueue
   );
 
-  const pushToDebug = useCallback((message: string = "", data: object = {}) => {
-    console.log(message, data);
-    const timestamp = Date.now() + "";
-    const fullData = { timestamp, data, message };
-    setDebug((oldData) => [...oldData, fullData]);
-  }, []);
+  const pushToDebug = useCallback(
+    (message: string = "", data: object | null = null) => {
+      console.log(message, data);
+      const timestamp = Date.now() + "";
+      const fullData: DebugObject = { timestamp, message };
+      if (data) {
+        fullData["data"] = data;
+      }
+      setDebug((oldData) => [...oldData, fullData]);
+    },
+    []
+  );
 
   const beforeTask: BeforeTaskType = useCallback(() => {
     pushToDebug("[FETCHING RESOURCE] BEFORE TASK");
@@ -382,10 +379,11 @@ export const useResource: UseResourceType = (
         taskMaster();
       } else {
         const main = async () => {
-          pushToDebug("REQUEST CHAIN");
           const acc: AccumulatorContainer = { current: [] };
-          const next: NextType = (data) => {
-            acc.current.push(data);
+          const next: NextType = (data: any) => {
+            if (data) {
+              acc.current.push(data);
+            }
             return acc;
           };
           const baseConfigList = baseConfigRef.current as ChainedRequestConfigType[];
@@ -434,8 +432,7 @@ export const useResource: UseResourceType = (
       isMessageQueueAvailable,
       pushToMessageQueue,
       messageQueueName,
-      useRequestChaining,
-      pushToDebug
+      useRequestChaining
     ]
   );
 
