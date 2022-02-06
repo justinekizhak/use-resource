@@ -1,12 +1,10 @@
-import {
+import React, {
   useState,
   useEffect,
   useCallback,
   createContext,
   useRef,
-  ReactChild,
-  ReactFragment,
-  ReactPortal
+  useContext
 } from "react";
 import axios, {
   AxiosRequestConfig,
@@ -15,7 +13,26 @@ import axios, {
   AxiosInstance
 } from "axios";
 
-export const ResourceContext = createContext({});
+import {
+  UseResourceOptionsType,
+  ResourceType,
+  DebugObject,
+  JsxComponentType,
+  UseResourceAdvancedOptionsType,
+  GlobalResourceContextType,
+  ResourceContextType,
+  ResourceContextState,
+  ErrorComponentType,
+  LoadingComponentType,
+  UseResourceType,
+  ContextContainerType,
+  ContextContainerPropsType
+} from "./interfaces";
+
+export const GlobalResourceContext = createContext<GlobalResourceContextType>({
+  dispatch: () => {},
+  selector: () => {}
+});
 
 const getTriggerDependencies = (
   triggerOn: string | boolean | any[] = "onMount",
@@ -56,11 +73,13 @@ const getMessageQueueData = (data: boolean | object = false) => {
   // return [isAvailable, keyName];
 };
 
-interface DebugObject {
-  timestamp: string;
-  message?: string;
-  data?: object;
-}
+export const defaultLoadingComponent: LoadingComponentType = () => (
+  <div className="loading"> Loading... </div>
+);
+export const defaultErrorComponent: ErrorComponentType = (
+  errorMessage: string,
+  errorData: any
+) => <div className="error-message"> {errorMessage} </div>;
 
 /**
  * Input parameters:
@@ -84,14 +103,23 @@ interface DebugObject {
  * 6. cancel
  * 7. Provider
  */
-export const useResource = (
+export const useResource: UseResourceType = (
   defaultConfig: AxiosRequestConfig,
   resourceName: string = "resource",
-  CustomContext = ResourceContext,
-  triggerOn: string | boolean | any[] = "onMount",
-  onMountCallback = (customAxios: AxiosInstance) => {},
-  useMessageQueue: boolean | object = false
+  options: UseResourceOptionsType = {},
+  advancedOptions: UseResourceAdvancedOptionsType = {}
 ) => {
+  const {
+    CustomContext = null,
+    triggerOn = "onMount",
+    onMountCallback = (customAxios: AxiosInstance) => {}
+  } = options;
+  const {
+    globalLoadingComponent = defaultLoadingComponent,
+    globalErrorComponent = defaultErrorComponent,
+    useMessageQueue = false
+  } = advancedOptions;
+
   const [data, setData] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [errorData, setErrorData] = useState<AxiosError>();
@@ -105,8 +133,9 @@ export const useResource = (
     defaultConfigRef.current
   );
 
-  const [isMessageQueueAvailable, messageQueueName] =
-    getMessageQueueData(useMessageQueue);
+  const [isMessageQueueAvailable, messageQueueName] = getMessageQueueData(
+    useMessageQueue
+  );
 
   const pushToDebug = useCallback((message: string = "", data: object = {}) => {
     console.log(message);
@@ -245,39 +274,18 @@ export const useResource = (
     controllerInstance.current.abort();
   };
 
-  type jsxComponent =
-    | boolean
-    | ReactChild
-    | ReactFragment
-    | ReactPortal
-    | null
-    | undefined;
-  const defaultLoadingComponent = () => (
-    <div className="loading"> Loading... </div>
-  );
-  const defaultErrorComponent = (errorMessage: string, errorData: any) => (
-    <div className="error-message"> {errorMessage} </div>
-  );
-
   const Container = ({
     children,
-    contextOnly = false,
-    loadingComponent = defaultLoadingComponent,
-    errorComponent = defaultErrorComponent
-  }: {
-    children: jsxComponent;
-    contextOnly?: boolean;
-    loadingComponent?: () => jsxComponent;
-    errorComponent?: (
-      errorMessage: string,
-      errorData: AxiosError | undefined
-    ) => jsxComponent;
-  }) => {
+    loadingComponent = globalLoadingComponent,
+    errorComponent = globalErrorComponent
+  }: ContextContainerPropsType) => {
+    const { dispatch } = useContext(GlobalResourceContext);
+
     const errorMessage = errorData
       ? errorData?.message || "Something went wrong. Please try again."
       : "";
 
-    const resourceData = {
+    const resourceData: ResourceType = {
       data,
       isLoading,
       errorData,
@@ -285,25 +293,42 @@ export const useResource = (
       debug,
       cancel
     };
+
+    const contextResource = { [resourceName]: resourceData };
+
+    const useGlobalContext = CustomContext === "global";
+    const useLocalContext =
+      CustomContext !== "global" &&
+      CustomContext !== null &&
+      CustomContext !== undefined;
+
+    useEffect(() => {
+      if (useGlobalContext) {
+        dispatch(contextResource);
+      }
+    }, []);
+
+    const content = () => (
+      <div className="content">
+        {isLoading ? (
+          loadingComponent()
+        ) : errorMessage ? (
+          errorComponent(errorMessage, errorData)
+        ) : (
+          <div className="content">{children}</div>
+        )}
+      </div>
+    );
+
     return (
       <div className={`resource-${resourceName}`}>
-        <CustomContext.Provider value={{ [resourceName]: resourceData }}>
-          {contextOnly ? (
-            <div className="context-only">
-              <div className="content">{children}</div>
-            </div>
-          ) : (
-            <div className="context-with-handler">
-              {isLoading ? (
-                loadingComponent()
-              ) : errorMessage ? (
-                errorComponent(errorMessage, errorData)
-              ) : (
-                <div className="content">{children}</div>
-              )}
-            </div>
-          )}
-        </CustomContext.Provider>
+        {useLocalContext ? (
+          <CustomContext.Provider value={contextResource}>
+            <div className="local-context">{content()}</div>
+          </CustomContext.Provider>
+        ) : (
+          content()
+        )}
       </div>
     );
   };
@@ -317,4 +342,27 @@ export const useResource = (
     cancel,
     Container
   };
+};
+
+export const GlobalResourceContextProvider = (props: {
+  children: JsxComponentType;
+}) => {
+  const [state, setState] = useState<ResourceContextState>({});
+  const dispatch = (inputData: ResourceContextType) => {
+    if (!inputData) {
+      return;
+    }
+    setState((oldData) => {
+      const newData = { ...oldData, ...inputData };
+      return newData;
+    });
+  };
+  const selector = (callback: (state: ResourceContextState) => any) => {
+    return callback(state);
+  };
+  return (
+    <GlobalResourceContext.Provider value={{ dispatch, selector }}>
+      {props.children}
+    </GlobalResourceContext.Provider>
+  );
 };
