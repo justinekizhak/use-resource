@@ -15,28 +15,18 @@ Features:
 3. Refetching data
 
 ```jsx
-import { useResource } from "./lib/useResource";
-import { useState } from "react";
+import { useResource } from "@justinekizhak/use-resource-hook";
 
 export default function App() {
-  const [pageNumber, setPageNumber] = useState(1);
-  const getConfig = (_pageNumber = pageNumber) => {
-    url: `https://jsonplaceholder.typicode.com/todos/${_pageNumber}`;
-  };
-
-  const { data, Container, refetch } = useResource(getConfig(), "todoDetails");
-
-  const handleClick = () => {
-    const newPageNumber = pageNumber + 1;
-    setPageNumber(newPageNumber);
-    refetch(getConfig(newPageNumber));
-  };
-
+  const { data, Container } = useResource(
+    {
+      url: "https://jsonplaceholder.typicode.com/posts"
+    },
+    "fetchPost"
+  );
   return (
-    <div>
-      <div>Page number: {pageNumber}</div>
+    <div className="App">
       <Container>{JSON.stringify(data)}</Container>
-      <div onClick={handleClick}>refetch</div>
     </div>
   );
 }
