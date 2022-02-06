@@ -85,39 +85,38 @@ export type UseResourceType = (
 ) => UseResourceReturnType;
 
 export type AccumulatorType = object[] | AxiosResponse[];
-export type NextType = (
-  data: AccumulatorType | AxiosResponse
-) => AccumulatorType;
+export type AccumulatorContainer = { current: AccumulatorType };
+export type NextType = (data: object | AxiosResponse) => AccumulatorContainer;
 
 export type BeforeTaskType = (
-  accumulator?: AccumulatorType,
+  accumulator?: AccumulatorContainer,
   next?: NextType
 ) => AccumulatorType | void;
 
 export type TaskType = (
   customConfig: AxiosRequestConfig,
-  accumulator?: AccumulatorType,
+  accumulator?: AccumulatorContainer,
   next?: NextType
-) => Promise<AccumulatorType>;
+) => Promise<AxiosResponse>;
 
 export type OnSuccessType = (
   response: AxiosResponse | object,
-  accumulator?: AccumulatorType,
+  accumulator?: AccumulatorContainer,
   next?: NextType
 ) => AccumulatorType | void;
 
 export type OnFailureType = (
   error: any | AxiosError,
-  accumulator?: AccumulatorType,
+  accumulator?: AccumulatorContainer,
   next?: NextType
 ) => AccumulatorType | void;
 
 export type OnFinalType = (
-  accumulator?: AccumulatorType,
+  accumulator?: AccumulatorContainer,
   next?: NextType
 ) => AccumulatorType | void;
 
-export interface ChainedRequestConfigType {
+export interface ChainedRequestConfigType extends Object {
   baseConfig: AxiosRequestConfig;
   beforeTask?: BeforeTaskType;
   task?: TaskType;

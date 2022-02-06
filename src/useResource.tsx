@@ -30,7 +30,8 @@ import {
   NextType,
   ChainedRequestConfigType,
   AccumulatorType,
-  BaseConfigType
+  BaseConfigType,
+  AccumulatorContainer
 } from "./interfaces";
 import { GlobalResourceContext } from "./resourceContext";
 
@@ -96,7 +97,9 @@ export const getBaseConfig = (
   return defaultConfig;
 };
 
-const defaultNext: NextType = (data) => [data];
+const defaultNext: NextType = (data) => {
+  return { current: [data] };
+};
 
 const getErrorMessage = (
   errorData: AxiosError | AxiosResponse | undefined
@@ -111,6 +114,88 @@ const getErrorMessage = (
   }
   return "";
 };
+
+const getFunc = (requestObject: ChainedRequestConfigType, key: string) => {
+  const func =
+    requestObject && typeof requestObject[key] === "function"
+      ? requestObject[key]
+      : () => {};
+  return func;
+};
+
+const getFinalRequestChain = (
+  newChainedRequestData: ChainedRequestConfigType,
+  index: number,
+  fullBaseConfigList: ChainedRequestConfigType[],
+  beforeTask: BeforeTaskType,
+  task: TaskType,
+  onSuccess: OnSuccessType,
+  onFailure: OnFailureType,
+  onFinal: OnFinalType,
+  controllerInstance:
+    | React.MutableRefObject<AbortController>
+    | undefined = undefined
+): ChainedRequestConfigType => {
+  const oldChainedRequestData = fullBaseConfigList[index];
+  const finalConfig = {
+    ...oldChainedRequestData["baseConfig"],
+    ...newChainedRequestData["baseConfig"]
+  };
+  // The new beforeTask will overwrite the old beforeTask
+  const finalBeforeTask: BeforeTaskType = (acc, next) => {
+    const func = getFunc(newChainedRequestData, "beforeTask");
+    const res = func(acc, next);
+    const newAcc = (typeof next === "function" && next(res)) || acc;
+    const res2 = beforeTask(newAcc, next);
+    return res2;
+  };
+
+  // The new task will overwrite all the task
+  const finalTask: TaskType = async (customConfig, acc, next) => {
+    const func = getFunc(newChainedRequestData, "task");
+    const config1 = {
+      signal: controllerInstance?.current?.signal,
+      ...finalConfig,
+      ...customConfig
+    };
+    const res: AxiosRequestConfig = (await func(config1, acc, next)) || config1;
+    const res2 = await task(res, acc, next);
+    return res2;
+  };
+
+  // Runs the request through the user callback then the response is sent to the actual success task
+  const finalOnSuccess: OnSuccessType = (res, acc, next) => {
+    const func = getFunc(newChainedRequestData, "onSuccess");
+    const newRes = func(res, acc, next) || res;
+    const res2 = onSuccess(newRes, acc, next);
+    return res2;
+  };
+
+  const finalOnFailure: OnFailureType = (error, acc, next) => {
+    const func = getFunc(newChainedRequestData, "onFailure");
+    const newRes = func(error, acc, next) || error;
+    const res2 = onFailure(newRes, acc, next);
+    return res2;
+  };
+
+  const finalOnFinal: OnFinalType = (acc, next) => {
+    const func = getFunc(newChainedRequestData, "onFinal");
+    const newRes = func(acc, next) || acc;
+    const res2 = onFinal(newRes, next);
+    return res2;
+  };
+
+  return {
+    baseConfig: finalConfig,
+    beforeTask: finalBeforeTask,
+    task: finalTask,
+    onSuccess: finalOnSuccess,
+    onFailure: finalOnFailure,
+    onFinal: finalOnFinal
+  };
+};
+
+const defaultAccumulator = { current: [] };
 
 /**
  * Input parameters:
@@ -176,7 +261,7 @@ export const useResource: UseResourceType = (
   );
 
   const pushToDebug = useCallback((message: string = "", data: object = {}) => {
-    console.log(message);
+    console.log(message, data);
     const timestamp = Date.now() + "";
     const fullData = { timestamp, data, message };
     setDebug((oldData) => [...oldData, fullData]);
@@ -190,7 +275,7 @@ export const useResource: UseResourceType = (
   }, [pushToDebug]);
 
   const task: TaskType = useCallback(
-    async (customConfig, acc = [], next = defaultNext) => {
+    async (customConfig, acc = { current: [] }, next = defaultNext) => {
       const axiosConfig = {
         signal: controllerInstance.current.signal,
         ...defaultConfigRef.current,
@@ -198,13 +283,13 @@ export const useResource: UseResourceType = (
       };
       pushToDebug("[FETCHING RESOURCE] TASK TRIGGERED", axiosConfig);
       const res = await axiosInstance.current(axiosConfig);
-      return next(res);
+      return res;
     },
     [pushToDebug]
   );
 
   const onSuccess: OnSuccessType = useCallback(
-    (res, acc = [], next = defaultNext) => {
+    (res, acc = defaultAccumulator, next = defaultNext) => {
       const _res = res as AxiosResponse;
       const _data = _res?.data;
       setData(_data);
@@ -214,7 +299,7 @@ export const useResource: UseResourceType = (
   );
 
   const onFailure: OnFailureType = useCallback(
-    (error, acc = [], next = defaultNext) => {
+    (error, acc = defaultAccumulator, next = defaultNext) => {
       if (!error) {
         return;
       }
@@ -239,10 +324,13 @@ export const useResource: UseResourceType = (
     [pushToDebug]
   );
 
-  const onFinal: OnFinalType = useCallback(() => {
-    pushToDebug("[FETCHING RESOURCE] TASK END");
-    setIsLoading(false);
-  }, [pushToDebug]);
+  const onFinal: OnFinalType = useCallback(
+    (acc, next) => {
+      pushToDebug("[FETCHING RESOURCE] TASK END", acc);
+      setIsLoading(false);
+    },
+    [pushToDebug]
+  );
 
   const pushToMessageQueue = useCallback(
     (data) => {
@@ -253,9 +341,9 @@ export const useResource: UseResourceType = (
 
   const refetch = useCallback(
     (customConfig: BaseConfigType = {}) => {
-      const taskMaster = (
+      const taskMaster = async (
         index = 0,
-        acc: AccumulatorType = [],
+        acc: AccumulatorContainer = { current: [] },
         next: NextType = defaultNext,
         _baseConfig = getBaseConfig(customConfig, index),
         _beforeTask = beforeTask,
@@ -268,7 +356,8 @@ export const useResource: UseResourceType = (
           try {
             _beforeTask(acc, next);
             const res = await _task(_baseConfig, acc, next);
-            _onSuccess(res[index], acc, next);
+            next(res);
+            _onSuccess(res, acc, next);
           } catch (error) {
             _onFailure(error, acc, next);
           } finally {
@@ -286,37 +375,54 @@ export const useResource: UseResourceType = (
             fullTask
           });
         } else {
-          fullTask();
+          await fullTask();
         }
       };
       if (!useRequestChaining) {
         taskMaster();
       } else {
-        pushToDebug("REQUEST CHAIN");
-        const acc: AccumulatorType = [];
-        const next: NextType = (data) => [...acc, data];
-        const baseConfigList = baseConfigRef.current as ChainedRequestConfigType[];
-        baseConfigList.forEach((requestChain, index) => {
-          const {
-            baseConfig,
-            beforeTask,
-            task,
-            onSuccess,
-            onFailure,
-            onFinal
-          } = requestChain;
-          taskMaster(
-            index,
-            acc,
-            next,
-            baseConfig,
-            beforeTask,
-            task,
-            onSuccess,
-            onFailure,
-            onFinal
-          );
-        });
+        const main = async () => {
+          pushToDebug("REQUEST CHAIN");
+          const acc: AccumulatorContainer = { current: [] };
+          const next: NextType = (data) => {
+            acc.current.push(data);
+            return acc;
+          };
+          const baseConfigList = baseConfigRef.current as ChainedRequestConfigType[];
+          for (let index = 0; index < baseConfigList.length; index++) {
+            const requestChain = baseConfigList[index];
+            const {
+              baseConfig: _final_baseConfig,
+              beforeTask: _final_beforeTask,
+              task: _final_task,
+              onSuccess: _final_onSuccess,
+              onFailure: _final_onFailure,
+              onFinal: _final_onFinal
+            } = getFinalRequestChain(
+              requestChain,
+              index,
+              baseConfigList,
+              beforeTask,
+              task,
+              onSuccess,
+              onFailure,
+              onFinal,
+              controllerInstance
+            );
+            await taskMaster(
+              index,
+              acc,
+              next,
+              _final_baseConfig,
+              _final_beforeTask,
+              _final_task,
+              _final_onSuccess,
+              _final_onFailure,
+              _final_onFinal
+            );
+          }
+        };
+        main();
       }
     },
     [
