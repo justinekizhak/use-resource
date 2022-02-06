@@ -2,9 +2,9 @@ import React, {
   useState,
   useEffect,
   useCallback,
-  createContext,
   useRef,
-  useContext
+  useContext,
+  useMemo
 } from "react";
 import axios, {
   AxiosRequestConfig,
@@ -17,22 +17,13 @@ import {
   UseResourceOptionsType,
   ResourceType,
   DebugObject,
-  JsxComponentType,
   UseResourceAdvancedOptionsType,
-  GlobalResourceContextType,
-  ResourceContextType,
-  ResourceContextState,
   ErrorComponentType,
   LoadingComponentType,
   UseResourceType,
-  ContextContainerType,
   ContextContainerPropsType
 } from "./interfaces";
-
-export const GlobalResourceContext = createContext<GlobalResourceContextType>({
-  dispatch: () => {},
-  selector: () => {}
-});
+import { GlobalResourceContext } from "./resourceContext";
 
 const getTriggerDependencies = (
   triggerOn: string | boolean | any[] = "onMount",
@@ -285,16 +276,17 @@ export const useResource: UseResourceType = (
       ? errorData?.message || "Something went wrong. Please try again."
       : "";
 
-    const resourceData: ResourceType = {
-      data,
-      isLoading,
-      errorData,
-      refetch,
-      debug,
-      cancel
-    };
-
-    const contextResource = { [resourceName]: resourceData };
+    const contextResource = useMemo(() => {
+      const resourceData: ResourceType = {
+        data,
+        isLoading,
+        errorData,
+        refetch,
+        debug,
+        cancel
+      };
+      return { [resourceName]: resourceData };
+    }, []);
 
     const useGlobalContext = CustomContext === "global";
     const useLocalContext =
@@ -306,7 +298,7 @@ export const useResource: UseResourceType = (
       if (useGlobalContext) {
         dispatch(contextResource);
       }
-    }, []);
+    }, [useGlobalContext, contextResource, dispatch]);
 
     const content = () => (
       <div className="content">
@@ -342,27 +334,4 @@ export const useResource: UseResourceType = (
     cancel,
     Container
   };
-};
-
-export const GlobalResourceContextProvider = (props: {
-  children: JsxComponentType;
-}) => {
-  const [state, setState] = useState<ResourceContextState>({});
-  const dispatch = (inputData: ResourceContextType) => {
-    if (!inputData) {
-      return;
-    }
-    setState((oldData) => {
-      const newData = { ...oldData, ...inputData };
-      return newData;
-    });
-  };
-  const selector = (callback: (state: ResourceContextState) => any) => {
-    return callback(state);
-  };
-  return (
-    <GlobalResourceContext.Provider value={{ dispatch, selector }}>
-      {props.children}
-    </GlobalResourceContext.Provider>
-  );
 };
