@@ -59,5 +59,9 @@
       "first-time-contributor",
       "released"
     ]
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
   }
 }
