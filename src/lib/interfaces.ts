@@ -37,11 +37,7 @@ export type ResourceContextState = {
 export type ResourceContextType = ResourceContextState | null | undefined;
 
 export type UseResourceBasicOptionsType = {
-  CustomContext?:
-    | React.Context<ResourceContextType>
-    | null
-    | undefined
-    | "global";
+  CustomContext?: React.Context<ResourceContextType> | null | undefined;
   triggerOn?: string | boolean | any[];
   onMountCallback?: (customAxios: AxiosInstance) => void;
 };
@@ -56,6 +52,8 @@ export type UseResourceAdvancedOptionsType = {
   globalLoadingComponent?: LoadingComponentType;
   globalErrorComponent?: ErrorComponentType;
   useMessageQueue?: boolean | object;
+  useGlobalContext?: boolean;
+  devMode?: boolean;
 };
 
 export type GlobalResourceContextType = {
@@ -129,3 +127,5 @@ export interface ChainedRequestConfigType extends Object {
 export interface UseResourceOptionsType
   extends UseResourceBasicOptionsType,
     UseResourceAdvancedOptionsType {}
+
+export type DispatchCallbackType = (state: ResourceContextState) => any;

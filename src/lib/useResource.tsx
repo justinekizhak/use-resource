@@ -17,7 +17,6 @@ import {
   UseResourceOptionsType,
   ResourceType,
   DebugObject,
-  UseResourceAdvancedOptionsType,
   ErrorComponentType,
   LoadingComponentType,
   UseResourceType,
@@ -203,7 +202,6 @@ const defaultAccumulator = { current: [] };
  * 1. baseConfig,
  * 2. resourceName
  * 3. options
- * 4. advancedOptions
  *
  *
  * Returns:
@@ -226,7 +224,9 @@ export const useResource: UseResourceType = (
     onMountCallback = (customAxios: AxiosInstance) => {},
     globalLoadingComponent = defaultLoadingComponent,
     globalErrorComponent = defaultErrorComponent,
-    useMessageQueue = false
+    useMessageQueue = false,
+    useGlobalContext = false,
+    devMode = false
   } = options;
 
   const useRequestChaining = Array.isArray(baseConfig);
@@ -234,6 +234,8 @@ export const useResource: UseResourceType = (
     throw new Error("Please pass in the request config");
   }
   const defaultConfig = getBaseConfig(baseConfig);
+
+  const { dispatch } = useContext(GlobalResourceContext);
 
   const [data, setData] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -249,12 +251,15 @@ export const useResource: UseResourceType = (
     defaultConfigRef.current
   );
 
-  const [isMessageQueueAvailable, messageQueueName] =
-    getMessageQueueData(useMessageQueue);
+  const [isMessageQueueAvailable, messageQueueName] = getMessageQueueData(
+    useMessageQueue
+  );
 
   const pushToDebug = useCallback(
     (message: string = "", data: object | null = null) => {
-      console.log(message, data);
+      if (devMode) {
+        console.log(message, data);
+      }
       const timestamp = Date.now() + "";
       const fullData: DebugObject = { timestamp, message };
       if (data) {
@@ -262,7 +267,7 @@ export const useResource: UseResourceType = (
       }
       setDebug((oldData) => [...oldData, fullData]);
     },
-    []
+    [devMode]
   );
 
   const beforeTask: BeforeTaskType = useCallback(() => {
@@ -387,8 +392,7 @@ export const useResource: UseResourceType = (
             }
             return acc;
           };
-          const baseConfigList =
-            baseConfigRef.current as ChainedRequestConfigType[];
+          const baseConfigList = baseConfigRef.current as ChainedRequestConfigType[];
           for (let index = 0; index < baseConfigList.length; index++) {
             const requestChain = baseConfigList[index];
             const {
@@ -467,38 +471,36 @@ export const useResource: UseResourceType = (
     controllerInstance.current.abort();
   };
 
+  // Resource object for pushing into GlobalResourceContext
+  const contextResource = useMemo(() => {
+    const resourceData: ResourceType = {
+      data,
+      isLoading,
+      errorData,
+      refetch,
+      debug,
+      cancel
+    };
+    return { [resourceName]: resourceData };
+  }, [data, debug, errorData, isLoading, refetch, resourceName]);
+
+  // Use effect which runs to update the global context
+  useEffect(() => {
+    if (useGlobalContext) {
+      console.log("dispatching");
+      dispatch(contextResource);
+    }
+  }, [useGlobalContext, contextResource, dispatch]);
+
   const Container = ({
     children,
     loadingComponent = globalLoadingComponent,
     errorComponent = globalErrorComponent
   }: ContextContainerPropsType) => {
-    const { dispatch } = useContext(GlobalResourceContext);
-
     const errorMessage = getErrorMessage(errorData);
 
-    const contextResource = useMemo(() => {
-      const resourceData: ResourceType = {
-        data,
-        isLoading,
-        errorData,
-        refetch,
-        debug,
-        cancel
-      };
-      return { [resourceName]: resourceData };
-    }, []);
-
-    const useGlobalContext = CustomContext === "global";
     const useLocalContext =
-      CustomContext !== "global" &&
-      CustomContext !== null &&
-      CustomContext !== undefined;
-
-    useEffect(() => {
-      if (useGlobalContext) {
-        dispatch(contextResource);
-      }
-    }, [useGlobalContext, contextResource, dispatch]);
+      CustomContext !== null && CustomContext !== undefined;
 
     const content = () => (
       <div className="content">
