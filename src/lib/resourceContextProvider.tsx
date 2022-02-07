@@ -3,7 +3,8 @@ import React, { useState, useCallback } from "react";
 import {
   JsxComponentType,
   ResourceContextType,
-  ResourceContextState
+  ResourceContextState,
+  DispatchCallbackType
 } from "./interfaces";
 
 import { GlobalResourceContext } from "./resourceContext";
@@ -24,8 +25,9 @@ export const GlobalResourceContextProvider = (props: {
   }, []);
 
   const selector = useCallback(
-    (callback: (state: ResourceContextState) => any) => {
-      return callback(state);
+    (callback): DispatchCallbackType => {
+      const res = callback(state);
+      return res;
     },
     [state]
   );
