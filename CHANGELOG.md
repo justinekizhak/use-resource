@@ -1,3 +1,15 @@
+# v1.2.3 (Mon Feb 07 2022)
+
+#### 🐛 Bug Fix
+
+- Update global resource context [#1](https://github.com/justinekizhak/use-resource-hook/pull/1) ([@justinekizhak](https://github.com/justinekizhak))
+
+#### Authors: 1
+
+- Justine Kizhakkinedath ([@justinekizhak](https://github.com/justinekizhak))
+
+---
+
 # v1.2.2 (Sun Feb 06 2022)
 
 #### ⚠️ Pushed to `main`
