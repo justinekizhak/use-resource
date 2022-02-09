@@ -26,13 +26,15 @@ export default function App() {
     }
   ];
 
-  const { selector } = useContext(GlobalResourceContext);
+  // const { selector } = useContext(GlobalResourceContext);
+  // const loading2 = selector((data) => data?.todoDetails?.isLoading);
 
-  const loading2 = selector((data) => data?.todoDetails?.isLoading);
-  useEffect(() => {
-    renderCount.current++;
-    console.log("count", renderCount);
-  }, [loading2, renderCount]);
+  console.log("1");
+
+  // useEffect(() => {
+  //   renderCount.current++;
+  //   console.log("count", renderCount);
+  // }, [loading2, renderCount]);
 
   const useResourceMain: UseResourceType = (config, name, options = {}) =>
     useResource(config, name, { useGlobalContext: false, ...options });
@@ -45,9 +47,15 @@ export default function App() {
     }
   );
 
-  useResourceMain(getConfig(), "todoDetails2", {
-    useGlobalContext: false
-  });
+  // useResourceMain(getConfig(), "todoDetails2", {
+  //   useGlobalContext: false
+  // });
+  // useResourceMain(getConfig(), "todoDetails3", {
+  //   useGlobalContext: false
+  // });
+  // useResourceMain(getConfig(), "todoDetails4", {
+  //   useGlobalContext: false
+  // });
 
   const handleClick = () => {
     const newPageNumber = pageNumber + 1;
