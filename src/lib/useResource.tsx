@@ -1,4 +1,4 @@
-import React, {
+import {
   useState,
   useEffect,
   useCallback,
@@ -17,8 +17,6 @@ import {
   UseResourceOptionsType,
   ResourceType,
   DebugObject,
-  ErrorComponentType,
-  LoadingComponentType,
   UseResourceType,
   ContextContainerPropsType,
   OnSuccessType,
@@ -29,174 +27,24 @@ import {
   NextType,
   ChainedRequestConfigType,
   BaseConfigType,
-  AccumulatorContainer
+  AccumulatorContainer,
+  AccumulatorType
 } from "./interfaces";
 import { GlobalResourceContext } from "./resourceContext";
 
-const getTriggerDependencies = (
-  triggerOn: string | boolean | any[] = "onMount",
-  axiosConfig: AxiosRequestConfig = {}
-): [any[], boolean] => {
-  // Highest priority is if the triggerOn is an array
-  if (Array.isArray(triggerOn)) {
-    return [triggerOn, true];
-  }
-  // Second priority is if the triggerOn is a boolean
-  if (triggerOn === false) {
-    return [[], false];
-  }
-  if (triggerOn === true) {
-    return [[], true];
-  }
-  // Third priority is if the triggerOn is a string
-  if (triggerOn === "onMount") {
-    return [[], true];
-  }
-  // Fourth priority is when request is a GET request
-  if (axiosConfig.method === "get") {
-    return [[], false];
-  }
-  // By default, on mount trigger is false
-  return [[], false];
-};
+import {
+  defaultLoadingComponent,
+  defaultErrorComponent
+} from "./defaultComponents";
 
-const getMessageQueueData = (data: boolean | object = false) => {
-  return [false, ""];
-  // if (typeof data === "object") {
-  //   const isAvailable = true;
-  //   const keyName = data?.keyName || "";
-  //   return [isAvailable, keyName];
-  // }
-  // const isAvailable = data;
-  // const keyName = `${Date.now()}`;
-  // return [isAvailable, keyName];
-};
-
-export const defaultLoadingComponent: LoadingComponentType = () => (
-  <div className="loading"> Loading... </div>
-);
-export const defaultErrorComponent: ErrorComponentType = (
-  errorMessage: string,
-  errorData: any
-) => <div className="error-message"> {errorMessage} </div>;
-
-export const getBaseConfig = (
-  baseConfig: BaseConfigType,
-  index = 0
-): AxiosRequestConfig => {
-  const useRequestChaining = Array.isArray(baseConfig);
-  if (useRequestChaining && baseConfig.length === 0) {
-    throw new Error("Please pass in the request config");
-  }
-  const defaultConfig: AxiosRequestConfig = useRequestChaining
-    ? baseConfig[index]["baseConfig"]
-    : baseConfig;
-
-  return defaultConfig;
-};
-
-const defaultNext: NextType = (data) => {
-  return { current: [data] };
-};
-
-const getErrorMessage = (
-  errorData: AxiosError | AxiosResponse | undefined
-): string => {
-  const defaultErrorMessage = "Something went wrong. Please try again.";
-  const err = errorData as AxiosError;
-  if (err?.response?.data?.message) {
-    return err.response.data.message || defaultErrorMessage;
-  }
-  if (err?.message) {
-    return err.message || defaultErrorMessage;
-  }
-  return "";
-};
-
-const getFunc = (requestObject: ChainedRequestConfigType, key: string) => {
-  const func =
-    // @ts-ignore
-    requestObject && typeof requestObject[key] === "function"
-      ? // @ts-ignore
-        requestObject[key]
-      : () => {};
-  return func;
-};
-
-const getFinalRequestChain = (
-  newChainedRequestData: ChainedRequestConfigType,
-  index: number,
-  fullBaseConfigList: ChainedRequestConfigType[],
-  beforeTask: BeforeTaskType,
-  task: TaskType,
-  onSuccess: OnSuccessType,
-  onFailure: OnFailureType,
-  onFinal: OnFinalType,
-  controllerInstance:
-    | React.MutableRefObject<AbortController>
-    | undefined = undefined
-): ChainedRequestConfigType => {
-  const oldChainedRequestData = fullBaseConfigList[index];
-  const finalConfig = {
-    ...oldChainedRequestData["baseConfig"],
-    ...newChainedRequestData["baseConfig"]
-  };
-  // The new beforeTask will overwrite the old beforeTask
-  const finalBeforeTask: BeforeTaskType = (acc, next) => {
-    const func = getFunc(newChainedRequestData, "beforeTask");
-    const res = func(acc, next);
-    const newAcc = (typeof next === "function" && next(res)) || acc;
-    const res2 = beforeTask(newAcc, next);
-    return res2;
-  };
-
-  // The new task will overwrite all the task
-  const finalTask: TaskType = async (customConfig, acc, next) => {
-    const func = getFunc(newChainedRequestData, "task");
-    const config1 = {
-      signal: controllerInstance?.current?.signal,
-      ...finalConfig,
-      ...customConfig
-    };
-    const res: AxiosRequestConfig = (await func(config1, acc, next)) || config1;
-    const res2 = await task(res, acc, next);
-    return res2;
-  };
-
-  // Runs the request through the user callback then the response is sent to the actual success task
-  const finalOnSuccess: OnSuccessType = (res, acc, next) => {
-    const func = getFunc(newChainedRequestData, "onSuccess");
-    const newRes = func(res, acc, next) || res;
-    const res2 = onSuccess(newRes, acc, next);
-    return res2;
-  };
-
-  const finalOnFailure: OnFailureType = (error, acc, next) => {
-    const func = getFunc(newChainedRequestData, "onFailure");
-    const newRes = func(error, acc, next) || error;
-    const res2 = onFailure(newRes, acc, next);
-    return res2;
-  };
-
-  const finalOnFinal: OnFinalType = (acc, next) => {
-    const func = getFunc(newChainedRequestData, "onFinal");
-    const newRes = func(acc, next) || acc;
-    const res2 = onFinal(newRes, next);
-    return res2;
-  };
-
-  return {
-    baseConfig: finalConfig,
-    beforeTask: finalBeforeTask,
-    task: finalTask,
-    onSuccess: finalOnSuccess,
-    onFailure: finalOnFailure,
-    onFinal: finalOnFinal
-  };
-};
-
-const defaultAccumulator = { current: [] };
-
+import {
+  getBaseConfig,
+  getTriggerDependencies,
+  getMessageQueueData,
+  getErrorMessage,
+  pushToAcc,
+  getFinalRequestChain
+} from "./helpers";
 /**
  * Input parameters:
  * 1. baseConfig,
@@ -240,11 +88,12 @@ export const useResource: UseResourceType = (
   const [data, setData] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [errorData, setErrorData] = useState<AxiosError | AxiosResponse>();
-  const [debug, setDebug] = useState<DebugObject[]>([]);
+  const debug = useRef<DebugObject[]>([]);
   const axiosInstance = useRef<AxiosInstance>(axios);
   const controllerInstance = useRef<AbortController>(new AbortController());
   const defaultConfigRef = useRef<AxiosRequestConfig>(defaultConfig);
   const baseConfigRef = useRef(baseConfig);
+  const accumulator = useRef<AccumulatorType>([]);
 
   const [triggerDeps, isMountTriggerable] = getTriggerDependencies(
     triggerOn,
@@ -254,6 +103,13 @@ export const useResource: UseResourceType = (
   const [isMessageQueueAvailable, messageQueueName] = getMessageQueueData(
     useMessageQueue
   );
+
+  const defaultNext: NextType = (data) => {
+    if (data) {
+      accumulator.current.push(data);
+    }
+    return accumulator;
+  };
 
   const pushToDebug = useCallback(
     (message: string = "", data: object | null = null) => {
@@ -265,7 +121,7 @@ export const useResource: UseResourceType = (
       if (data) {
         fullData["data"] = data;
       }
-      setDebug((oldData) => [...oldData, fullData]);
+      debug.current.push(fullData);
     },
     [devMode]
   );
@@ -278,7 +134,7 @@ export const useResource: UseResourceType = (
   }, [pushToDebug]);
 
   const task: TaskType = useCallback(
-    async (customConfig, acc = { current: [] }, next = defaultNext) => {
+    async (customConfig, acc = accumulator, next = defaultNext) => {
       const axiosConfig = {
         signal: controllerInstance.current.signal,
         ...defaultConfigRef.current,
@@ -286,27 +142,37 @@ export const useResource: UseResourceType = (
       };
       pushToDebug("[FETCHING RESOURCE] TASK TRIGGERED", axiosConfig);
       const res = await axiosInstance.current(axiosConfig);
+      pushToAcc(next, res);
       return res;
     },
     [pushToDebug]
   );
 
   const onSuccess: OnSuccessType = useCallback(
-    (res, acc = defaultAccumulator, next = defaultNext) => {
+    (
+      res,
+      acc = accumulator,
+      next = defaultNext,
+      disableStateUpdate = false
+    ) => {
       const _res = res as AxiosResponse;
       const _data = _res?.data;
-      setData(_data);
+      pushToAcc(next, _data);
+      if (!disableStateUpdate) {
+        setData(_data);
+      }
       pushToDebug("[FETCHING RESOURCE] TASK SUCCESS", _data);
     },
     [pushToDebug]
   );
 
   const onFailure: OnFailureType = useCallback(
-    (error, acc = defaultAccumulator, next = defaultNext) => {
+    (error, acc = accumulator, next = defaultNext) => {
       if (!error) {
         return;
       }
       const _error: AxiosError = error;
+      pushToAcc(next, error);
       if (_error.response) {
         pushToDebug(
           "[FETCHING RESOURCE] RESPONSE ERROR RECEIVED",
@@ -346,7 +212,7 @@ export const useResource: UseResourceType = (
     (customConfig: BaseConfigType = {}) => {
       const taskMaster = async (
         index = 0,
-        acc: AccumulatorContainer = { current: [] },
+        acc: AccumulatorContainer = accumulator,
         next: NextType = defaultNext,
         _baseConfig = getBaseConfig(customConfig, index),
         _beforeTask = beforeTask,
@@ -382,6 +248,7 @@ export const useResource: UseResourceType = (
         }
       };
       if (!useRequestChaining) {
+        accumulator.current = [];
         taskMaster();
       } else {
         const main = async () => {
@@ -482,7 +349,7 @@ export const useResource: UseResourceType = (
       cancel
     };
     return { [resourceName]: resourceData };
-  }, [data, debug, errorData, isLoading, refetch, resourceName]);
+  }, [data, errorData, isLoading, refetch, resourceName]);
 
   // Use effect which runs to update the global context
   useEffect(() => {
@@ -527,7 +394,7 @@ export const useResource: UseResourceType = (
     );
   };
 
-  return {
+  const returnObject = {
     data,
     isLoading,
     errorData,
@@ -536,4 +403,6 @@ export const useResource: UseResourceType = (
     cancel,
     Container
   };
+  // console.log(resourceName, returnObject);
+  return returnObject;
 };

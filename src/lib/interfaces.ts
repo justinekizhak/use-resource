@@ -1,4 +1,9 @@
-import { ReactChild, ReactFragment, ReactPortal } from "react";
+import {
+  MutableRefObject,
+  ReactChild,
+  ReactFragment,
+  ReactPortal
+} from "react";
 import {
   AxiosError,
   AxiosInstance,
@@ -25,7 +30,7 @@ export type ResourceType = {
   data: object;
   isLoading: boolean;
   errorData: object | null | undefined;
-  debug: DebugObject[];
+  debug: MutableRefObject<DebugObject[]>;
   cancel: any;
   refetch: (customConfig: BaseConfigType) => void;
 };
@@ -83,37 +88,39 @@ export type UseResourceType = (
   options?: UseResourceOptionsType
 ) => UseResourceReturnType;
 
-export type AccumulatorType = object[] | AxiosResponse[];
+export type ChainResponseType = object | AxiosResponse | void;
+export type AccumulatorType = (object | AxiosResponse)[];
 export type AccumulatorContainer = { current: AccumulatorType };
-export type NextType = (data: object | AxiosResponse) => AccumulatorContainer;
+export type NextType = (data: ChainResponseType) => AccumulatorContainer;
 
 export type BeforeTaskType = (
   accumulator?: AccumulatorContainer,
   next?: NextType
-) => AccumulatorType | void;
+) => AxiosRequestConfig | void;
 
 export type TaskType = (
   customConfig: AxiosRequestConfig,
   accumulator?: AccumulatorContainer,
   next?: NextType
-) => Promise<AxiosResponse>;
+) => Promise<ChainResponseType>;
 
 export type OnSuccessType = (
-  response: AxiosResponse | object,
+  response: ChainResponseType,
   accumulator?: AccumulatorContainer,
-  next?: NextType
-) => AccumulatorType | void;
+  next?: NextType,
+  disableStateUpdate?: boolean
+) => ChainResponseType;
 
 export type OnFailureType = (
   error: any | AxiosError,
   accumulator?: AccumulatorContainer,
   next?: NextType
-) => AccumulatorType | void;
+) => ChainResponseType;
 
 export type OnFinalType = (
   accumulator?: AccumulatorContainer,
   next?: NextType
-) => AccumulatorType | void;
+) => ChainResponseType;
 
 export interface ChainedRequestConfigType extends Object {
   baseConfig: AxiosRequestConfig;
@@ -129,3 +136,8 @@ export interface UseResourceOptionsType
     UseResourceAdvancedOptionsType {}
 
 export type DispatchCallbackType = (state: ResourceContextState) => any;
+
+export type PushToAccumulatorType = (
+  next: NextType | undefined,
+  res: ChainResponseType | undefined
+) => void;
