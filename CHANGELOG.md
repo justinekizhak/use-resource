@@ -1,3 +1,15 @@
+# v1.2.4 (Wed Feb 09 2022)
+
+#### 🐛 Bug Fix
+
+- Improve single and chain request performance [#2](https://github.com/justinekizhak/use-resource-hook/pull/2) ([@justinekizhak](https://github.com/justinekizhak))
+
+#### Authors: 1
+
+- Justine Kizhakkinedath ([@justinekizhak](https://github.com/justinekizhak))
+
+---
+
 # v1.2.3 (Mon Feb 07 2022)
 
 #### 🐛 Bug Fix
