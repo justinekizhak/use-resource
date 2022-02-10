@@ -31,3 +31,8 @@ export default function App() {
   );
 }
 ```
+# Documentation
+
+[Doc site](https://use-resource-hook.vercel.app/)
+
+[Doc repo](https://github.com/justinekizhak/use-resource-hook-docs)
