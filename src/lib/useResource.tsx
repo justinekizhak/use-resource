@@ -14,10 +14,8 @@ import axios, {
 } from "axios";
 
 import {
-  UseResourceOptionsType,
   ResourceType,
   DebugObject,
-  UseResourceType,
   ContextContainerPropsType,
   OnSuccessType,
   BeforeTaskType,
@@ -29,6 +27,10 @@ import {
   AccumulatorType
 } from "./types/index.type";
 import { GlobalResourceContext } from "./resourceContext/context";
+import {
+  UseResourceType,
+  UseResourceOptionsType
+} from "./types/useResource.type";
 
 import {
   defaultLoadingComponent,

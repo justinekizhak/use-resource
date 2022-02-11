@@ -1,11 +1,11 @@
-import React, { useState, useCallback } from "react";
+import { useState, useCallback } from "react";
 
+import { JsxComponentType } from "../types/index.type";
+import { DispatchCallbackType } from "../types/resourceContext/provider.type";
 import {
-  JsxComponentType,
   ResourceContextType,
-  ResourceContextState,
-  DispatchCallbackType
-} from "../types/index.type";
+  ResourceContextState
+} from "../types/resourceContext/context.type";
 
 import { GlobalResourceContext } from "./context";
 
