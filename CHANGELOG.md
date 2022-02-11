@@ -1,3 +1,15 @@
+# v1.2.6 (Fri Feb 11 2022)
+
+#### 🐛 Bug Fix
+
+- Cleanup request chain [#3](https://github.com/justinekizhak/use-resource-hook/pull/3) ([@justinekizhak](https://github.com/justinekizhak))
+
+#### Authors: 1
+
+- Justine Kizhakkinedath ([@justinekizhak](https://github.com/justinekizhak))
+
+---
+
 # v1.2.5 (Thu Feb 10 2022)
 
 #### ⚠️ Pushed to `main`

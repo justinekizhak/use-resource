@@ -48,6 +48,14 @@ import {
 
 import { refetchFuction } from "./utils/refetch";
 
+import {
+  getBaseConfig,
+  getTriggerDependencies,
+  getMessageQueueData,
+  getErrorMessage,
+  pushToAcc,
+  getFinalRequestChain
+} from "./helpers";
 /**
  * Input parameters:
  * 1. baseConfig,
@@ -103,9 +111,8 @@ export const useResource: UseResourceType = (
     defaultConfigRef.current
   );
 
-  const [isMessageQueueAvailable, messageQueueName] = getMessageQueueData(
-    useMessageQueue
-  );
+  const [isMessageQueueAvailable, messageQueueName] =
+    getMessageQueueData(useMessageQueue);
 
   const defaultNext: NextType = (data) => {
     if (data) {
