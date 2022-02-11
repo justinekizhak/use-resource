@@ -28,4 +28,4 @@ export interface RefetchFunctionArgType {
 
 export type RefetchFunctionType = (
   args: RefetchFunctionArgType
-) => (customConfig: BaseConfigType) => void;
+) => (customConfig?: BaseConfigType) => void;

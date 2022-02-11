@@ -219,7 +219,7 @@ export const useResource: UseResourceType = (
   );
 
   const refetch = useCallback(
-    (customConfig: BaseConfigType) =>
+    (customConfig?: BaseConfigType) =>
       refetchFuction({
         accumulator,
         defaultNext,
