@@ -1,5 +1,5 @@
 import { createContext } from "react";
-import { GlobalResourceContextType } from "../types/index.type";
+import { GlobalResourceContextType } from "../types/resourceContext/provider.type";
 
 export const GlobalResourceContext = createContext<GlobalResourceContextType>({
   dispatch: () => {

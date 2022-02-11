@@ -1,51 +1,55 @@
 import "./styles.css";
 import { useResource } from "./lib/useResource";
-import { useState, useContext, useEffect } from "react";
-import { ChainedRequestConfigType, UseResourceType } from "./lib/interfaces";
-import { GlobalResourceContext } from "./lib/resourceContext";
+import { useState, useRef, useContext } from "react";
+import {
+  ChainedRequestConfigType,
+  UseResourceType
+} from "./lib/types/useResource.type";
+import { GlobalResource } from "./lib/index";
 
 export default function App() {
   const [pageNumber, setPageNumber] = useState(1);
-  const [renderCount] = useState({ current: 0 });
+  const renderCount = useRef(0);
   const getConfig = (pageNum = pageNumber): ChainedRequestConfigType[] => [
     {
       baseConfig: {
         url: `https://jsonplaceholder.typicode.com/todos/1`
-      },
-      onFinal: (acc, next) => {
-        // console.log("finally 1: ", acc);
       }
     },
     {
       baseConfig: {
         url: `https://jsonplaceholder.typicode.com/todos/2`
       },
-      onFinal: (acc, next) => {
-        // console.log("finally 2: ", acc);
+      task: (config) => {
+        config.params = {
+          hi: "hello"
+        };
+        return config;
+      }
+    },
+    {
+      baseConfig: {
+        url: `https://jsonplaceholder.typicode.com/todos/3`
+      }
+    },
+    {
+      baseConfig: {
+        url: `https://jsonplaceholder.typicode.com/todos/4`
       }
     }
   ];
 
-  // const { selector } = useContext(GlobalResourceContext);
-  // const loading2 = selector((data) => data?.todoDetails?.isLoading);
-
-  console.log("1");
-
-  // useEffect(() => {
-  //   renderCount.current++;
-  //   console.log("count", renderCount);
-  // }, [loading2, renderCount]);
+  const { selector } = useContext(GlobalResource.Context);
+  const stateSlice = selector("todoDetails", (data) => {
+    return data;
+  });
 
   const useResourceMain: UseResourceType = (config, name, options = {}) =>
     useResource(config, name, { useGlobalContext: false, ...options });
 
-  const { data, Container, refetch } = useResourceMain(
-    getConfig(),
-    "todoDetails",
-    {
-      useGlobalContext: false
-    }
-  );
+  const { refetch } = useResourceMain(getConfig(), "todoDetails", {
+    useGlobalContext: true
+  });
 
   // useResourceMain(getConfig(), "todoDetails2", {
   //   useGlobalContext: false
@@ -56,6 +60,7 @@ export default function App() {
   // useResourceMain(getConfig(), "todoDetails4", {
   //   useGlobalContext: false
   // });
+  renderCount.current++;
 
   const handleClick = () => {
     const newPageNumber = pageNumber + 1;
@@ -65,8 +70,9 @@ export default function App() {
 
   return (
     <div className="App">
+      <div>Render count: {renderCount.current}</div>
       <div>Page number: {pageNumber}</div>
-      <Container>{JSON.stringify(data)}</Container>
+      <div>Content: {JSON.stringify(stateSlice?.isLoading)}</div>
       <div onClick={handleClick}>refetch</div>
     </div>
   );

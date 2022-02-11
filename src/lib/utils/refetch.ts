@@ -8,7 +8,7 @@ import { RefetchFunctionType } from "../types/refetch.type";
 
 import { getBaseConfig, getFinalRequestChain } from "./helpers";
 
-export const refetchFuction: RefetchFunctionType = ({
+export const refetchFunction: RefetchFunctionType = ({
   accumulator,
   defaultNext,
   beforeTask,
