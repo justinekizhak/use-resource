@@ -118,13 +118,14 @@ export const getFinalRequestChain = (
     ...newChainedRequestData["baseConfig"]
   };
   // The new beforeTask will overwrite the old beforeTask
-  const finalBeforeTask: BeforeTaskType = (acc, next) => {
+  const finalBeforeTask: BeforeTaskType = (
+    acc,
+    next,
+    disableStateUpdate = false
+  ) => {
     const func: BeforeTaskType = getFunc(newChainedRequestData, "beforeTask");
-    const res = func(acc, next);
-    pushToAcc(next, res);
-    const res2 = beforeTask(acc, next);
-    pushToAcc(next, res2);
-    return res2;
+    func(acc, next);
+    beforeTask(acc, next, disableStateUpdate);
   };
 
   // The new task will overwrite all the task
@@ -135,11 +136,10 @@ export const getFinalRequestChain = (
       ...finalConfig,
       ...customConfig
     };
-    const res: AxiosRequestConfig = (await func(config1, acc, next)) || config1;
-    pushToAcc(next, res);
-    const res2 = await task(res, acc, next);
-    pushToAcc(next, res2);
-    return res2;
+    const newConfig: AxiosRequestConfig =
+      (await func(config1, acc, next)) || config1;
+    const res = await task(newConfig, acc, next);
+    return res;
   };
 
   // Runs the request through the user callback then the response is sent to the actual success task
@@ -147,32 +147,25 @@ export const getFinalRequestChain = (
     res,
     acc,
     next,
-    disableStateUpdate
+    disableStateUpdate = false
   ) => {
     const func: OnSuccessType = getFunc(newChainedRequestData, "onSuccess");
-    const res2 = func(res, acc, next, disableStateUpdate) || res;
-    pushToAcc(next, res2);
+    const res2 = func(res, acc, next) || res;
     const res3 = onSuccess(res2, acc, next, disableStateUpdate);
-    pushToAcc(next, res3);
     return res3;
   };
 
   const finalOnFailure: OnFailureType = (error, acc, next) => {
     const func: OnFailureType = getFunc(newChainedRequestData, "onFailure");
     const res = func(error, acc, next) || error;
-    pushToAcc(next, res);
     const res2 = onFailure(res, acc, next);
-    pushToAcc(next, res2);
     return res2;
   };
 
-  const finalOnFinal: OnFinalType = (acc, next) => {
+  const finalOnFinal: OnFinalType = (acc, next, disableStateUpdate = false) => {
     const func: OnFinalType = getFunc(newChainedRequestData, "onFinal");
-    const res = func(acc, next);
-    pushToAcc(next, res);
-    const res2 = onFinal(acc, next);
-    pushToAcc(next, res2);
-    return res2;
+    func(acc, next);
+    onFinal(acc, next, disableStateUpdate);
   };
 
   return {
