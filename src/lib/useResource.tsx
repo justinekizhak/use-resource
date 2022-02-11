@@ -25,28 +25,25 @@ import {
   OnFailureType,
   OnFinalType,
   NextType,
-  ChainedRequestConfigType,
   BaseConfigType,
-  AccumulatorContainer,
   AccumulatorType
 } from "./types/index.type";
-import { GlobalResourceContext } from "./resourceContext";
+import { GlobalResourceContext } from "./resourceContext/context";
 
 import {
   defaultLoadingComponent,
   defaultErrorComponent
-} from "./defaultComponents";
+} from "./utils/defaultComponents";
 
 import {
   getBaseConfig,
   getTriggerDependencies,
   getMessageQueueData,
   getErrorMessage,
-  pushToAcc,
-  getFinalRequestChain
+  pushToAcc
 } from "./utils/helpers";
 
-import { refetchFuction } from "./utils/refetch";
+import { refetchFunction } from "./utils/refetch";
 
 /**
  * Input parameters:
@@ -103,8 +100,9 @@ export const useResource: UseResourceType = (
     defaultConfigRef.current
   );
 
-  const [isMessageQueueAvailable, messageQueueName] =
-    getMessageQueueData(useMessageQueue);
+  const [isMessageQueueAvailable, messageQueueName] = getMessageQueueData(
+    useMessageQueue
+  );
 
   const defaultNext: NextType = (data) => {
     if (data) {
@@ -219,7 +217,7 @@ export const useResource: UseResourceType = (
 
   const refetch = useCallback(
     (customConfig?: BaseConfigType) =>
-      refetchFuction({
+      refetchFunction({
         accumulator,
         defaultNext,
         beforeTask,
