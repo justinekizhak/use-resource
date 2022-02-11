@@ -48,14 +48,6 @@ import {
 
 import { refetchFuction } from "./utils/refetch";
 
-import {
-  getBaseConfig,
-  getTriggerDependencies,
-  getMessageQueueData,
-  getErrorMessage,
-  pushToAcc,
-  getFinalRequestChain
-} from "./helpers";
 /**
  * Input parameters:
  * 1. baseConfig,
@@ -226,7 +218,7 @@ export const useResource: UseResourceType = (
   );
 
   const refetch = useCallback(
-    (customConfig: BaseConfigType) =>
+    (customConfig?: BaseConfigType) =>
       refetchFuction({
         accumulator,
         defaultNext,
