@@ -126,12 +126,17 @@ export const useResource: UseResourceType = (
     [devMode]
   );
 
-  const beforeTask: BeforeTaskType = useCallback(() => {
-    pushToDebug("[FETCHING RESOURCE] BEFORE TASK");
-    setIsLoading(true);
-    setData({});
-    setErrorData(undefined);
-  }, [pushToDebug]);
+  const beforeTask: BeforeTaskType = useCallback(
+    (acc = accumulator, next = defaultNext, disableStateUpdate = false) => {
+      pushToDebug("[FETCHING RESOURCE] BEFORE TASK");
+      if (!disableStateUpdate) {
+        setIsLoading(true);
+        setData({});
+        setErrorData(undefined);
+      }
+    },
+    [pushToDebug]
+  );
 
   const task: TaskType = useCallback(
     async (customConfig, acc = accumulator, next = defaultNext) => {
@@ -141,8 +146,8 @@ export const useResource: UseResourceType = (
         ...customConfig
       };
       pushToDebug("[FETCHING RESOURCE] TASK TRIGGERED", axiosConfig);
+      pushToAcc(next, axiosConfig);
       const res = await axiosInstance.current(axiosConfig);
-      pushToAcc(next, res);
       return res;
     },
     [pushToDebug]
@@ -157,11 +162,11 @@ export const useResource: UseResourceType = (
     ) => {
       const _res = res as AxiosResponse;
       const _data = _res?.data;
-      pushToAcc(next, _data);
       if (!disableStateUpdate) {
         setData(_data);
       }
-      pushToDebug("[FETCHING RESOURCE] TASK SUCCESS", _data);
+      pushToAcc(next, _res);
+      pushToDebug("[FETCHING RESOURCE] TASK SUCCESS", _res);
     },
     [pushToDebug]
   );
@@ -172,7 +177,7 @@ export const useResource: UseResourceType = (
         return;
       }
       const _error: AxiosError = error;
-      pushToAcc(next, error);
+      pushToAcc(next, _error);
       if (_error.response) {
         pushToDebug(
           "[FETCHING RESOURCE] RESPONSE ERROR RECEIVED",
@@ -194,9 +199,11 @@ export const useResource: UseResourceType = (
   );
 
   const onFinal: OnFinalType = useCallback(
-    (acc, next) => {
+    (acc, next, disableStateUpdate = false) => {
       pushToDebug("[FETCHING RESOURCE] TASK END", acc);
-      setIsLoading(false);
+      if (!disableStateUpdate) {
+        setIsLoading(false);
+      }
     },
     [pushToDebug]
   );
@@ -219,18 +226,20 @@ export const useResource: UseResourceType = (
         _task = task,
         _onSuccess = onSuccess,
         _onFailure = onFailure,
-        _onFinal = onFinal
+        _onFinal = onFinal,
+        totalTask = 1
       ) => {
         const fullTask = async () => {
+          const isFirstInChain = index === 0;
+          const isLastInChain = index === totalTask - 1;
           try {
-            _beforeTask(acc, next);
+            _beforeTask(acc, next, !isFirstInChain);
             const res = await _task(_baseConfig, acc, next);
-            next(res);
-            _onSuccess(res, acc, next);
+            _onSuccess(res, acc, next, !isLastInChain);
           } catch (error) {
             _onFailure(error, acc, next);
           } finally {
-            _onFinal(acc, next);
+            _onFinal(acc, next, !isLastInChain);
           }
         };
         if (isMessageQueueAvailable) {
@@ -280,6 +289,7 @@ export const useResource: UseResourceType = (
               onFinal,
               controllerInstance
             );
+            const totalTask = baseConfigList.length;
             await taskMaster(
               index,
               acc,
@@ -289,7 +299,8 @@ export const useResource: UseResourceType = (
               _final_task,
               _final_onSuccess,
               _final_onFailure,
-              _final_onFinal
+              _final_onFinal,
+              totalTask
             );
           }
         };

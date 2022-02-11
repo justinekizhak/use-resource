@@ -95,7 +95,8 @@ export type NextType = (data: ChainResponseType) => AccumulatorContainer;
 
 export type BeforeTaskType = (
   accumulator?: AccumulatorContainer,
-  next?: NextType
+  next?: NextType,
+  disableStateUpdate?: boolean
 ) => AxiosRequestConfig | void;
 
 export type TaskType = (
@@ -119,7 +120,8 @@ export type OnFailureType = (
 
 export type OnFinalType = (
   accumulator?: AccumulatorContainer,
-  next?: NextType
+  next?: NextType,
+  disableStateUpdate?: boolean
 ) => ChainResponseType;
 
 export interface ChainedRequestConfigType extends Object {
