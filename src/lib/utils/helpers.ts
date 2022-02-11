@@ -1,6 +1,9 @@
 import { MutableRefObject } from "react";
 import { AxiosRequestConfig, AxiosResponse, AxiosError } from "axios";
-import { MessageQueueInfoType } from "../types/helpers.type";
+import {
+  MessageQueueInfoType,
+  TransformInputType
+} from "../types/helpers.type";
 
 import {
   OnSuccessType,
@@ -133,7 +136,7 @@ export const getFinalRequestChain = (
 
   // The new task will overwrite all the task
   const finalTask: TaskType = async (customConfig, acc, next) => {
-    const func: TaskType = getFunc(newChainedRequestData, "task");
+    const func: TransformInputType = getFunc(newChainedRequestData, "task");
     const config1 = {
       signal: controllerInstance?.current?.signal,
       ...finalConfig,

@@ -1,12 +1,12 @@
 import { render } from "react-dom";
-import { GlobalResourceContextProvider } from "./lib/resourceContextProvider";
+import { GlobalResource } from "./lib/index";
 import App from "./App";
 
 const FullApp = () => {
   return (
-    <GlobalResourceContextProvider>
+    <GlobalResource.Provider>
       <App />
-    </GlobalResourceContextProvider>
+    </GlobalResource.Provider>
   );
 };
 

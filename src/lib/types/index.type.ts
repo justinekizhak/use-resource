@@ -63,7 +63,7 @@ export type TaskType = (
   customConfig: AxiosRequestConfig,
   accumulator?: AccumulatorContainer,
   next?: NextType
-) => Promise<ChainResponseType>;
+) => Promise<AxiosResponse>;
 
 export type OnSuccessType = (
   response: ChainResponseType,
@@ -83,15 +83,6 @@ export type OnFinalType = (
   next?: NextType,
   disableStateUpdate?: boolean
 ) => ChainResponseType;
-
-export interface ChainedRequestConfigType extends Object {
-  baseConfig: AxiosRequestConfig;
-  beforeTask?: BeforeTaskType;
-  task?: TaskType;
-  onSuccess?: OnSuccessType;
-  onFailure?: OnFailureType;
-  onFinal?: OnFinalType;
-}
 
 export type PushToAccumulatorType = (
   next: NextType | undefined,

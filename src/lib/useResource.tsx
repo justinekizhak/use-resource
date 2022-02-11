@@ -128,16 +128,45 @@ export const useResource: UseResourceType = (
     [devMode]
   );
 
+  const pushToMessageQueue = useCallback(
+    (data) => {
+      pushToDebug("PUSHING TO MESSAGE QUEUE: ", data);
+    },
+    [pushToDebug]
+  );
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const customAxios = axios.create();
+    axiosInstance.current = customAxios;
+    controllerInstance.current = controller;
+
+    const cleanup = onMountCallback(customAxios);
+    return cleanup;
+  }, [onMountCallback]);
+
+  const triggerDepString = JSON.stringify(triggerDeps);
+
+  const updateGlobalState = useCallback(
+    (data) => {
+      if (useGlobalContext) {
+        dispatch(resourceName, data);
+      }
+    },
+    [useGlobalContext, dispatch, resourceName]
+  );
+
   const beforeTask: BeforeTaskType = useCallback(
     (acc = accumulator, next = defaultNext, disableStateUpdate = false) => {
       pushToDebug("[FETCHING RESOURCE] BEFORE TASK");
       if (!disableStateUpdate) {
+        updateGlobalState({ isLoading: true, data: {}, errorData: "" });
         setIsLoading(true);
         setData({});
         setErrorData(undefined);
       }
     },
-    [pushToDebug]
+    [pushToDebug, updateGlobalState]
   );
 
   const task: TaskType = useCallback(
@@ -165,12 +194,13 @@ export const useResource: UseResourceType = (
       const _res = res as AxiosResponse;
       const _data = _res?.data;
       if (!disableStateUpdate) {
+        updateGlobalState({ data: _data });
         setData(_data);
       }
       pushToAcc(next, _res);
       pushToDebug("[FETCHING RESOURCE] TASK SUCCESS", _res);
     },
-    [pushToDebug]
+    [pushToDebug, updateGlobalState]
   );
 
   const onFailure: OnFailureType = useCallback(
@@ -185,36 +215,33 @@ export const useResource: UseResourceType = (
           "[FETCHING RESOURCE] RESPONSE ERROR RECEIVED",
           _error.response
         );
+        updateGlobalState({ errorData: _error.response });
         setErrorData(_error.response);
       } else if (_error.request) {
         pushToDebug(
           "[FETCHING RESOURCE] REQUEST ERROR RECEIVED",
           _error.request
         );
+        updateGlobalState({ errorData: _error.request });
         setErrorData(_error.request);
       } else {
         pushToDebug("[FETCHING RESOURCE] SYSTEM ERROR RECEIVED", error);
+        updateGlobalState({ errorData: _error });
         setErrorData(_error);
       }
     },
-    [pushToDebug]
+    [pushToDebug, updateGlobalState]
   );
 
   const onFinal: OnFinalType = useCallback(
     (acc, next, disableStateUpdate = false) => {
       pushToDebug("[FETCHING RESOURCE] TASK END", acc);
       if (!disableStateUpdate) {
+        updateGlobalState({ isLoading: false });
         setIsLoading(false);
       }
     },
-    [pushToDebug]
-  );
-
-  const pushToMessageQueue = useCallback(
-    (data) => {
-      pushToDebug("PUSHING TO MESSAGE QUEUE: ", data);
-    },
-    [pushToDebug]
+    [pushToDebug, updateGlobalState]
   );
 
   const refetch = useCallback(
@@ -248,18 +275,6 @@ export const useResource: UseResourceType = (
   );
 
   useEffect(() => {
-    const controller = new AbortController();
-    const customAxios = axios.create();
-    axiosInstance.current = customAxios;
-    controllerInstance.current = controller;
-
-    const cleanup = onMountCallback(customAxios);
-    return cleanup;
-  }, [onMountCallback]);
-
-  const triggerDepString = JSON.stringify(triggerDeps);
-
-  useEffect(() => {
     const callback = () => {
       pushToDebug("INITIALIZING");
       if (isMountTriggerable) {
@@ -272,9 +287,9 @@ export const useResource: UseResourceType = (
     callback();
   }, [isMountTriggerable, pushToDebug, refetch, triggerDepString]);
 
-  const cancel = () => {
+  const cancel = useCallback(() => {
     controllerInstance.current.abort();
-  };
+  }, []);
 
   // Resource object for pushing into GlobalResourceContext
   const contextResource = useMemo(() => {
@@ -286,16 +301,24 @@ export const useResource: UseResourceType = (
       debug,
       cancel
     };
-    return { [resourceName]: resourceData };
-  }, [data, errorData, isLoading, refetch, resourceName]);
+    return resourceData;
+  }, [data, errorData, isLoading, refetch, cancel]);
 
-  // Use effect which runs to update the global context
+  // useEffect(() => {
+  //   const resourceData = {
+  //     data: {},
+  //     isLoading: false,
+  //     errorData: {},
+  //     refetch: undefined,
+  //     debug: undefined,
+  //     cancel: undefined
+  //   };
+  //   updateGlobalState(resourceData);
+  // }, [updateGlobalState]);
+
   useEffect(() => {
-    if (useGlobalContext) {
-      console.log("dispatching");
-      dispatch(contextResource);
-    }
-  }, [useGlobalContext, contextResource, dispatch]);
+    updateGlobalState({ refetch, debug, cancel });
+  }, [refetch, debug, cancel, updateGlobalState]);
 
   const Container = ({
     children,
