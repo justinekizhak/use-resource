@@ -1,6 +1,6 @@
 import { useRef, useCallback } from "react";
 
-import { JsxComponentType, ResourceType } from "../types/index.type";
+import { JsxComponentType, ResourceType } from "../types/main.type";
 import {
   ContextCallbackState,
   DispatchType,

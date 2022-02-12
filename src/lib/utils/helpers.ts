@@ -2,7 +2,9 @@ import { MutableRefObject } from "react";
 import { AxiosRequestConfig, AxiosResponse, AxiosError } from "axios";
 import {
   MessageQueueInfoType,
-  TransformInputType
+  TransformRequestType,
+  TransformSuccessType,
+  TransformFailureType
 } from "../types/helpers.type";
 
 import {
@@ -13,8 +15,9 @@ import {
   OnFinalType,
   ChainedRequestConfigType,
   BaseConfigType,
-  PushToAccumulatorType
-} from "../types/index.type";
+  PushToAccumulatorType,
+  ChainedRequestInputConfigType
+} from "../types/main.type";
 
 export const getTriggerDependencies = (
   triggerOn: string | boolean | any[] = "onMount",
@@ -108,7 +111,7 @@ export const pushToAcc: PushToAccumulatorType = (next, res) => {
 };
 
 export const getFinalRequestChain = (
-  newChainedRequestData: ChainedRequestConfigType,
+  newChainedRequestData: ChainedRequestInputConfigType,
   index: number,
   fullBaseConfigList: ChainedRequestConfigType[],
   beforeTask: BeforeTaskType,
@@ -136,7 +139,7 @@ export const getFinalRequestChain = (
 
   // The new task will overwrite all the task
   const finalTask: TaskType = async (customConfig, acc, next) => {
-    const func: TransformInputType = getFunc(newChainedRequestData, "task");
+    const func: TransformRequestType = getFunc(newChainedRequestData, "task");
     const config1 = {
       signal: controllerInstance?.current?.signal,
       ...finalConfig,
@@ -155,17 +158,22 @@ export const getFinalRequestChain = (
     next,
     disableStateUpdate = false
   ) => {
-    const func: OnSuccessType = getFunc(newChainedRequestData, "onSuccess");
-    const res2 = func(res, acc, next) || res;
+    const func: TransformSuccessType = getFunc(
+      newChainedRequestData,
+      "onSuccess"
+    );
+    const res2 = func(res as any, acc, next) || res;
     const res3 = onSuccess(res2, acc, next, disableStateUpdate);
     return res3;
   };
 
   const finalOnFailure: OnFailureType = (error, acc, next) => {
-    const func: OnFailureType = getFunc(newChainedRequestData, "onFailure");
+    const func: TransformFailureType = getFunc(
+      newChainedRequestData,
+      "onFailure"
+    );
     const res = func(error, acc, next) || error;
-    const res2 = onFailure(res, acc, next);
-    return res2;
+    onFailure(res, acc, next);
   };
 
   const finalOnFinal: OnFinalType = (acc, next, disableStateUpdate = false) => {

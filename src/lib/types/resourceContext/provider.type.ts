@@ -1,4 +1,4 @@
-import { ResourceType } from "../index.type";
+import { ResourceType } from "../main.type";
 
 export type DispatchType = (key: string, stateSlice: ResourceType) => void;
 
@@ -13,10 +13,10 @@ export type SelectorType = (
   callback: SelectorCallback
 ) => ResourceType | undefined;
 
-export type GlobalResourceContextType = {
+export interface GlobalResourceContextType {
   dispatch: DispatchType;
   selector: SelectorType;
-};
+}
 
 export type ContextCallbackState = {
   [key: string]: SelectorCallback[];

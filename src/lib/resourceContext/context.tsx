@@ -7,5 +7,6 @@ export const GlobalResourceContext = createContext<GlobalResourceContextType>({
   },
   selector: () => {
     console.info("Please add a global resource context provider.");
+    return undefined;
   }
 });
