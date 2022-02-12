@@ -2,31 +2,99 @@
 
 The easiest way to fetch data from an API without any boilerplate code.
 
-# Example
+## Installation
 
-## Basic example
+```bash
+npm i @justinekizhak/use-resource-hook
+```
 
-Fetching data from an API
+# Examples
 
-Features:
+## Basic example using Container component
 
-1. Loader
-2. Error handling
-3. Refetching data
+Here we are using just the `data` state and the `Container` component.
+The container component will handle the loading and the error state for us.
 
-```jsx
+```jsx live
 import { useResource } from "@justinekizhak/use-resource-hook";
 
-export default function App() {
+function App() {
   const { data, Container } = useResource(
     {
-      url: "https://jsonplaceholder.typicode.com/posts"
+      url: "https://jsonplaceholder.typicode.com/posts/1"
     },
     "fetchPost"
   );
+
   return (
-    <div className="App">
+    <div>
       <Container>{JSON.stringify(data)}</Container>
+    </div>
+  );
+}
+```
+
+## Basic example using explicit loading and error states
+
+Here we are using the `isLoading` and `errorData` state and handling them explicitly in our component.
+
+```jsx live
+import { useResource } from "@justinekizhak/use-resource-hook";
+
+function App() {
+  const { data, isLoading, errorData } = useResource(
+    {
+      url: "https://jsonplaceholder.typicode.com/posts/1"
+    },
+    "fetchPost"
+  );
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (errorData) {
+    return <div>Error: {error && error.message}</div>;
+  }
+
+  return <div>{JSON.stringify(data)}</div>;
+}
+```
+
+## Basic example using Container component along with custom loading and error component
+
+This time we will use the Container and style the loading and the error state by ourselves.
+
+```jsx live
+import { useResource } from "@justinekizhak/use-resource-hook";
+
+function App() {
+  const { data, Container, refetch } = useResource(
+    {
+      url: "https://jsonplaceholder.typicode.com/posts/1"
+    },
+    "fetchPost"
+  );
+
+  const loadingComponent = () => <div>Our custom loader. Loading...</div>;
+
+  const errorComponent = (errorMessage, errorData) => (
+    <div>Our custom error component. Error: {errorMessage}</div>
+  );
+
+  const handleClick = () => {
+    refetch()
+  }
+
+  return (
+    <div>
+      <button onClick={handleClick}>Refetch</button>
+      <Container
+        loadingComponent={loadingComponent}
+        errorComponent={errorComponent}
+      >
+        {JSON.stringify(data)}
+      </Container>
     </div>
   );
 }
