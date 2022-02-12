@@ -41,9 +41,9 @@ export type UseResourceType<T = object> = (
 export interface ChainedRequestInputConfigType extends Object {
   baseConfig: AxiosRequestConfig;
   beforeTask?: BeforeTaskType;
-  task?: TransformConfigType;
-  onSuccess?: TransformSuccessType;
-  onFailure?: TransformFailureType;
+  transformConfig?: TransformConfigType;
+  transformSuccess?: TransformSuccessType;
+  transformFailure?: TransformFailureType;
   onFinal?: OnFinalType;
 }
 
