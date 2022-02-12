@@ -1,23 +1,25 @@
 import { MutableRefObject } from "react";
 import { AxiosRequestConfig, AxiosResponse, AxiosError } from "axios";
-import {
+import type {
   MessageQueueInfoType,
-  TransformRequestType,
-  TransformSuccessType,
-  TransformFailureType
+  TransformConfigType,
+  TransformFailureType,
+  TransformSuccessType
 } from "../types/helpers.type";
 
-import {
+import type {
   OnSuccessType,
-  BeforeTaskType,
-  TaskType,
+  BeforeEventType,
+  EventType,
   OnFailureType,
-  OnFinalType,
-  ChainedRequestConfigType,
+  OnFinishType,
   BaseConfigType,
-  PushToAccumulatorType,
-  ChainedRequestInputConfigType
+  PushToAccumulatorType
 } from "../types/main.type";
+import type {
+  Internal_ChainedRequestConfigType,
+  ChainedRequestConfigType
+} from "../types/useResource.type";
 
 export const getTriggerDependencies = (
   triggerOn: string | boolean | any[] = "onMount",
@@ -111,35 +113,35 @@ export const pushToAcc: PushToAccumulatorType = (next, res) => {
 };
 
 export const getFinalRequestChain = (
-  newChainedRequestData: ChainedRequestInputConfigType,
+  newChainedRequestData: ChainedRequestConfigType,
   index: number,
   fullBaseConfigList: ChainedRequestConfigType[],
-  beforeTask: BeforeTaskType,
-  task: TaskType,
+  beforeTask: BeforeEventType,
+  task: EventType,
   onSuccess: OnSuccessType,
   onFailure: OnFailureType,
-  onFinal: OnFinalType,
+  onFinal: OnFinishType,
   controllerInstance: MutableRefObject<AbortController> | undefined = undefined
-): ChainedRequestConfigType => {
+): Internal_ChainedRequestConfigType => {
   const oldChainedRequestData = fullBaseConfigList[index];
   const finalConfig = {
     ...oldChainedRequestData["baseConfig"],
     ...newChainedRequestData["baseConfig"]
   };
   // The new beforeTask will overwrite the old beforeTask
-  const finalBeforeTask: BeforeTaskType = (
+  const finalBeforeTask: BeforeEventType = (
     acc,
     next,
     disableStateUpdate = false
   ) => {
-    const func: BeforeTaskType = getFunc(newChainedRequestData, "beforeTask");
+    const func: BeforeEventType = getFunc(newChainedRequestData, "beforeTask");
     func(acc, next);
     beforeTask(acc, next, disableStateUpdate);
   };
 
   // The new task will overwrite all the task
-  const finalTask: TaskType = async (customConfig, acc, next) => {
-    const func: TransformRequestType = getFunc(newChainedRequestData, "task");
+  const finalTask: EventType = async (customConfig, acc, next) => {
+    const func: TransformConfigType = getFunc(newChainedRequestData, "task");
     const config1 = {
       signal: controllerInstance?.current?.signal,
       ...finalConfig,
@@ -162,7 +164,7 @@ export const getFinalRequestChain = (
       newChainedRequestData,
       "onSuccess"
     );
-    const res2 = func(res as any, acc, next) || res;
+    const res2: any = func(res, acc, next) || res;
     const res3 = onSuccess(res2, acc, next, disableStateUpdate);
     return res3;
   };
@@ -176,8 +178,12 @@ export const getFinalRequestChain = (
     onFailure(res, acc, next);
   };
 
-  const finalOnFinal: OnFinalType = (acc, next, disableStateUpdate = false) => {
-    const func: OnFinalType = getFunc(newChainedRequestData, "onFinal");
+  const finalOnFinal: OnFinishType = (
+    acc,
+    next,
+    disableStateUpdate = false
+  ) => {
+    const func: OnFinishType = getFunc(newChainedRequestData, "onFinal");
     func(acc, next);
     onFinal(acc, next, disableStateUpdate);
   };

@@ -5,11 +5,7 @@ import {
   ReactPortal
 } from "react";
 import { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
-import {
-  TransformFailureType,
-  TransformRequestType,
-  TransformSuccessType
-} from "./helpers.type";
+import type { ChainedRequestConfigType } from "./useResource.type";
 
 export interface DebugObject {
   timestamp: string;
@@ -17,7 +13,7 @@ export interface DebugObject {
   data?: object;
 }
 
-export type JsxComponentType =
+export type Internal_JsxComponentType =
   | boolean
   | ReactChild
   | ReactFragment
@@ -26,9 +22,10 @@ export type JsxComponentType =
   | null
   | undefined;
 
-export type ResourceType = {
-  data: object;
+export type ResourceType<T> = {
+  data: T | undefined;
   isLoading: boolean;
+  isFetching: boolean;
   errorData: object | null | undefined;
   debug: MutableRefObject<DebugObject[]>;
   cancel: any;
@@ -42,7 +39,7 @@ export type ErrorComponentType = (
 ) => JSX.Element;
 
 export interface ContextContainerPropsType {
-  children?: JsxComponentType;
+  children?: Internal_JsxComponentType;
   loadingComponent?: LoadingComponentType;
   errorComponent?: ErrorComponentType;
 }
@@ -51,65 +48,47 @@ export type ContextContainerType = (
   props: ContextContainerPropsType
 ) => JSX.Element;
 
-export interface ChainedRequestInputConfigType extends Object {
-  baseConfig: AxiosRequestConfig;
-  beforeTask?: BeforeTaskType;
-  transformTask?: TransformRequestType;
-  transformSuccess?: TransformSuccessType;
-  transformFailure?: TransformFailureType;
-  onFinal?: OnFinalType;
-}
-
-export interface ChainedRequestConfigType extends Object {
-  baseConfig: AxiosRequestConfig;
-  beforeTask?: BeforeTaskType;
-  task?: TaskType;
-  onSuccess?: OnSuccessType;
-  onFailure?: OnFailureType;
-  onFinal?: OnFinalType;
-}
-
-export type BaseConfigType =
-  | AxiosRequestConfig
-  | ChainedRequestInputConfigType[];
+export type BaseConfigType = AxiosRequestConfig | ChainedRequestConfigType[];
 
 export type ChainResponseType = object | AxiosResponse | void;
 export type AccumulatorType = (object | AxiosResponse)[];
 export type AccumulatorContainer = { current: AccumulatorType };
-export type NextType = (data: ChainResponseType) => AccumulatorContainer;
+export type NextCallbackType = (
+  data: ChainResponseType
+) => AccumulatorContainer;
 
-export type BeforeTaskType = (
+export type BeforeEventType = (
   accumulator?: AccumulatorContainer,
-  next?: NextType,
+  next?: NextCallbackType,
   disableStateUpdate?: boolean
 ) => void;
 
-export type TaskType = (
+export type EventType = (
   customConfig: AxiosRequestConfig,
   accumulator?: AccumulatorContainer,
-  next?: NextType
+  next?: NextCallbackType
 ) => Promise<AxiosResponse>;
 
 export type OnSuccessType = (
-  response: AxiosResponse | object,
+  response: AxiosResponse,
   accumulator?: AccumulatorContainer,
-  next?: NextType,
+  next?: NextCallbackType,
   disableStateUpdate?: boolean
 ) => void;
 
 export type OnFailureType = (
   error: any | AxiosError,
   accumulator?: AccumulatorContainer,
-  next?: NextType
+  next?: NextCallbackType
 ) => void;
 
-export type OnFinalType = (
+export type OnFinishType = (
   accumulator?: AccumulatorContainer,
-  next?: NextType,
+  next?: NextCallbackType,
   disableStateUpdate?: boolean
 ) => void;
 
 export type PushToAccumulatorType = (
-  next: NextType | undefined,
+  next: NextCallbackType | undefined,
   res: ChainResponseType | undefined
 ) => void;

@@ -13,23 +13,23 @@ import axios, {
   AxiosInstance
 } from "axios";
 
-import {
+import type {
   ResourceType,
   DebugObject,
   ContextContainerPropsType,
   OnSuccessType,
-  BeforeTaskType,
-  TaskType,
+  BeforeEventType,
+  EventType,
   OnFailureType,
-  OnFinalType,
-  NextType,
+  OnFinishType,
+  NextCallbackType,
   BaseConfigType,
   AccumulatorType
 } from "./types/main.type";
 import { GlobalResourceContext } from "./resourceContext/context";
-import {
-  UseResourceType,
-  UseResourceOptionsType
+import type {
+  UseResourceOptionsType,
+  UseResourceReturnType
 } from "./types/useResource.type";
 
 import {
@@ -62,12 +62,13 @@ import { refetchFunction } from "./utils/refetch";
  * 5. debug
  * 6. cancel
  * 7. Container
+ * 8. isFetching
  */
-export const useResource: UseResourceType = (
+export function useResource<T>(
   baseConfig: BaseConfigType,
   resourceName: string = "resource",
-  options: UseResourceOptionsType = {}
-) => {
+  options: UseResourceOptionsType<T> = {}
+): UseResourceReturnType<T> {
   const {
     CustomContext = null,
     triggerOn = "onMount",
@@ -87,8 +88,10 @@ export const useResource: UseResourceType = (
 
   const { dispatch } = useContext(GlobalResourceContext);
 
-  const [data, setData] = useState({});
+  const [data, setData] = useState<T>();
   const [isLoading, setIsLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
+  const firstTime = useRef(true);
   const [errorData, setErrorData] = useState<AxiosError | AxiosResponse>();
   const debug = useRef<DebugObject[]>([]);
   const axiosInstance = useRef<AxiosInstance>(axios);
@@ -102,11 +105,10 @@ export const useResource: UseResourceType = (
     defaultConfigRef.current
   );
 
-  const [isMessageQueueAvailable, messageQueueName] = getMessageQueueData(
-    useMessageQueue
-  );
+  const [isMessageQueueAvailable, messageQueueName] =
+    getMessageQueueData(useMessageQueue);
 
-  const defaultNext: NextType = (data) => {
+  const defaultNext: NextCallbackType = (data) => {
     if (data) {
       accumulator.current.push(data);
     }
@@ -156,20 +158,30 @@ export const useResource: UseResourceType = (
     [useGlobalContext, dispatch, resourceName]
   );
 
-  const beforeTask: BeforeTaskType = useCallback(
+  const beforeTask: BeforeEventType = useCallback(
     (acc = accumulator, next = defaultNext, disableStateUpdate = false) => {
       pushToDebug("[FETCHING RESOURCE] BEFORE TASK");
       if (!disableStateUpdate) {
-        updateGlobalState({ isLoading: true, data: {}, errorData: "" });
-        setIsLoading(true);
-        setData({});
+        // isLoading is set only for the first time
+        // Rest all the times we should be using isFetching
+        const _isLoading = firstTime.current;
+        firstTime.current = false;
+        updateGlobalState({
+          isLoading: _isLoading,
+          data: {},
+          errorData: "",
+          isFetching: true
+        });
+        setIsLoading(_isLoading);
+        setIsFetching(true);
+        setData(undefined);
         setErrorData(undefined);
       }
     },
     [pushToDebug, updateGlobalState]
   );
 
-  const task: TaskType = useCallback(
+  const task: EventType = useCallback(
     async (customConfig, acc = accumulator, next = defaultNext) => {
       const axiosConfig = {
         signal: controllerInstance.current.signal,
@@ -233,12 +245,13 @@ export const useResource: UseResourceType = (
     [pushToDebug, updateGlobalState]
   );
 
-  const onFinal: OnFinalType = useCallback(
+  const onFinal: OnFinishType = useCallback(
     (acc, next, disableStateUpdate = false) => {
       pushToDebug("[FETCHING RESOURCE] TASK END", acc);
       if (!disableStateUpdate) {
         updateGlobalState({ isLoading: false });
         setIsLoading(false);
+        setIsFetching(false);
       }
     },
     [pushToDebug, updateGlobalState]
@@ -292,29 +305,18 @@ export const useResource: UseResourceType = (
   }, []);
 
   // Resource object for pushing into GlobalResourceContext
-  const contextResource = useMemo(() => {
-    const resourceData: ResourceType = {
+  const contextResource: ResourceType<T> = useMemo(() => {
+    const resourceData = {
       data,
       isLoading,
+      isFetching,
       errorData,
       refetch,
       debug,
       cancel
     };
     return resourceData;
-  }, [data, errorData, isLoading, refetch, cancel]);
-
-  // useEffect(() => {
-  //   const resourceData = {
-  //     data: {},
-  //     isLoading: false,
-  //     errorData: {},
-  //     refetch: undefined,
-  //     debug: undefined,
-  //     cancel: undefined
-  //   };
-  //   updateGlobalState(resourceData);
-  // }, [updateGlobalState]);
+  }, [data, errorData, isLoading, refetch, cancel, isFetching]);
 
   useEffect(() => {
     updateGlobalState({ refetch, debug, cancel });
@@ -358,12 +360,12 @@ export const useResource: UseResourceType = (
   const returnObject = {
     data,
     isLoading,
+    isFetching,
     errorData,
     refetch,
     debug,
     cancel,
     Container
   };
-  // console.log(resourceName, returnObject);
   return returnObject;
-};
+}

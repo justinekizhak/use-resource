@@ -1,22 +1,25 @@
 import { useRef, useCallback } from "react";
 
-import { JsxComponentType, ResourceType } from "../types/main.type";
-import {
+import type {
+  Internal_JsxComponentType,
+  ResourceType
+} from "../types/main.type";
+import type {
   ContextCallbackState,
   DispatchType,
   SelectorType
 } from "../types/resourceContext/provider.type";
-import { ResourceContextState } from "../types/resourceContext/context.type";
+import type { ResourceContextState } from "../types/resourceContext/context.type";
 
 import { GlobalResourceContext } from "./context";
 
 export const GlobalResourceContextProvider = (props: {
-  children: JsxComponentType;
+  children: Internal_JsxComponentType;
 }) => {
-  const state = useRef<ResourceContextState>({});
+  const state = useRef<ResourceContextState<any>>({});
   const stateCallbacks = useRef<ContextCallbackState>({});
 
-  const dispatch: DispatchType = useCallback((key, data) => {
+  const dispatch: DispatchType<any> = useCallback((key, data) => {
     if (!key || !data) {
       return;
     }
@@ -32,7 +35,7 @@ export const GlobalResourceContextProvider = (props: {
     });
   }, []);
 
-  const selector: SelectorType = useCallback((key, callback) => {
+  const selector: SelectorType<any> = useCallback((key, callback) => {
     if (!key) {
       return;
     }
@@ -41,7 +44,7 @@ export const GlobalResourceContextProvider = (props: {
       stateCallbacks.current[key] = [];
     }
     stateCallbacks.current[key].push(callback);
-    const stateSlice: ResourceType = state.current[key] || {
+    const stateSlice: ResourceType<any> = state.current[key] || {
       isLoading: false,
       data: {},
       errorData: {}

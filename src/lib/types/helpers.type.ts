@@ -1,22 +1,22 @@
 import { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
-import { AccumulatorContainer, NextType } from "./main.type";
+import type { AccumulatorContainer, NextCallbackType } from "./main.type";
 
 export type MessageQueueInfoType = [boolean, string];
 
-export type TransformRequestType = (
+export type TransformConfigType = (
   config: AxiosRequestConfig,
   acc: AccumulatorContainer | undefined,
-  next: NextType | undefined
-) => AxiosRequestConfig;
+  next: NextCallbackType | undefined
+) => AxiosRequestConfig | undefined | void;
 
 export type TransformSuccessType = (
   res: AxiosResponse,
   acc: AccumulatorContainer | undefined,
-  next: NextType | undefined
-) => AxiosResponse | object | undefined;
+  next: NextCallbackType | undefined
+) => AxiosResponse | object | undefined | void;
 
 export type TransformFailureType = (
   error: AxiosError,
   acc: AccumulatorContainer | undefined,
-  next: NextType | undefined
-) => AxiosError | object | undefined;
+  next: NextCallbackType | undefined
+) => AxiosError | object | undefined | void;
