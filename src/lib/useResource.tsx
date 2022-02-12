@@ -25,7 +25,7 @@ import {
   NextType,
   BaseConfigType,
   AccumulatorType
-} from "./types/index.type";
+} from "./types/main.type";
 import { GlobalResourceContext } from "./resourceContext/context";
 import {
   UseResourceType,

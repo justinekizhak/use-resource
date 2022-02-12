@@ -1,4 +1,4 @@
-import { ResourceType } from "../index.type";
+import { ResourceType } from "../main.type";
 
 export type ResourceContextState = {
   [key: string]: ResourceType;

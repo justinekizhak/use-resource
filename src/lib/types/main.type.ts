@@ -5,6 +5,11 @@ import {
   ReactPortal
 } from "react";
 import { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
+import {
+  TransformFailureType,
+  TransformRequestType,
+  TransformSuccessType
+} from "./helpers.type";
 
 export interface DebugObject {
   timestamp: string;
@@ -46,7 +51,27 @@ export type ContextContainerType = (
   props: ContextContainerPropsType
 ) => JSX.Element;
 
-export type BaseConfigType = AxiosRequestConfig | ChainedRequestConfigType[];
+export interface ChainedRequestInputConfigType extends Object {
+  baseConfig: AxiosRequestConfig;
+  beforeTask?: BeforeTaskType;
+  transformTask?: TransformRequestType;
+  transformSuccess?: TransformSuccessType;
+  transformFailure?: TransformFailureType;
+  onFinal?: OnFinalType;
+}
+
+export interface ChainedRequestConfigType extends Object {
+  baseConfig: AxiosRequestConfig;
+  beforeTask?: BeforeTaskType;
+  task?: TaskType;
+  onSuccess?: OnSuccessType;
+  onFailure?: OnFailureType;
+  onFinal?: OnFinalType;
+}
+
+export type BaseConfigType =
+  | AxiosRequestConfig
+  | ChainedRequestInputConfigType[];
 
 export type ChainResponseType = object | AxiosResponse | void;
 export type AccumulatorType = (object | AxiosResponse)[];
@@ -57,7 +82,7 @@ export type BeforeTaskType = (
   accumulator?: AccumulatorContainer,
   next?: NextType,
   disableStateUpdate?: boolean
-) => AxiosRequestConfig | void;
+) => void;
 
 export type TaskType = (
   customConfig: AxiosRequestConfig,
@@ -66,23 +91,23 @@ export type TaskType = (
 ) => Promise<AxiosResponse>;
 
 export type OnSuccessType = (
-  response: ChainResponseType,
+  response: AxiosResponse | object,
   accumulator?: AccumulatorContainer,
   next?: NextType,
   disableStateUpdate?: boolean
-) => ChainResponseType;
+) => void;
 
 export type OnFailureType = (
   error: any | AxiosError,
   accumulator?: AccumulatorContainer,
   next?: NextType
-) => ChainResponseType;
+) => void;
 
 export type OnFinalType = (
   accumulator?: AccumulatorContainer,
   next?: NextType,
   disableStateUpdate?: boolean
-) => ChainResponseType;
+) => void;
 
 export type PushToAccumulatorType = (
   next: NextType | undefined,
