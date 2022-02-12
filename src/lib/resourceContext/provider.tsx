@@ -1,6 +1,9 @@
 import { useRef, useCallback } from "react";
 
-import type { JsxComponentType, ResourceType } from "../types/main.type";
+import type {
+  Internal_JsxComponentType,
+  ResourceType
+} from "../types/main.type";
 import type {
   ContextCallbackState,
   DispatchType,
@@ -11,7 +14,7 @@ import type { ResourceContextState } from "../types/resourceContext/context.type
 import { GlobalResourceContext } from "./context";
 
 export const GlobalResourceContextProvider = (props: {
-  children: JsxComponentType;
+  children: Internal_JsxComponentType;
 }) => {
   const state = useRef<ResourceContextState<any>>({});
   const stateCallbacks = useRef<ContextCallbackState>({});

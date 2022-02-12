@@ -10,11 +10,11 @@ import type {
   ContextContainerType,
   LoadingComponentType,
   ErrorComponentType,
-  BeforeTaskType,
+  BeforeEventType,
   OnFailureType,
-  OnFinalType,
+  OnFinishType,
   OnSuccessType,
-  TaskType
+  EventType
 } from "./main.type";
 
 export interface UseResourceOptionsType<T> {
@@ -38,20 +38,20 @@ export type UseResourceType<T = object> = (
   options?: UseResourceOptionsType<T>
 ) => UseResourceReturnType<T>;
 
-export interface ChainedRequestInputConfigType extends Object {
+export interface ChainedRequestConfigType extends Object {
   baseConfig: AxiosRequestConfig;
-  beforeTask?: BeforeTaskType;
+  beforeTask?: BeforeEventType;
   transformConfig?: TransformConfigType;
   transformSuccess?: TransformSuccessType;
   transformFailure?: TransformFailureType;
-  onFinal?: OnFinalType;
+  onFinal?: OnFinishType;
 }
 
-export interface ChainedRequestConfigType extends Object {
+export interface Internal_ChainedRequestConfigType extends Object {
   baseConfig: AxiosRequestConfig;
-  beforeTask?: BeforeTaskType;
-  task?: TaskType;
+  beforeTask?: BeforeEventType;
+  task?: EventType;
   onSuccess?: OnSuccessType;
   onFailure?: OnFailureType;
-  onFinal?: OnFinalType;
+  onFinal?: OnFinishType;
 }

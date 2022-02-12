@@ -2,22 +2,22 @@ import { MutableRefObject } from "react";
 import type {
   AccumulatorContainer,
   BaseConfigType,
-  BeforeTaskType,
-  NextType,
+  BeforeEventType,
+  NextCallbackType,
   OnFailureType,
-  OnFinalType,
+  OnFinishType,
   OnSuccessType,
-  TaskType
+  EventType
 } from "./main.type";
 
 export interface RefetchFunctionArgType {
   accumulator: AccumulatorContainer;
-  defaultNext: NextType;
-  beforeTask: BeforeTaskType;
-  task: TaskType;
+  defaultNext: NextCallbackType;
+  beforeTask: BeforeEventType;
+  task: EventType;
   onSuccess: OnSuccessType;
   onFailure: OnFailureType;
-  onFinal: OnFinalType;
+  onFinal: OnFinishType;
   isMessageQueueAvailable: boolean;
   messageQueueName: string;
   pushToMessageQueue: (data: any) => void;

@@ -18,11 +18,11 @@ import type {
   DebugObject,
   ContextContainerPropsType,
   OnSuccessType,
-  BeforeTaskType,
-  TaskType,
+  BeforeEventType,
+  EventType,
   OnFailureType,
-  OnFinalType,
-  NextType,
+  OnFinishType,
+  NextCallbackType,
   BaseConfigType,
   AccumulatorType
 } from "./types/main.type";
@@ -108,7 +108,7 @@ export function useResource<T>(
   const [isMessageQueueAvailable, messageQueueName] =
     getMessageQueueData(useMessageQueue);
 
-  const defaultNext: NextType = (data) => {
+  const defaultNext: NextCallbackType = (data) => {
     if (data) {
       accumulator.current.push(data);
     }
@@ -158,7 +158,7 @@ export function useResource<T>(
     [useGlobalContext, dispatch, resourceName]
   );
 
-  const beforeTask: BeforeTaskType = useCallback(
+  const beforeTask: BeforeEventType = useCallback(
     (acc = accumulator, next = defaultNext, disableStateUpdate = false) => {
       pushToDebug("[FETCHING RESOURCE] BEFORE TASK");
       if (!disableStateUpdate) {
@@ -181,7 +181,7 @@ export function useResource<T>(
     [pushToDebug, updateGlobalState]
   );
 
-  const task: TaskType = useCallback(
+  const task: EventType = useCallback(
     async (customConfig, acc = accumulator, next = defaultNext) => {
       const axiosConfig = {
         signal: controllerInstance.current.signal,
@@ -245,7 +245,7 @@ export function useResource<T>(
     [pushToDebug, updateGlobalState]
   );
 
-  const onFinal: OnFinalType = useCallback(
+  const onFinal: OnFinishType = useCallback(
     (acc, next, disableStateUpdate = false) => {
       pushToDebug("[FETCHING RESOURCE] TASK END", acc);
       if (!disableStateUpdate) {

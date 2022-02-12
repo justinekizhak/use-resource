@@ -1,10 +1,10 @@
 import type {
-  NextType,
+  NextCallbackType,
   BaseConfigType,
   AccumulatorContainer
 } from "../types/main.type";
 import type { RefetchFunctionType } from "../types/refetch.type";
-import type { ChainedRequestInputConfigType } from "../types/useResource.type";
+import type { ChainedRequestConfigType } from "../types/useResource.type";
 
 import { getBaseConfig, getFinalRequestChain } from "./helpers";
 
@@ -28,7 +28,7 @@ export const refetchFunction: RefetchFunctionType =
     const taskMaster = async (
       index = 0,
       acc: AccumulatorContainer = accumulator,
-      next: NextType = defaultNext,
+      next: NextCallbackType = defaultNext,
       _baseConfig = getBaseConfig(customConfig, index),
       _beforeTask = beforeTask,
       _task = task,
@@ -70,14 +70,14 @@ export const refetchFunction: RefetchFunctionType =
     } else {
       const main = async () => {
         const acc: AccumulatorContainer = { current: [] };
-        const next: NextType = (data: any) => {
+        const next: NextCallbackType = (data: any) => {
           if (data) {
             acc.current.push(data);
           }
           return acc;
         };
         const baseConfigList =
-          baseConfigRef.current as ChainedRequestInputConfigType[];
+          baseConfigRef.current as ChainedRequestConfigType[];
         for (let index = 0; index < baseConfigList.length; index++) {
           const requestChain = baseConfigList[index];
           const {

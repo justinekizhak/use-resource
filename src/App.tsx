@@ -9,7 +9,7 @@ export default function App() {
   const renderCount = useRef(0);
   const getConfig = (
     pageNum = pageNumber
-  ): HookTypes.ChainedRequestInputConfigType[] => [
+  ): HookTypes.ChainedRequestConfigType[] => [
     {
       baseConfig: {
         url: `https://jsonplaceholder.typicode.com/todos/1`
