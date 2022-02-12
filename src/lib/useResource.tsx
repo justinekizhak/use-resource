@@ -13,7 +13,7 @@ import axios, {
   AxiosInstance
 } from "axios";
 
-import {
+import type {
   ResourceType,
   DebugObject,
   ContextContainerPropsType,
@@ -27,7 +27,7 @@ import {
   AccumulatorType
 } from "./types/main.type";
 import { GlobalResourceContext } from "./resourceContext/context";
-import {
+import type {
   UseResourceOptionsType,
   UseResourceReturnType
 } from "./types/useResource.type";

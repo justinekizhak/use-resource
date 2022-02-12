@@ -1,6 +1,7 @@
-import React from "react";
-
-import { ErrorComponentType, LoadingComponentType } from "../types/main.type";
+import type {
+  ErrorComponentType,
+  LoadingComponentType
+} from "../types/main.type";
 
 export const defaultLoadingComponent: LoadingComponentType = () => (
   <div className="loading"> Loading... </div>

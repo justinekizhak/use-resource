@@ -1,9 +1,9 @@
-import {
+import type {
   NextType,
   BaseConfigType,
   AccumulatorContainer
 } from "../types/main.type";
-import { RefetchFunctionType } from "../types/refetch.type";
+import type { RefetchFunctionType } from "../types/refetch.type";
 import type { ChainedRequestInputConfigType } from "../types/useResource.type";
 
 import { getBaseConfig, getFinalRequestChain } from "./helpers";

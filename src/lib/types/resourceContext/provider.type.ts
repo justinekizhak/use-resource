@@ -1,4 +1,4 @@
-import { ResourceType } from "../main.type";
+import type { ResourceType } from "../main.type";
 
 export type DispatchType<T> = (
   key: string,

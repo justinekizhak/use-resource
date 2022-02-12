@@ -1,5 +1,5 @@
 import { MutableRefObject } from "react";
-import {
+import type {
   AccumulatorContainer,
   BaseConfigType,
   BeforeTaskType,
