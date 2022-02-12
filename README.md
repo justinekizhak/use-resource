@@ -99,7 +99,9 @@ function App() {
   );
 }
 ```
-# Documentation
+# Links
+
+[NPM Package](https://www.npmjs.com/package/@justinekizhak/use-resource-hook)
 
 [Doc site](https://use-resource-hook.vercel.app/)
 
