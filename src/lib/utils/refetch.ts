@@ -1,10 +1,10 @@
 import {
   NextType,
-  ChainedRequestConfigType,
   BaseConfigType,
   AccumulatorContainer
 } from "../types/main.type";
 import { RefetchFunctionType } from "../types/refetch.type";
+import type { ChainedRequestInputConfigType } from "../types/useResource.type";
 
 import { getBaseConfig, getFinalRequestChain } from "./helpers";
 
@@ -77,7 +77,7 @@ export const refetchFunction: RefetchFunctionType =
           return acc;
         };
         const baseConfigList =
-          baseConfigRef.current as ChainedRequestConfigType[];
+          baseConfigRef.current as ChainedRequestInputConfigType[];
         for (let index = 0; index < baseConfigList.length; index++) {
           const requestChain = baseConfigList[index];
           const {

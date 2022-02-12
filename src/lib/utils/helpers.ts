@@ -1,23 +1,25 @@
 import { MutableRefObject } from "react";
 import { AxiosRequestConfig, AxiosResponse, AxiosError } from "axios";
-import {
+import type {
   MessageQueueInfoType,
-  TransformRequestType,
-  TransformSuccessType,
-  TransformFailureType
+  TransformConfigType,
+  TransformFailureType,
+  TransformSuccessType
 } from "../types/helpers.type";
 
-import {
+import type {
   OnSuccessType,
   BeforeTaskType,
   TaskType,
   OnFailureType,
   OnFinalType,
-  ChainedRequestConfigType,
   BaseConfigType,
-  PushToAccumulatorType,
-  ChainedRequestInputConfigType
+  PushToAccumulatorType
 } from "../types/main.type";
+import type {
+  ChainedRequestConfigType,
+  ChainedRequestInputConfigType
+} from "../types/useResource.type";
 
 export const getTriggerDependencies = (
   triggerOn: string | boolean | any[] = "onMount",
@@ -90,7 +92,7 @@ export const getErrorMessage = (
 };
 
 export const getFunc = (
-  requestObject: ChainedRequestConfigType,
+  requestObject: ChainedRequestInputConfigType,
   key: string
 ) => {
   const func =
@@ -113,7 +115,7 @@ export const pushToAcc: PushToAccumulatorType = (next, res) => {
 export const getFinalRequestChain = (
   newChainedRequestData: ChainedRequestInputConfigType,
   index: number,
-  fullBaseConfigList: ChainedRequestConfigType[],
+  fullBaseConfigList: ChainedRequestInputConfigType[],
   beforeTask: BeforeTaskType,
   task: TaskType,
   onSuccess: OnSuccessType,
@@ -139,7 +141,7 @@ export const getFinalRequestChain = (
 
   // The new task will overwrite all the task
   const finalTask: TaskType = async (customConfig, acc, next) => {
-    const func: TransformRequestType = getFunc(newChainedRequestData, "task");
+    const func: TransformConfigType = getFunc(newChainedRequestData, "task");
     const config1 = {
       signal: controllerInstance?.current?.signal,
       ...finalConfig,
@@ -162,7 +164,7 @@ export const getFinalRequestChain = (
       newChainedRequestData,
       "onSuccess"
     );
-    const res2 = func(res as any, acc, next) || res;
+    const res2: any = func(res, acc, next) || res;
     const res3 = onSuccess(res2, acc, next, disableStateUpdate);
     return res3;
   };

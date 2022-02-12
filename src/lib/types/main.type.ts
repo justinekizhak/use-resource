@@ -5,11 +5,7 @@ import {
   ReactPortal
 } from "react";
 import { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
-import {
-  TransformFailureType,
-  TransformRequestType,
-  TransformSuccessType
-} from "./helpers.type";
+import type { ChainedRequestInputConfigType } from "./useResource.type";
 
 export interface DebugObject {
   timestamp: string;
@@ -26,9 +22,10 @@ export type JsxComponentType =
   | null
   | undefined;
 
-export type ResourceType = {
-  data: object;
+export type ResourceType<T> = {
+  data: T | undefined;
   isLoading: boolean;
+  isFetching: boolean;
   errorData: object | null | undefined;
   debug: MutableRefObject<DebugObject[]>;
   cancel: any;
@@ -50,24 +47,6 @@ export interface ContextContainerPropsType {
 export type ContextContainerType = (
   props: ContextContainerPropsType
 ) => JSX.Element;
-
-export interface ChainedRequestInputConfigType extends Object {
-  baseConfig: AxiosRequestConfig;
-  beforeTask?: BeforeTaskType;
-  transformTask?: TransformRequestType;
-  transformSuccess?: TransformSuccessType;
-  transformFailure?: TransformFailureType;
-  onFinal?: OnFinalType;
-}
-
-export interface ChainedRequestConfigType extends Object {
-  baseConfig: AxiosRequestConfig;
-  beforeTask?: BeforeTaskType;
-  task?: TaskType;
-  onSuccess?: OnSuccessType;
-  onFailure?: OnFailureType;
-  onFinal?: OnFinalType;
-}
 
 export type BaseConfigType =
   | AxiosRequestConfig
@@ -91,7 +70,7 @@ export type TaskType = (
 ) => Promise<AxiosResponse>;
 
 export type OnSuccessType = (
-  response: AxiosResponse | object,
+  response: AxiosResponse,
   accumulator?: AccumulatorContainer,
   next?: NextType,
   disableStateUpdate?: boolean

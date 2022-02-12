@@ -1,23 +1,24 @@
 import { ResourceType } from "../main.type";
 
-export type DispatchType = (key: string, stateSlice: ResourceType) => void;
-
-// interface SelectorCallbackFunc<T> {
-//   (stateSlice: T): T
-// }
-
-type SelectorCallback = (stateSlice: ResourceType) => ResourceType;
-
-export type SelectorType = (
+export type DispatchType<T> = (
   key: string,
-  callback: SelectorCallback
-) => ResourceType | undefined;
+  stateSlice: ResourceType<T>
+) => void;
 
-export interface GlobalResourceContextType {
-  dispatch: DispatchType;
-  selector: SelectorType;
-}
+export type SelectorCallbackType<T> = (
+  stateSlice: ResourceType<T>
+) => ResourceType<T>;
+
+export type SelectorType<T> = (
+  key: string,
+  callback: SelectorCallbackType<T>
+) => ResourceType<T> | undefined;
+
+export type GlobalResourceContextType<T> = {
+  dispatch: DispatchType<T>;
+  selector: SelectorType<T>;
+};
 
 export type ContextCallbackState = {
-  [key: string]: SelectorCallback[];
+  [key: string]: SelectorCallbackType<any>[];
 };

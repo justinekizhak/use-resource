@@ -3,20 +3,20 @@ import { AccumulatorContainer, NextType } from "./main.type";
 
 export type MessageQueueInfoType = [boolean, string];
 
-export type TransformRequestType = (
+export type TransformConfigType = (
   config: AxiosRequestConfig,
   acc: AccumulatorContainer | undefined,
   next: NextType | undefined
-) => AxiosRequestConfig;
+) => AxiosRequestConfig | undefined | void;
 
 export type TransformSuccessType = (
   res: AxiosResponse,
   acc: AccumulatorContainer | undefined,
   next: NextType | undefined
-) => AxiosResponse | object | undefined;
+) => AxiosResponse | object | undefined | void;
 
 export type TransformFailureType = (
   error: AxiosError,
   acc: AccumulatorContainer | undefined,
   next: NextType | undefined
-) => AxiosError | object | undefined;
+) => AxiosError | object | undefined | void;

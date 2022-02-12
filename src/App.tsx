@@ -9,7 +9,7 @@ export default function App() {
   const renderCount = useRef(0);
   const getConfig = (
     pageNum = pageNumber
-  ): CommonTypes.ChainedRequestConfigType[] => [
+  ): HookTypes.ChainedRequestInputConfigType[] => [
     {
       baseConfig: {
         url: `https://jsonplaceholder.typicode.com/todos/1`
@@ -74,7 +74,7 @@ export default function App() {
     <div className="App">
       <div>Render count: {renderCount.current}</div>
       <div>Page number: {pageNumber}</div>
-      <div>Content: {JSON.stringify(stateSlice?.isLoading)}</div>
+      <div>Content: {JSON.stringify(stateSlice?.data)}</div>
       <div onClick={handleClick}>refetch</div>
     </div>
   );

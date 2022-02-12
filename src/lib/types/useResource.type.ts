@@ -1,15 +1,24 @@
-import { AxiosInstance } from "axios";
-import {
+import { AxiosInstance, AxiosRequestConfig } from "axios";
+import type {
+  TransformConfigType,
+  TransformFailureType,
+  TransformSuccessType
+} from "./helpers.type";
+import type {
   BaseConfigType,
   ResourceType,
   ContextContainerType,
   LoadingComponentType,
-  ErrorComponentType
+  ErrorComponentType,
+  BeforeTaskType,
+  OnFailureType,
+  OnFinalType,
+  OnSuccessType,
+  TaskType
 } from "./main.type";
-export type { ChainedRequestConfigType } from "./main.type";
 
-export interface UseResourceOptionsType {
-  CustomContext?: React.Context<ResourceType> | null | undefined;
+export interface UseResourceOptionsType<T> {
+  CustomContext?: React.Context<ResourceType<T>> | null | undefined;
   triggerOn?: string | boolean | any[];
   onMountCallback?: (customAxios: AxiosInstance) => void;
   globalLoadingComponent?: LoadingComponentType;
@@ -19,12 +28,30 @@ export interface UseResourceOptionsType {
   devMode?: boolean;
 }
 
-export interface UseResourceReturnType extends ResourceType {
+export interface UseResourceReturnType<T> extends ResourceType<T> {
   Container: ContextContainerType;
 }
 
-export type UseResourceType = (
+export type UseResourceType<T = object> = (
   defaultConfig: BaseConfigType,
   resourceName: string,
-  options?: UseResourceOptionsType
-) => UseResourceReturnType;
+  options?: UseResourceOptionsType<T>
+) => UseResourceReturnType<T>;
+
+export interface ChainedRequestInputConfigType extends Object {
+  baseConfig: AxiosRequestConfig;
+  beforeTask?: BeforeTaskType;
+  task?: TransformConfigType;
+  onSuccess?: TransformSuccessType;
+  onFailure?: TransformFailureType;
+  onFinal?: OnFinalType;
+}
+
+export interface ChainedRequestConfigType extends Object {
+  baseConfig: AxiosRequestConfig;
+  beforeTask?: BeforeTaskType;
+  task?: TaskType;
+  onSuccess?: OnSuccessType;
+  onFailure?: OnFailureType;
+  onFinal?: OnFinalType;
+}
