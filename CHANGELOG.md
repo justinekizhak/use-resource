@@ -1,3 +1,19 @@
+# v1.3.3 (Sat Feb 12 2022)
+
+#### 🐛 Bug Fix
+
+- Feature: Add generic types [#6](https://github.com/justinekizhak/use-resource-hook/pull/6) ([@justinekizhak](https://github.com/justinekizhak))
+
+#### ⚠️ Pushed to `main`
+
+- Update README.md ([@justinekizhak](https://github.com/justinekizhak))
+
+#### Authors: 1
+
+- Justine Kizhakkinedath ([@justinekizhak](https://github.com/justinekizhak))
+
+---
+
 # v1.3.2 (Sat Feb 12 2022)
 
 #### ⚠️ Pushed to `main`
