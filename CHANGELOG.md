@@ -1,3 +1,16 @@
+# v1.3.1 (Sat Feb 12 2022)
+
+#### 🐛 Bug Fix
+
+- Refactor all the type declarations [#5](https://github.com/justinekizhak/use-resource-hook/pull/5) ([@justinekizhak](https://github.com/justinekizhak))
+- Improve the performance of the global context [#4](https://github.com/justinekizhak/use-resource-hook/pull/4) ([@justinekizhak](https://github.com/justinekizhak))
+
+#### Authors: 1
+
+- Justine Kizhakkinedath ([@justinekizhak](https://github.com/justinekizhak))
+
+---
+
 # v1.3.0 (Fri Feb 11 2022)
 
 #### 🚀 Enhancement
