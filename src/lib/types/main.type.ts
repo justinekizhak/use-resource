@@ -5,6 +5,7 @@ import {
   ReactPortal
 } from "react";
 import { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
+import { TransformInputType } from "./helpers.type";
 
 export interface DebugObject {
   timestamp: string;
@@ -45,6 +46,15 @@ export interface ContextContainerPropsType {
 export type ContextContainerType = (
   props: ContextContainerPropsType
 ) => JSX.Element;
+
+export interface ChainedRequestConfigType extends Object {
+  baseConfig: AxiosRequestConfig;
+  beforeTask?: BeforeTaskType;
+  task?: TransformInputType;
+  onSuccess?: OnSuccessType;
+  onFailure?: OnFailureType;
+  onFinal?: OnFinalType;
+}
 
 export type BaseConfigType = AxiosRequestConfig | ChainedRequestConfigType[];
 

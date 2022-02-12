@@ -1,17 +1,12 @@
-import { AxiosInstance, AxiosRequestConfig } from "axios";
-import { TransformInputType } from "./helpers.type";
-
+import { AxiosInstance } from "axios";
 import {
   BaseConfigType,
   ResourceType,
   ContextContainerType,
   LoadingComponentType,
-  ErrorComponentType,
-  BeforeTaskType,
-  OnFailureType,
-  OnFinalType,
-  OnSuccessType
-} from "./index.type";
+  ErrorComponentType
+} from "./main.type";
+export type { ChainedRequestConfigType } from "./main.type";
 
 export interface UseResourceOptionsType {
   CustomContext?: React.Context<ResourceType> | null | undefined;
@@ -33,12 +28,3 @@ export type UseResourceType = (
   resourceName: string,
   options?: UseResourceOptionsType
 ) => UseResourceReturnType;
-
-export interface ChainedRequestConfigType extends Object {
-  baseConfig: AxiosRequestConfig;
-  beforeTask?: BeforeTaskType;
-  task?: TransformInputType;
-  onSuccess?: OnSuccessType;
-  onFailure?: OnFailureType;
-  onFinal?: OnFinalType;
-}

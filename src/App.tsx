@@ -1,16 +1,15 @@
 import "./styles.css";
 import { useResource } from "./lib/useResource";
 import { useState, useRef, useContext } from "react";
-import {
-  ChainedRequestConfigType,
-  UseResourceType
-} from "./lib/types/useResource.type";
-import { GlobalResource } from "./lib/index";
+import { GlobalResource } from "./lib";
+import { CommonTypes, HookTypes } from "./lib/types";
 
 export default function App() {
   const [pageNumber, setPageNumber] = useState(1);
   const renderCount = useRef(0);
-  const getConfig = (pageNum = pageNumber): ChainedRequestConfigType[] => [
+  const getConfig = (
+    pageNum = pageNumber
+  ): CommonTypes.ChainedRequestConfigType[] => [
     {
       baseConfig: {
         url: `https://jsonplaceholder.typicode.com/todos/1`
@@ -44,8 +43,11 @@ export default function App() {
     return data;
   });
 
-  const useResourceMain: UseResourceType = (config, name, options = {}) =>
-    useResource(config, name, { useGlobalContext: false, ...options });
+  const useResourceMain: HookTypes.UseResourceType = (
+    config,
+    name,
+    options = {}
+  ) => useResource(config, name, { useGlobalContext: false, ...options });
 
   const { refetch } = useResourceMain(getConfig(), "todoDetails", {
     useGlobalContext: true

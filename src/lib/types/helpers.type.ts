@@ -1,5 +1,5 @@
 import { AxiosRequestConfig } from "axios";
-import { AccumulatorContainer, NextType } from "./index.type";
+import { AccumulatorContainer, NextType } from "./main.type";
 
 export type MessageQueueInfoType = [boolean, string];
 

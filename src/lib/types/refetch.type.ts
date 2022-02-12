@@ -8,7 +8,7 @@ import {
   OnFinalType,
   OnSuccessType,
   TaskType
-} from "./index.type";
+} from "./main.type";
 
 export interface RefetchFunctionArgType {
   accumulator: AccumulatorContainer;
