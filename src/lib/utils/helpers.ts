@@ -116,11 +116,11 @@ export const getFinalRequestChain = (
   newChainedRequestData: ChainedRequestConfigType,
   index: number,
   fullBaseConfigList: ChainedRequestConfigType[],
-  beforeTask: BeforeEventType,
-  task: EventType,
-  onSuccess: OnSuccessType,
-  onFailure: OnFailureType,
-  onFinal: OnFinishType,
+  internal_beforeEvent: BeforeEventType,
+  internal_event: EventType,
+  internal_onSuccess: OnSuccessType,
+  internal_onFailure: OnFailureType,
+  internal_onFinish: OnFinishType,
   controllerInstance: MutableRefObject<AbortController> | undefined = undefined
 ): Internal_ChainedRequestConfigType => {
   const oldChainedRequestData = fullBaseConfigList[index];
@@ -128,33 +128,35 @@ export const getFinalRequestChain = (
     ...oldChainedRequestData["baseConfig"],
     ...newChainedRequestData["baseConfig"]
   };
-  // The new beforeTask will overwrite the old beforeTask
-  const finalBeforeTask: BeforeEventType = (
+  // The new beforeEvent will overwrite the old beforeEvent
+  const _beforeEvent: BeforeEventType = (
     acc,
     next,
     disableStateUpdate = false
   ) => {
-    const func: BeforeEventType = getFunc(newChainedRequestData, "beforeTask");
+    const func: BeforeEventType = getFunc(newChainedRequestData, "beforeEvent");
     func(acc, next);
-    beforeTask(acc, next, disableStateUpdate);
+    internal_beforeEvent(acc, next, disableStateUpdate);
   };
 
-  // The new task will overwrite all the task
-  const finalTask: EventType = async (customConfig, acc, next) => {
-    const func: TransformConfigType = getFunc(newChainedRequestData, "task");
-    const config1 = {
+  // The new event will overwrite all the event
+  const _event: EventType = async (customConfig, acc, next) => {
+    const func: TransformConfigType = getFunc(
+      newChainedRequestData,
+      "transformConfig"
+    );
+    const config = {
       signal: controllerInstance?.current?.signal,
       ...finalConfig,
       ...customConfig
     };
-    const newConfig: AxiosRequestConfig =
-      (await func(config1, acc, next)) || config1;
-    const res = await task(newConfig, acc, next);
+    const newConfig: AxiosRequestConfig = func(config, acc, next) || config;
+    const res = await internal_event(newConfig, acc, next);
     return res;
   };
 
-  // Runs the request through the user callback then the response is sent to the actual success task
-  const finalOnSuccess: OnSuccessType = (
+  // Runs the request through the user callback then the response is sent to the actual success event
+  const _onSuccess: OnSuccessType = (
     res,
     acc,
     next,
@@ -162,38 +164,33 @@ export const getFinalRequestChain = (
   ) => {
     const func: TransformSuccessType = getFunc(
       newChainedRequestData,
-      "onSuccess"
+      "transformSuccess"
     );
     const res2: any = func(res, acc, next) || res;
-    const res3 = onSuccess(res2, acc, next, disableStateUpdate);
-    return res3;
+    internal_onSuccess(res2, acc, next, disableStateUpdate);
   };
 
-  const finalOnFailure: OnFailureType = (error, acc, next) => {
+  const _onFailure: OnFailureType = (error, acc, next) => {
     const func: TransformFailureType = getFunc(
       newChainedRequestData,
-      "onFailure"
+      "transformFailure"
     );
     const res = func(error, acc, next) || error;
-    onFailure(res, acc, next);
+    internal_onFailure(res, acc, next);
   };
 
-  const finalOnFinal: OnFinishType = (
-    acc,
-    next,
-    disableStateUpdate = false
-  ) => {
-    const func: OnFinishType = getFunc(newChainedRequestData, "onFinal");
+  const _onFinish: OnFinishType = (acc, next, disableStateUpdate = false) => {
+    const func: OnFinishType = getFunc(newChainedRequestData, "onFinish");
     func(acc, next);
-    onFinal(acc, next, disableStateUpdate);
+    internal_onFinish(acc, next, disableStateUpdate);
   };
 
   return {
     baseConfig: finalConfig,
-    beforeTask: finalBeforeTask,
-    task: finalTask,
-    onSuccess: finalOnSuccess,
-    onFailure: finalOnFailure,
-    onFinal: finalOnFinal
+    beforeEvent: _beforeEvent,
+    event: _event,
+    onSuccess: _onSuccess,
+    onFailure: _onFailure,
+    onFinish: _onFinish
   };
 };

@@ -158,7 +158,7 @@ export function useResource<T>(
     [useGlobalContext, dispatch, resourceName]
   );
 
-  const beforeTask: BeforeEventType = useCallback(
+  const beforeEvent: BeforeEventType = useCallback(
     (acc = accumulator, next = defaultNext, disableStateUpdate = false) => {
       pushToDebug("[FETCHING RESOURCE] BEFORE TASK");
       if (!disableStateUpdate) {
@@ -181,7 +181,7 @@ export function useResource<T>(
     [pushToDebug, updateGlobalState]
   );
 
-  const task: EventType = useCallback(
+  const event: EventType = useCallback(
     async (customConfig, acc = accumulator, next = defaultNext) => {
       const axiosConfig = {
         signal: controllerInstance.current.signal,
@@ -245,7 +245,7 @@ export function useResource<T>(
     [pushToDebug, updateGlobalState]
   );
 
-  const onFinal: OnFinishType = useCallback(
+  const onFinish: OnFinishType = useCallback(
     (acc, next, disableStateUpdate = false) => {
       pushToDebug("[FETCHING RESOURCE] TASK END", acc);
       if (!disableStateUpdate) {
@@ -262,11 +262,11 @@ export function useResource<T>(
       refetchFunction({
         accumulator,
         defaultNext,
-        beforeTask,
-        task,
+        beforeEvent,
+        event,
         onSuccess,
         onFailure,
-        onFinal,
+        onFinish,
         isMessageQueueAvailable,
         messageQueueName,
         pushToMessageQueue,
@@ -275,11 +275,11 @@ export function useResource<T>(
         controllerInstance
       })(customConfig),
     [
-      beforeTask,
-      task,
+      beforeEvent,
+      event,
       onSuccess,
       onFailure,
-      onFinal,
+      onFinish,
       isMessageQueueAvailable,
       pushToMessageQueue,
       messageQueueName,

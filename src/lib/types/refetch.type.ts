@@ -13,11 +13,11 @@ import type {
 export interface RefetchFunctionArgType {
   accumulator: AccumulatorContainer;
   defaultNext: NextCallbackType;
-  beforeTask: BeforeEventType;
-  task: EventType;
+  beforeEvent: BeforeEventType;
+  event: EventType;
   onSuccess: OnSuccessType;
   onFailure: OnFailureType;
-  onFinal: OnFinishType;
+  onFinish: OnFinishType;
   isMessageQueueAvailable: boolean;
   messageQueueName: string;
   pushToMessageQueue: (data: any) => void;

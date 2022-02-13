@@ -2,7 +2,7 @@ import "./styles.css";
 import { useResource } from "./lib/useResource";
 import { useState, useRef, useContext } from "react";
 import { GlobalResource } from "./lib";
-import { CommonTypes, HookTypes } from "./lib/types";
+import { HookTypes } from "./lib/types";
 
 export default function App() {
   const [pageNumber, setPageNumber] = useState(1);
@@ -19,11 +19,10 @@ export default function App() {
       baseConfig: {
         url: `https://jsonplaceholder.typicode.com/todos/2`
       },
-      task: (config) => {
+      transformConfig: (config) => {
         config.params = {
           hi: "hello"
         };
-        return config;
       }
     },
     {
