@@ -10,13 +10,13 @@ import { getBaseConfig, getFinalRequestChain } from "./helpers";
 
 export const refetchFunction: RefetchFunctionType =
   ({
-    accumulator,
-    defaultNext,
-    beforeTask,
-    task,
-    onSuccess,
-    onFailure,
-    onFinal,
+    accumulator: internal_accumulator,
+    defaultNext: internal_defaultNext,
+    beforeEvent: internal_beforeEvent,
+    event: internal_event,
+    onSuccess: internal_onSuccess,
+    onFailure: internal_onFailure,
+    onFinish: internal_onFinish,
     isMessageQueueAvailable,
     messageQueueName,
     pushToMessageQueue,
@@ -25,39 +25,39 @@ export const refetchFunction: RefetchFunctionType =
     controllerInstance
   }) =>
   (customConfig: BaseConfigType = {}) => {
-    const taskMaster = async (
+    const eventMaster = async (
       index = 0,
-      acc: AccumulatorContainer = accumulator,
-      next: NextCallbackType = defaultNext,
-      _baseConfig = getBaseConfig(customConfig, index),
-      _beforeTask = beforeTask,
-      _task = task,
-      _onSuccess = onSuccess,
-      _onFailure = onFailure,
-      _onFinal = onFinal,
+      em_acc: AccumulatorContainer = internal_accumulator,
+      em_next: NextCallbackType = internal_defaultNext,
+      em_baseConfig = getBaseConfig(customConfig, index),
+      em_beforeEvent = internal_beforeEvent,
+      em_event = internal_event,
+      em_onSuccess = internal_onSuccess,
+      em_onFailure = internal_onFailure,
+      em_onFinish = internal_onFinish,
       totalTask = 1
     ) => {
       const fullTask = async () => {
         const isFirstInChain = index === 0;
         const isLastInChain = index === totalTask - 1;
         try {
-          _beforeTask(acc, next, !isFirstInChain);
-          const res = await _task(_baseConfig, acc, next);
-          _onSuccess(res, acc, next, !isLastInChain);
+          em_beforeEvent(em_acc, em_next, !isFirstInChain);
+          const res = await em_event(em_baseConfig, em_acc, em_next);
+          em_onSuccess(res, em_acc, em_next, !isLastInChain);
         } catch (error) {
-          _onFailure(error, acc, next);
+          em_onFailure(error, em_acc, em_next);
         } finally {
-          _onFinal(acc, next, !isLastInChain);
+          em_onFinish(em_acc, em_next, !isLastInChain);
         }
       };
       if (isMessageQueueAvailable) {
         pushToMessageQueue({
           key: messageQueueName,
-          beforeTask: _beforeTask,
-          task: _task,
-          onSuccess: _onSuccess,
-          onFailure: _onFailure,
-          onFinal: _onFinal,
+          beforeEvent: em_beforeEvent,
+          event: em_event,
+          onSuccess: em_onSuccess,
+          onFailure: em_onFailure,
+          onFinish: em_onFinish,
           fullTask
         });
       } else {
@@ -65,50 +65,50 @@ export const refetchFunction: RefetchFunctionType =
       }
     };
     if (!useRequestChaining) {
-      accumulator.current = [];
-      taskMaster();
+      internal_accumulator.current = [];
+      eventMaster();
     } else {
       const main = async () => {
-        const acc: AccumulatorContainer = { current: [] };
-        const next: NextCallbackType = (data: any) => {
+        const cr_acc: AccumulatorContainer = { current: [] };
+        const cr_next: NextCallbackType = (data: any) => {
           if (data) {
-            acc.current.push(data);
+            cr_acc.current.push(data);
           }
-          return acc;
+          return cr_acc;
         };
         const baseConfigList =
           baseConfigRef.current as ChainedRequestConfigType[];
         for (let index = 0; index < baseConfigList.length; index++) {
           const requestChain = baseConfigList[index];
           const {
-            baseConfig: _final_baseConfig,
-            beforeTask: _final_beforeTask,
-            task: _final_task,
-            onSuccess: _final_onSuccess,
-            onFailure: _final_onFailure,
-            onFinal: _final_onFinal
+            baseConfig: cr_baseConfig,
+            beforeEvent: cr_beforeEvent,
+            event: cr_event,
+            onSuccess: cr_onSuccess,
+            onFailure: cr_onFailure,
+            onFinish: cr_onFinish
           } = getFinalRequestChain(
             requestChain,
             index,
             baseConfigList,
-            beforeTask,
-            task,
-            onSuccess,
-            onFailure,
-            onFinal,
+            internal_beforeEvent,
+            internal_event,
+            internal_onSuccess,
+            internal_onFailure,
+            internal_onFinish,
             controllerInstance
           );
           const totalTask = baseConfigList.length;
-          await taskMaster(
+          await eventMaster(
             index,
-            acc,
-            next,
-            _final_baseConfig,
-            _final_beforeTask,
-            _final_task,
-            _final_onSuccess,
-            _final_onFailure,
-            _final_onFinal,
+            cr_acc,
+            cr_next,
+            cr_baseConfig,
+            cr_beforeEvent,
+            cr_event,
+            cr_onSuccess,
+            cr_onFailure,
+            cr_onFinish,
             totalTask
           );
         }

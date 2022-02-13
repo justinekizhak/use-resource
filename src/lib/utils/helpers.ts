@@ -128,20 +128,23 @@ export const getFinalRequestChain = (
     ...oldChainedRequestData["baseConfig"],
     ...newChainedRequestData["baseConfig"]
   };
-  // The new beforeTask will overwrite the old beforeTask
+  // The new beforeEvent will overwrite the old beforeEvent
   const _beforeEvent: BeforeEventType = (
     acc,
     next,
     disableStateUpdate = false
   ) => {
-    const func: BeforeEventType = getFunc(newChainedRequestData, "beforeTask");
+    const func: BeforeEventType = getFunc(newChainedRequestData, "beforeEvent");
     func(acc, next);
     internal_beforeEvent(acc, next, disableStateUpdate);
   };
 
-  // The new task will overwrite all the task
+  // The new event will overwrite all the event
   const _event: EventType = async (customConfig, acc, next) => {
-    const func: TransformConfigType = getFunc(newChainedRequestData, "task");
+    const func: TransformConfigType = getFunc(
+      newChainedRequestData,
+      "transformConfig"
+    );
     const config = {
       signal: controllerInstance?.current?.signal,
       ...finalConfig,
@@ -152,7 +155,7 @@ export const getFinalRequestChain = (
     return res;
   };
 
-  // Runs the request through the user callback then the response is sent to the actual success task
+  // Runs the request through the user callback then the response is sent to the actual success event
   const _onSuccess: OnSuccessType = (
     res,
     acc,
@@ -161,24 +164,23 @@ export const getFinalRequestChain = (
   ) => {
     const func: TransformSuccessType = getFunc(
       newChainedRequestData,
-      "onSuccess"
+      "transformSuccess"
     );
     const res2: any = func(res, acc, next) || res;
-    const res3 = internal_onSuccess(res2, acc, next, disableStateUpdate);
-    return res3;
+    internal_onSuccess(res2, acc, next, disableStateUpdate);
   };
 
   const _onFailure: OnFailureType = (error, acc, next) => {
     const func: TransformFailureType = getFunc(
       newChainedRequestData,
-      "onFailure"
+      "transformFailure"
     );
     const res = func(error, acc, next) || error;
     internal_onFailure(res, acc, next);
   };
 
   const _onFinish: OnFinishType = (acc, next, disableStateUpdate = false) => {
-    const func: OnFinishType = getFunc(newChainedRequestData, "onFinal");
+    const func: OnFinishType = getFunc(newChainedRequestData, "onFinish");
     func(acc, next);
     internal_onFinish(acc, next, disableStateUpdate);
   };
