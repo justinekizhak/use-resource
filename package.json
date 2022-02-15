@@ -58,8 +58,7 @@
       "all-contributors",
       "conventional-commits",
       "first-time-contributor",
-      "released",
-      "magic-zero"
+      "released"
     ]
   },
   "publishConfig": {
