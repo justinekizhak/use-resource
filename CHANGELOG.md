@@ -1,3 +1,15 @@
+# v0.2.1 (Tue Feb 15 2022)
+
+#### ⚠️ Pushed to `main`
+
+- Update issues.yml ([@justinekizhak](https://github.com/justinekizhak))
+
+#### Authors: 1
+
+- Justine Kizhakkinedath ([@justinekizhak](https://github.com/justinekizhak))
+
+---
+
 # v0.2.0 (Tue Feb 15 2022)
 
 :tada: This release contains work from a new contributor! :tada:
