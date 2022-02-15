@@ -4,6 +4,7 @@ specifiers:
   '@auto-it/all-contributors': ^10.32.6
   '@auto-it/conventional-commits': ^10.32.6
   '@auto-it/first-time-contributor': ^10.32.6
+  '@auto-it/magic-zero': ^10.32.6
   '@types/react': 17.0.20
   '@types/react-dom': 17.0.9
   auto: ^10.32.6
@@ -23,6 +24,7 @@ devDependencies:
   '@auto-it/all-contributors': 10.32.6_typescript@4.4.2
   '@auto-it/conventional-commits': 10.32.6_typescript@4.4.2
   '@auto-it/first-time-contributor': 10.32.6_typescript@4.4.2
+  '@auto-it/magic-zero': 10.32.6_typescript@4.4.2
   '@types/react': 17.0.20
   '@types/react-dom': 17.0.9
   auto: 10.32.6_typescript@4.4.2
@@ -147,6 +149,21 @@ packages:
       endent: 2.1.0
       tslib: 2.1.0
       url-join: 4.0.1
+    transitivePeerDependencies:
+      - '@octokit/core'
+      - encoding
+      - supports-color
+      - typescript
+    dev: true
+
+  /@auto-it/magic-zero/10.32.6_typescript@4.4.2:
+    resolution: {integrity: sha512-RZdKH/F7n4kG1yHon6lJSR9r2yeun0JpaOTox/NPjk94X+REhXvTnxvUM/6lwKbmpFQ1CDAjQx4a34hnq0Chjw==}
+    dependencies:
+      '@auto-it/core': 10.32.6_typescript@4.4.2
+      fp-ts: 2.11.8
+      io-ts: 2.2.16_fp-ts@2.11.8
+      semver: 7.3.5
+      tslib: 2.1.0
     transitivePeerDependencies:
       - '@octokit/core'
       - encoding
