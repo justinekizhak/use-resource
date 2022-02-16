@@ -1,5 +1,7 @@
 # useResource
 
+[![Release](https://github.com/justinekizhak/use-resource-hook/actions/workflows/publish.yml/badge.svg)](https://github.com/justinekizhak/use-resource-hook/actions/workflows/publish.yml)
+
 The easiest way to fetch data from an API without any boilerplate code.
 
 ## Installation
