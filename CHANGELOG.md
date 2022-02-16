@@ -1,3 +1,19 @@
+# v0.2.2 (Wed Feb 16 2022)
+
+#### 🐛 Bug Fix
+
+- Bugfix: Fix the import issue [#14](https://github.com/justinekizhak/use-resource-hook/pull/14) ([@justinekizhak](https://github.com/justinekizhak))
+
+#### ⚠️ Pushed to `main`
+
+- Update README.md ([@justinekizhak](https://github.com/justinekizhak))
+
+#### Authors: 1
+
+- Justine Kizhakkinedath ([@justinekizhak](https://github.com/justinekizhak))
+
+---
+
 # v0.2.1 (Tue Feb 15 2022)
 
 #### ⚠️ Pushed to `main`
