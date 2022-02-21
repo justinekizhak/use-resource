@@ -6,9 +6,7 @@
   "license": "MIT",
   "private": false,
   "source": "./src",
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "main": "dist/index.js",
   "module": "dist/index.js",
   "types": "dist/types/index.d.ts",
@@ -40,16 +38,11 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "yarn tsc",
-    "test": "react-scripts test --env=jsdom",
+    "test": "react-scripts test --env=jsdom --coverage",
     "eject": "react-scripts eject",
     "release": "auto shipit --base-branch=main"
   },
-  "browserslist": [
-    ">0.2%",
-    "not dead",
-    "not ie <= 11",
-    "not op_mini all"
-  ],
+  "browserslist": [">0.2%", "not dead", "not ie <= 11", "not op_mini all"],
   "repository": "https://github.com/justinekizhak/use-resource",
   "author": "Justine Kizhakkinedath <justine@kizhak.com>",
   "auto": {
@@ -64,5 +57,9 @@
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",
     "access": "public"
+  },
+  "jest": {
+    "collectCoverage": true,
+    "coverageReporters": ["json", "html"]
   }
 }
