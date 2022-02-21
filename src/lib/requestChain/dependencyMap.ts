@@ -1,5 +1,6 @@
 import { DependencyMapType } from "../types/requestChain/dependencyMap.type";
 import type { ChainedRequestConfigType } from "../types/useResource.type";
+import { getName } from "../utils/requestChain";
 
 export const createDependencyMap = (
   requestChain: ChainedRequestConfigType[]
@@ -8,12 +9,12 @@ export const createDependencyMap = (
   let start: string = "";
   let previousDep: string | null = null;
   requestChain.forEach((request, index) => {
-    const dependencyName: string = request?.dependencyName || `${index}`;
+    const dependencyName: string = getName(request, index);
     let dependencyList: string[] | null | undefined = request?.dependencyList;
     if (!dependencyList && previousDep) {
       dependencyList = [previousDep];
     }
-    request.dependencyName = dependencyName;
+    request.requestName = dependencyName;
     map[dependencyName] = dependencyList || null;
     previousDep = dependencyName;
     if (!start) {

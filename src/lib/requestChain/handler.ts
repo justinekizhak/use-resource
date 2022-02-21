@@ -4,8 +4,8 @@ import type {
 } from "../types/main.type";
 import type { RequestChainHandlerType } from "../types/refetch.type";
 import type { ChainedRequestConfigType } from "../types/useResource.type";
-import { createDependencyMap } from "./dependencyMap";
 import { getFinalRequestChain } from "../utils/helpers";
+import { execute } from "./parallelApiHandler";
 
 export const requestChainHandler: RequestChainHandlerType = ({
   baseConfigRef,
@@ -25,9 +25,7 @@ export const requestChainHandler: RequestChainHandlerType = ({
     return cr_acc;
   };
   const baseConfigList = baseConfigRef.current as ChainedRequestConfigType[];
-
-  for (let index = 0; index < baseConfigList.length; index++) {
-    const requestChain = baseConfigList[index];
+  await execute(baseConfigList, async (requestConfig, index) => {
     const {
       baseConfig: cr_baseConfig,
       beforeEvent: cr_beforeEvent,
@@ -36,7 +34,7 @@ export const requestChainHandler: RequestChainHandlerType = ({
       onFailure: cr_onFailure,
       onFinish: cr_onFinish
     } = getFinalRequestChain(
-      requestChain,
+      requestConfig,
       index,
       baseConfigList,
       internal_beforeEvent,
@@ -59,95 +57,5 @@ export const requestChainHandler: RequestChainHandlerType = ({
       cr_onFinish,
       totalTask
     );
-  }
+  });
 };
-
-function getIsDepsResolved(
-  allResolvedDeps: string[],
-  currentDeps: string[] | null | undefined
-) {
-  if (currentDeps === null || currentDeps === undefined) {
-    return true;
-  }
-  for (const dep of currentDeps) {
-    if (!allResolvedDeps.includes(dep)) {
-      return false;
-    }
-  }
-  return true;
-}
-
-function getName(request: ChainedRequestConfigType, index = 0) {
-  return request?.dependencyName || `${index}`;
-}
-
-function getAllName(requestChain: ChainedRequestConfigType[]): string[] {
-  const output = requestChain.map((request, index) => {
-    return getName(request, index);
-  });
-  return output;
-}
-
-interface RequestMap {
-  [key: string]: ChainedRequestConfigType;
-}
-
-function getRequestMap(requestChain: ChainedRequestConfigType[]): RequestMap {
-  const output: RequestMap = {};
-  requestChain.forEach((request, index) => {
-    const name = getName(request, index);
-    output[name] = request;
-  });
-  return output;
-}
-
-async function dummyApi(requestName: string) {
-  const p = new Promise((resolve) =>
-    setTimeout(() => {
-      console.log(requestName);
-      resolve(requestName);
-    }, 1000)
-  );
-  await p;
-}
-
-function removeItemAll(arr: string[], value: string) {
-  var i = 0;
-  while (i < arr.length) {
-    if (arr[i] === value) {
-      arr.splice(i, 1);
-    } else {
-      ++i;
-    }
-  }
-  return arr;
-}
-
-async function execute(requestChain: ChainedRequestConfigType[]) {
-  const requestMap = getRequestMap(requestChain);
-
-  const backlog: string[] = getAllName(requestChain);
-  const done: string[] = [];
-
-  let keepRunning = true;
-
-  while (keepRunning) {
-    const promises = [];
-    const inProgress: string[] = [];
-    for (const requestName of [...backlog]) {
-      const request = requestMap[requestName];
-      const isDepsResolved = getIsDepsResolved(done, request?.dependencyList);
-      if (isDepsResolved) {
-        inProgress.push(requestName);
-        removeItemAll(backlog, requestName);
-        const p = dummyApi(requestName);
-        promises.push(p);
-      }
-    }
-    await Promise.all(promises);
-    done.push(...inProgress);
-    if (backlog.length === 0) {
-      keepRunning = false;
-    }
-  }
-}

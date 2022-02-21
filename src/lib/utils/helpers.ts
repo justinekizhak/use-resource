@@ -1,4 +1,4 @@
-import { MutableRefObject } from "react";
+import { MutableRefObject, useEffect, useRef } from "react";
 import { AxiosRequestConfig, AxiosResponse, AxiosError } from "axios";
 import type {
   MessageQueueInfoType,
@@ -194,3 +194,19 @@ export const getFinalRequestChain = (
     onFinish: _onFinish
   };
 };
+
+export function useTraceUpdate(props: object) {
+  const prev = useRef(props);
+  useEffect(() => {
+    const changedProps = Object.entries(props).reduce((ps, [k, v]) => {
+      if (prev.current[k] !== v) {
+        ps[k] = [prev.current[k], v];
+      }
+      return ps;
+    }, {});
+    if (Object.keys(changedProps).length > 0) {
+      console.log("Changed props:", changedProps);
+    }
+    prev.current = props;
+  });
+}

@@ -30,7 +30,7 @@ export const GlobalResourceContextProvider = (props: {
     }
     state.current[key] = newData;
     const allAffectedCallbacks = stateCallbacks.current[key];
-    allAffectedCallbacks.forEach((callback) => {
+    allAffectedCallbacks?.forEach((callback) => {
       callback(data);
     });
   }, []);
