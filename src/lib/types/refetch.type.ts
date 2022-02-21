@@ -1,3 +1,4 @@
+import { AxiosRequestConfig } from "axios";
 import { MutableRefObject } from "react";
 import type {
   AccumulatorContainer,
@@ -29,3 +30,31 @@ export interface RefetchFunctionArgType {
 export type RefetchFunctionType = (
   args: RefetchFunctionArgType
 ) => (customConfig?: BaseConfigType) => void;
+
+export type EventMasterFuncType = (
+  index?: number,
+  em_acc?: AccumulatorContainer,
+  em_next?: NextCallbackType,
+  em_baseConfig?: AxiosRequestConfig,
+  em_beforeEvent?: BeforeEventType,
+  em_event?: EventType,
+  em_onSuccess?: OnSuccessType,
+  em_onFailure?: OnFailureType,
+  em_onFinish?: OnFinishType,
+  totalTask?: number
+) => Promise<void>;
+
+export interface RequestChainHanderArgType {
+  baseConfigRef: MutableRefObject<BaseConfigType>;
+  internal_beforeEvent: BeforeEventType;
+  internal_event: EventType;
+  internal_onSuccess: OnSuccessType;
+  internal_onFailure: OnFailureType;
+  internal_onFinish: OnFinishType;
+  controllerInstance: MutableRefObject<AbortController>;
+  eventMaster: EventMasterFuncType;
+}
+
+export type RequestChainHandlerType = (
+  args: RequestChainHanderArgType
+) => () => void;
