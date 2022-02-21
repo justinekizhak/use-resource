@@ -6,7 +6,9 @@
   "license": "MIT",
   "private": false,
   "source": "./src",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "main": "dist/index.js",
   "module": "dist/index.js",
   "types": "dist/types/index.d.ts",
@@ -30,6 +32,7 @@
     "@auto-it/conventional-commits": "^10.32.6",
     "@auto-it/first-time-contributor": "^10.32.6",
     "@auto-it/magic-zero": "^10.32.6",
+    "@types/jest": "^27.4.0",
     "@types/react": "17.0.20",
     "@types/react-dom": "17.0.9",
     "auto": "^10.32.6",
@@ -38,11 +41,18 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "yarn tsc",
-    "test": "react-scripts test --env=jsdom --coverage",
+    "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
-    "release": "auto shipit --base-branch=main"
+    "release": "auto shipit --base-branch=main",
+    "pretest": "cp tsconfig.json tsconfig.json.save",
+    "posttest": "mv tsconfig.json.save tsconfig.json"
   },
-  "browserslist": [">0.2%", "not dead", "not ie <= 11", "not op_mini all"],
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ],
   "repository": "https://github.com/justinekizhak/use-resource",
   "author": "Justine Kizhakkinedath <justine@kizhak.com>",
   "auto": {
@@ -57,9 +67,5 @@
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",
     "access": "public"
-  },
-  "jest": {
-    "collectCoverage": true,
-    "coverageReporters": ["json", "html"]
   }
 }

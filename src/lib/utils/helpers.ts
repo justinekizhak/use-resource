@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { MutableRefObject, useEffect, useRef } from "react";
 import { AxiosRequestConfig, AxiosResponse, AxiosError } from "axios";
 import type {
