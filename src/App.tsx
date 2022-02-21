@@ -45,9 +45,6 @@ export default function App() {
       baseConfig: {
         url: `https://jsonplaceholder.typicode.com/todos/5`
       },
-      beforeEvent(acc) {
-        console.log("config: ", acc);
-      },
       requestName: "5",
       dependencyList: ["2", "4"]
     }

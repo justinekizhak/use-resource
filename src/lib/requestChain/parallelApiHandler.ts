@@ -1,5 +1,7 @@
 import type { ChainedRequestConfigType } from "../types/useResource.type";
 import { getName } from "../utils/requestChain";
+import { getAllDependencyName } from "../utils/requestChain";
+import type { RequestIndexMapType } from "../types/requestChain/dependencyMap.type";
 
 function getIsDepsResolved(
   allResolvedDeps: string[],
@@ -14,13 +16,6 @@ function getIsDepsResolved(
     }
   }
   return true;
-}
-
-function getAllName(requestChain: ChainedRequestConfigType[]): string[] {
-  const output = requestChain.map((request, index) => {
-    return getName(request, index);
-  });
-  return output;
 }
 
 interface RequestMap {
@@ -61,10 +56,6 @@ function removeItemAll(arr: string[], value: string) {
   return arr;
 }
 
-interface RequestIndexMapType {
-  [key: string]: number;
-}
-
 function getRequestIndexMap(
   requestChain: ChainedRequestConfigType[]
 ): RequestIndexMapType {
@@ -83,7 +74,7 @@ export async function execute(
   const requestMap = getRequestMap(requestChain);
   const requestIndexMap = getRequestIndexMap(requestChain);
 
-  const backlog: string[] = getAllName(requestChain);
+  const backlog: string[] = getAllDependencyName(requestChain);
   const done: string[] = [];
 
   let keepRunning = true;

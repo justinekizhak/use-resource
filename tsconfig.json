@@ -23,6 +23,15 @@
     "sourceMap": true,
     "outDir": "dist",
     "emitDeclarationOnly": false,
-    "declarationDir": "./dist/types"
+    "declarationDir": "./dist/types",
+    "baseUrl": ".",
+    "paths": {
+      "~/*": [
+        "./src/*"
+      ],
+      "@/*": [
+        "./src/lib/*"
+      ]
+    }
   }
 }
