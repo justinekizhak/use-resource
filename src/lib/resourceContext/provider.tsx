@@ -25,13 +25,13 @@ export const GlobalResourceContextProvider = (props: {
     }
     const oldData = state.current[key];
     const newData = { ...oldData, ...data };
-    if (oldData === newData) {
-      return;
-    }
+    // if (oldData === newData) {
+    //   return;
+    // }
     state.current[key] = newData;
     const allAffectedCallbacks = stateCallbacks.current[key];
     allAffectedCallbacks?.forEach((callback) => {
-      callback(data);
+      callback(newData);
     });
   }, []);
 

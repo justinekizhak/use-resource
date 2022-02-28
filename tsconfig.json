@@ -27,6 +27,6 @@
     "outDir": "dist",
     "emitDeclarationOnly": false,
     "declarationDir": "./dist/types",
-    "baseUrl": "src",
+    "baseUrl": "src"
   }
 }
