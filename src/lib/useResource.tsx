@@ -42,7 +42,8 @@ import {
   getTriggerDependencies,
   getMessageQueueData,
   getErrorMessage,
-  pushToAcc
+  pushToAcc,
+  useTraceUpdate
 } from "./utils/helpers";
 
 import { refetchFunction } from "./utils/refetch";
@@ -69,6 +70,10 @@ export function useResource<T>(
   resourceName: string = "resource",
   options: UseResourceOptionsType<T> = {}
 ): UseResourceReturnType<T> {
+  // const renderCount = useRef(0);
+  // renderCount.current++;
+  // useTraceUpdate(baseConfig);
+
   const {
     CustomContext = null,
     triggerOn = "onMount",
@@ -105,8 +110,9 @@ export function useResource<T>(
     defaultConfigRef.current
   );
 
-  const [isMessageQueueAvailable, messageQueueName] =
-    getMessageQueueData(useMessageQueue);
+  const [isMessageQueueAvailable, messageQueueName] = getMessageQueueData(
+    useMessageQueue
+  );
 
   const defaultNext: NextCallbackType = (data) => {
     if (data) {

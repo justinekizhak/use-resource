@@ -45,6 +45,8 @@ export interface ChainedRequestConfigType extends Object {
   transformSuccess?: TransformSuccessType;
   transformFailure?: TransformFailureType;
   onFinish?: OnFinishType;
+  requestName?: string;
+  dependencyList?: string[] | null | undefined;
 }
 
 export interface Internal_ChainedRequestConfigType extends Object {

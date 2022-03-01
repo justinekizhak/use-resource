@@ -2,6 +2,9 @@
   "include": [
     "./src/lib/**/*"
   ],
+  "exclude": [
+    "./src/lib/__tests__/**/*"
+  ],
   "compilerOptions": {
     "strict": true,
     "esModuleInterop": true,
@@ -23,6 +26,7 @@
     "sourceMap": true,
     "outDir": "dist",
     "emitDeclarationOnly": false,
-    "declarationDir": "./dist/types"
+    "declarationDir": "./dist/types",
+    "baseUrl": "src"
   }
 }

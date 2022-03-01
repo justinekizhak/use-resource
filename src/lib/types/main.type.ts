@@ -29,7 +29,7 @@ export type ResourceType<T> = {
   errorData: object | null | undefined;
   debug: MutableRefObject<DebugObject[]>;
   cancel: any;
-  refetch: (customConfig: BaseConfigType) => void;
+  refetch: (customConfig?: BaseConfigType) => void;
 };
 
 export type LoadingComponentType = () => JSX.Element;
