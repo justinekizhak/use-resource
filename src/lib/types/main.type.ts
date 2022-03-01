@@ -32,6 +32,18 @@ export type ResourceType<T> = {
   refetch: (customConfig?: BaseConfigType) => void;
 };
 
+/**
+ * Resource type object keys
+ */
+export type ResourceKeyType =
+  | "data"
+  | "isLoading"
+  | "isFetching"
+  | "errorData"
+  | "debug"
+  | "cancel"
+  | "refetch";
+
 export type LoadingComponentType = () => JSX.Element;
 export type ErrorComponentType = (
   errorMessage: string,

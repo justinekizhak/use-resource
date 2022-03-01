@@ -1,18 +1,21 @@
-import type { ResourceType } from "../main.type";
+import React from "react";
+import type { ResourceType, ResourceKeyType } from "../main.type";
 
 export type DispatchType<T> = (
   key: string,
   stateSlice: ResourceType<T>
 ) => void;
 
-export type SelectorCallbackType<T> = (
-  stateSlice: ResourceType<T>
-) => ResourceType<T>;
+export type SelectorCallbackType<T> = (resourceData: ResourceType<T>) => void;
+
+type ReactStateSetter<S> = React.Dispatch<React.SetStateAction<S>>;
 
 export type SelectorType<T> = (
-  key: string,
-  callback: SelectorCallbackType<T>
-) => ResourceType<T> | undefined;
+  resourceName: string,
+  dataKeyOrCallback: ResourceKeyType | SelectorCallbackType<T>,
+  stateSetter?: ReactStateSetter<T>,
+  cachedData?: any
+) => void;
 
 export type GlobalResourceContextType<T> = {
   dispatch: DispatchType<T>;
