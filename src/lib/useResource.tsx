@@ -39,7 +39,7 @@ import {
   pushToAcc
 } from "./utils/helpers";
 
-import { useDispatch } from "lib/resourceContext/hooks";
+import { useDispatch, usePublish } from "lib/resourceContext/hooks";
 
 import { refetchFunction } from "./utils/refetch";
 
@@ -84,6 +84,7 @@ export function useResource<T>(
   const defaultConfig = getBaseConfig(baseConfig);
 
   const dispatch = useDispatch(CustomContext);
+  const publish = usePublish(CustomContext);
 
   const [data, setData] = useState<T>();
   const [isLoading, setIsLoading] = useState(false);
@@ -102,8 +103,9 @@ export function useResource<T>(
     defaultConfigRef.current
   );
 
-  const [isMessageQueueAvailable, messageQueueName] = getMessageQueueData(
-    useMessageQueue
+  const [isMessageQueueAvailable] = getMessageQueueData(
+    useMessageQueue,
+    resourceName
   );
 
   const defaultNext: NextCallbackType = (data) => {
@@ -131,8 +133,9 @@ export function useResource<T>(
   const pushToMessageQueue = useCallback(
     (data) => {
       pushToDebug("PUSHING TO MESSAGE QUEUE: ", data);
+      publish(data);
     },
-    [pushToDebug]
+    [pushToDebug, publish]
   );
 
   useEffect(() => {
@@ -266,11 +269,11 @@ export function useResource<T>(
         onFailure,
         onFinish,
         isMessageQueueAvailable,
-        messageQueueName,
         pushToMessageQueue,
         useRequestChaining,
         baseConfigRef,
-        controllerInstance
+        controllerInstance,
+        resourceName
       })(customConfig),
     [
       beforeEvent,
@@ -280,8 +283,8 @@ export function useResource<T>(
       onFinish,
       isMessageQueueAvailable,
       pushToMessageQueue,
-      messageQueueName,
-      useRequestChaining
+      useRequestChaining,
+      resourceName
     ]
   );
 

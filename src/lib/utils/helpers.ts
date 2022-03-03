@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { MutableRefObject, useEffect, useRef } from "react";
 import { AxiosRequestConfig, AxiosResponse, AxiosError } from "axios";
 import type {
@@ -50,17 +49,16 @@ export const getTriggerDependencies = (
 };
 
 export const getMessageQueueData = (
-  data: boolean | object = false
+  data: boolean | object = false,
+  fallbackQueueName = ""
 ): MessageQueueInfoType => {
-  return [false, ""];
-  // if (typeof data === "object") {
-  //   const isAvailable = true;
-  //   const keyName = data?.keyName || "";
-  //   return [isAvailable, keyName];
-  // }
-  // const isAvailable = data;
-  // const keyName = `${Date.now()}`;
-  // return [isAvailable, keyName];
+  if (typeof data === "object") {
+    const isAvailable = true;
+    const keyName = data?.keyName || fallbackQueueName;
+    return [isAvailable, keyName];
+  }
+  const isAvailable = data;
+  return [isAvailable, fallbackQueueName];
 };
 
 export const getBaseConfig = (

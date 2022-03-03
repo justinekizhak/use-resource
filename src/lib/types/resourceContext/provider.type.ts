@@ -11,20 +11,22 @@ export type DispatchHookType<T> = (customContext?: React.Context<any>) => T;
 
 export type SelectorCallbackType<T> = (resourceData: ResourceType<T>) => void;
 
-// type ReactStateSetter<S> = React.Dispatch<React.SetStateAction<S>>;
-
 export type SelectorType<T> = (
   resourceName: string,
-  dataKeyOrCallback: ResourceKeyType
+  dataKeyOrCallback: ResourceKeyType<T>
 ) => void;
 
 export type GlobalResourceContextType<T> = {
-  // dispatch: DispatchType<T>;
-  // selector: SelectorType<T>;
   state: React.MutableRefObject<ResourceContextState<T>>;
   stateCallbacks: React.MutableRefObject<ContextCallbackState>;
+  eventQueue: EventQueueType;
 };
 
 export type ContextCallbackState = {
   [key: string]: SelectorCallbackType<any>[];
 };
+
+export type EventType = object;
+
+export type PublishCallbackType = (event: EventType) => void;
+export type EventQueueType = React.MutableRefObject<EventType[]>;

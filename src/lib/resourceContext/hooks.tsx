@@ -4,6 +4,7 @@ import { compareObject } from "../utils/helpers";
 import type { ResourceKeyType } from "../types/main.type";
 import type {
   DispatchType,
+  PublishCallbackType,
   SelectorCallbackType
 } from "../types/resourceContext/provider.type";
 
@@ -65,4 +66,15 @@ export function useSelector<T>(
   };
   stateCallbacks.current[resourceName].push(callback);
   return localValue;
+}
+
+export function usePublish(customContext = GlobalResourceContext) {
+  const { eventQueue } = useContext(customContext);
+  const callback: PublishCallbackType = useCallback(
+    (event) => {
+      eventQueue.current.push(event);
+    },
+    [eventQueue]
+  );
+  return callback;
 }
