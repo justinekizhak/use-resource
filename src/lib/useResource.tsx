@@ -1,11 +1,4 @@
-import {
-  useState,
-  useEffect,
-  useCallback,
-  useRef,
-  useContext,
-  useMemo
-} from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import axios, {
   AxiosRequestConfig,
   AxiosResponse,
@@ -14,7 +7,6 @@ import axios, {
 } from "axios";
 
 import type {
-  ResourceType,
   DebugObject,
   ContextContainerPropsType,
   OnSuccessType,
@@ -24,7 +16,8 @@ import type {
   OnFinishType,
   NextCallbackType,
   BaseConfigType,
-  AccumulatorType
+  AccumulatorType,
+  ContentWrapperType
 } from "./types/main.type";
 import { GlobalResourceContext } from "./resourceContext/context";
 import type {
@@ -34,7 +27,8 @@ import type {
 
 import {
   defaultLoadingComponent,
-  defaultErrorComponent
+  defaultErrorComponent,
+  defaultFetchingComponent
 } from "./utils/defaultComponents";
 
 import {
@@ -42,9 +36,10 @@ import {
   getTriggerDependencies,
   getMessageQueueData,
   getErrorMessage,
-  pushToAcc,
-  useTraceUpdate
+  pushToAcc
 } from "./utils/helpers";
+
+import { useDispatch } from "lib/resourceContext/hooks";
 
 import { refetchFunction } from "./utils/refetch";
 
@@ -70,15 +65,12 @@ export function useResource<T>(
   resourceName: string = "resource",
   options: UseResourceOptionsType<T> = {}
 ): UseResourceReturnType<T> {
-  // const renderCount = useRef(0);
-  // renderCount.current++;
-  // useTraceUpdate(baseConfig);
-
   const {
-    CustomContext = null,
+    CustomContext = GlobalResourceContext,
     triggerOn = "onMount",
     onMountCallback = (customAxios: AxiosInstance) => {},
     globalLoadingComponent = defaultLoadingComponent,
+    globalFetchingComponent = defaultFetchingComponent,
     globalErrorComponent = defaultErrorComponent,
     useMessageQueue = false,
     useGlobalContext = false,
@@ -91,7 +83,7 @@ export function useResource<T>(
   }
   const defaultConfig = getBaseConfig(baseConfig);
 
-  const { dispatch } = useContext(GlobalResourceContext);
+  const dispatch = useDispatch(CustomContext);
 
   const [data, setData] = useState<T>();
   const [isLoading, setIsLoading] = useState(false);
@@ -161,7 +153,7 @@ export function useResource<T>(
         dispatch(resourceName, data);
       }
     },
-    [useGlobalContext, dispatch, resourceName]
+    [useGlobalContext, resourceName, dispatch]
   );
 
   const beforeEvent: BeforeEventType = useCallback(
@@ -293,6 +285,7 @@ export function useResource<T>(
     ]
   );
 
+  // Run this useEffect when the hook is mounted or if the deps changes.
   useEffect(() => {
     const callback = () => {
       pushToDebug("INITIALIZING");
@@ -310,20 +303,6 @@ export function useResource<T>(
     controllerInstance.current.abort();
   }, []);
 
-  // Resource object for pushing into GlobalResourceContext
-  const contextResource: ResourceType<T> = useMemo(() => {
-    const resourceData = {
-      data,
-      isLoading,
-      isFetching,
-      errorData,
-      refetch,
-      debug,
-      cancel
-    };
-    return resourceData;
-  }, [data, errorData, isLoading, refetch, cancel, isFetching]);
-
   useEffect(() => {
     updateGlobalState({ refetch, debug, cancel });
   }, [refetch, debug, cancel, updateGlobalState]);
@@ -331,34 +310,34 @@ export function useResource<T>(
   const Container = ({
     children,
     loadingComponent = globalLoadingComponent,
-    errorComponent = globalErrorComponent
+    fetchingComponent = globalFetchingComponent,
+    errorComponent = globalErrorComponent,
+    contentWrapper = undefined
   }: ContextContainerPropsType) => {
     const errorMessage = getErrorMessage(errorData);
 
-    const useLocalContext =
-      CustomContext !== null && CustomContext !== undefined;
-
-    const content = () => (
+    const defaultWrapper: ContentWrapperType = (props) => (
       <div className="content">
-        {isLoading ? (
-          loadingComponent()
-        ) : errorMessage ? (
-          errorComponent(errorMessage, errorData)
-        ) : (
-          <div className="content">{children}</div>
-        )}
+        {props.isLoading && loadingComponent(props.data)}
+        {!props.isLoading && props.isFetching && fetchingComponent(props.data)}
+        {props.errorMessage &&
+          errorComponent(props.errorMessage, props.errorData, props.data)}
+        {props.children}
       </div>
     );
 
+    const wrapper = contentWrapper || defaultWrapper;
+
     return (
       <div className={`resource-${resourceName}`}>
-        {useLocalContext ? (
-          <CustomContext.Provider value={contextResource}>
-            <div className="local-context">{content()}</div>
-          </CustomContext.Provider>
-        ) : (
-          content()
-        )}
+        {wrapper({
+          children,
+          isLoading,
+          isFetching,
+          errorMessage,
+          errorData,
+          data
+        })}
       </div>
     );
   };

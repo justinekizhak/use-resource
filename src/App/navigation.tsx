@@ -10,6 +10,7 @@ export default function Navigation() {
           paddingBottom: "1rem"
         }}
       >
+        <Link to="/">Home</Link>
         <Link to="/basic">Basic</Link>
         <Link to="/context-sync">Context sync</Link>
       </nav>

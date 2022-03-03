@@ -1,18 +1,18 @@
-import { useContext } from "react";
-import { GlobalResource } from "../../lib";
+import { useRenderCount } from "../utils/useRenderCount";
+import { useSelector } from "../../lib";
 
 export default function ApiConsumer() {
-  const { selector } = useContext(GlobalResource.Context);
+  const { RenderContainer } = useRenderCount();
 
-  const stateSlice = selector("test", (data) => {
-    console.log(data);
-    return data.data;
-  });
+  const data = useSelector("test", "data");
+  const isLoading = useSelector("test", "isLoading");
 
   return (
     <div>
       <h1>Api consumer</h1>
-      {JSON.stringify(stateSlice)}
+      <RenderContainer />
+      {`Loading: ${isLoading}`}
+      {JSON.stringify(data)}
     </div>
   );
 }

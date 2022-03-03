@@ -14,14 +14,17 @@ import type {
   OnFailureType,
   OnFinishType,
   OnSuccessType,
-  EventType
+  EventType,
+  FetchingComponentType
 } from "./main.type";
+import { GlobalResourceContextType } from "./resourceContext/provider.type";
 
 export interface UseResourceOptionsType<T> {
-  CustomContext?: React.Context<ResourceType<T>> | null | undefined;
+  CustomContext?: React.Context<GlobalResourceContextType<T>> | undefined;
   triggerOn?: string | boolean | any[];
   onMountCallback?: (customAxios: AxiosInstance) => void;
   globalLoadingComponent?: LoadingComponentType;
+  globalFetchingComponent?: FetchingComponentType;
   globalErrorComponent?: ErrorComponentType;
   useMessageQueue?: boolean | object;
   useGlobalContext?: boolean;
