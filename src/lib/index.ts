@@ -8,4 +8,8 @@ export const GlobalResource = {
   Provider: GlobalResourceContextProvider
 };
 
-export { useSelector, useDispatch } from "lib/resourceContext/hooks";
+export {
+  useSelector,
+  useDispatch,
+  usePublish
+} from "lib/resourceContext/hooks";

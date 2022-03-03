@@ -1,4 +1,4 @@
-import { useCallback, useContext, useState } from "react";
+import { useCallback, useContext, useRef, useState } from "react";
 import { compareObject } from "../utils/helpers";
 
 import type { ResourceKeyType } from "../types/main.type";
@@ -19,12 +19,6 @@ export function useDispatch<T>(
       if (!key || !data) {
         return;
       }
-      const updateKey = Object.keys(data)[0] as ResourceKeyType<T>;
-      const oldValue = state.current[key]?.[updateKey];
-      const newValue = data[updateKey];
-      if (compareObject(oldValue, newValue)) {
-        return;
-      }
       const oldData = state.current[key];
       const newData = { ...oldData, ...data };
       state.current[key] = newData;
@@ -43,11 +37,17 @@ export function useSelector<T>(
   dataKey: ResourceKeyType<T>,
   customContext = GlobalResourceContext
 ) {
+  const [counter, setCounter] = useState(0);
   const [localValue, setLocalValue] = useState();
+  const localValueRef = useRef();
+  const valueType = useRef("");
   const { state, stateCallbacks } = useContext(customContext);
   if (!resourceName) {
     return;
   }
+  const forceRefresh = () => {
+    setCounter(counter + 1);
+  };
   const existingCallbacks = stateCallbacks.current[resourceName];
   if (!existingCallbacks) {
     stateCallbacks.current[resourceName] = [];
@@ -59,12 +59,22 @@ export function useSelector<T>(
       return;
     }
     const value = _data[dataKey];
+    if (typeof value === "function") {
+      valueType.current = "function";
+      localValueRef.current = value;
+      // forceRefresh();
+      return;
+    }
     if (localValue && compareObject(localValue, value)) {
       return;
     }
+    valueType.current = "value";
     setLocalValue(value);
   };
   stateCallbacks.current[resourceName].push(callback);
+  if (valueType.current === "function") {
+    return localValueRef.current;
+  }
   return localValue;
 }
 

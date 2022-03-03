@@ -55,7 +55,8 @@ export const refetchFunction: RefetchFunctionType = ({
         onSuccess: em_onSuccess,
         onFailure: em_onFailure,
         onFinish: em_onFinish,
-        fullTask
+        fullTask,
+        baseConfig: em_baseConfig
       });
     } else {
       await fullTask();

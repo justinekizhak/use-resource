@@ -1,7 +1,10 @@
 import { useRef, useEffect } from "react";
 
-import type { EventType, Internal_JsxComponentType } from "../types/main.type";
-import type { ContextCallbackState } from "../types/resourceContext/provider.type";
+import type { Internal_JsxComponentType } from "../types/main.type";
+import type {
+  ContextCallbackState,
+  EventQueueType
+} from "../types/resourceContext/provider.type";
 import type { ResourceContextState } from "../types/resourceContext/context.type";
 
 import { GlobalResourceContext } from "./context";
@@ -12,7 +15,7 @@ export const GlobalResourceContextProvider = (props: {
 }) => {
   const state = useRef<ResourceContextState<any>>({});
   const stateCallbacks = useRef<ContextCallbackState>({});
-  const eventQueue = useRef<EventType[]>([]);
+  const eventQueue = useRef<EventQueueType[]>([]);
 
   useEffect(() => {
     const interval = setInterval(() => {

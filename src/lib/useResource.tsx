@@ -8,7 +8,6 @@ import axios, {
 
 import type {
   DebugObject,
-  ContextContainerPropsType,
   OnSuccessType,
   BeforeEventType,
   EventType,
@@ -16,8 +15,7 @@ import type {
   OnFinishType,
   NextCallbackType,
   BaseConfigType,
-  AccumulatorType,
-  ContentWrapperType
+  AccumulatorType
 } from "./types/main.type";
 import { GlobalResourceContext } from "./resourceContext/context";
 import type {
@@ -28,14 +26,14 @@ import type {
 import {
   defaultLoadingComponent,
   defaultErrorComponent,
-  defaultFetchingComponent
+  defaultFetchingComponent,
+  containerFactory
 } from "./utils/defaultComponents";
 
 import {
   getBaseConfig,
   getTriggerDependencies,
   getMessageQueueData,
-  getErrorMessage,
   pushToAcc
 } from "./utils/helpers";
 
@@ -192,6 +190,7 @@ export function useResource<T>(
       pushToDebug("[FETCHING RESOURCE] TASK TRIGGERED", axiosConfig);
       pushToAcc(next, axiosConfig);
       const res = await axiosInstance.current(axiosConfig);
+      // await new Promise((resolve) => setTimeout(resolve, 2000));
       return res;
     },
     [pushToDebug]
@@ -250,7 +249,7 @@ export function useResource<T>(
     (acc, next, disableStateUpdate = false) => {
       pushToDebug("[FETCHING RESOURCE] TASK END", acc);
       if (!disableStateUpdate) {
-        updateGlobalState({ isLoading: false });
+        updateGlobalState({ isLoading: false, isFetching: false });
         setIsLoading(false);
         setIsFetching(false);
       }
@@ -310,40 +309,16 @@ export function useResource<T>(
     updateGlobalState({ refetch, debug, cancel });
   }, [refetch, debug, cancel, updateGlobalState]);
 
-  const Container = ({
-    children,
-    loadingComponent = globalLoadingComponent,
-    fetchingComponent = globalFetchingComponent,
-    errorComponent = globalErrorComponent,
-    contentWrapper = undefined
-  }: ContextContainerPropsType) => {
-    const errorMessage = getErrorMessage(errorData);
-
-    const defaultWrapper: ContentWrapperType = (props) => (
-      <div className="content">
-        {props.isLoading && loadingComponent(props.data)}
-        {!props.isLoading && props.isFetching && fetchingComponent(props.data)}
-        {props.errorMessage &&
-          errorComponent(props.errorMessage, props.errorData, props.data)}
-        {props.children}
-      </div>
-    );
-
-    const wrapper = contentWrapper || defaultWrapper;
-
-    return (
-      <div className={`resource-${resourceName}`}>
-        {wrapper({
-          children,
-          isLoading,
-          isFetching,
-          errorMessage,
-          errorData,
-          data
-        })}
-      </div>
-    );
-  };
+  const Container = containerFactory({
+    globalLoadingComponent,
+    globalFetchingComponent,
+    globalErrorComponent,
+    errorData,
+    resourceName,
+    isLoading,
+    isFetching,
+    data
+  });
 
   const returnObject = {
     data,

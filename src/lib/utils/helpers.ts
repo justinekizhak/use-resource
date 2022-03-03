@@ -14,7 +14,8 @@ import type {
   OnFailureType,
   OnFinishType,
   BaseConfigType,
-  PushToAccumulatorType
+  PushToAccumulatorType,
+  ErrorDataType
 } from "../types/main.type";
 import type {
   Internal_ChainedRequestConfigType,
@@ -76,9 +77,7 @@ export const getBaseConfig = (
   return defaultConfig;
 };
 
-export const getErrorMessage = (
-  errorData: AxiosError | AxiosResponse | undefined
-): string => {
+export const getErrorMessage = (errorData: ErrorDataType): string => {
   const defaultErrorMessage = "Something went wrong. Please try again.";
   const err = errorData as AxiosError;
   if (err?.response?.data?.message) {
