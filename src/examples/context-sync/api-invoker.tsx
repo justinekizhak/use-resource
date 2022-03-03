@@ -26,7 +26,7 @@ export default function ApiInvoker() {
       <h1>Api Invoker</h1>
       <RenderContainer />
       {JSON.stringify(data)}
-      <button onClick={handleClick}>Refetch</button>
+      <button onClick={handleClick}>Next item</button>
     </div>
   );
 }

@@ -213,11 +213,12 @@ export function useTraceUpdate(props: object) {
 }
 
 export function compareObject(oldObject: any, newObject: any) {
-  if (typeof newObject === "boolean") {
-    return oldObject === newObject;
-  }
-  if (["string", "boolean", "function"].includes(typeof newObject)) {
-    return oldObject === newObject;
-  }
-  return JSON.stringify(oldObject) === JSON.stringify(newObject);
+  return oldObject === newObject;
+  // if (typeof newObject === "boolean") {
+  //   return oldObject === newObject;
+  // }
+  // if (["string", "boolean", "function"].includes(typeof newObject)) {
+  //   return oldObject === newObject;
+  // }
+  // return JSON.stringify(oldObject) === JSON.stringify(newObject);
 }

@@ -22,11 +22,13 @@ export type Internal_JsxComponentType =
   | null
   | undefined;
 
+export type ErrorDataType = AxiosError | AxiosResponse | object | undefined;
+
 export type ResourceType<T> = {
   data: T | undefined;
   isLoading: boolean;
   isFetching: boolean;
-  errorData: object | null | undefined;
+  errorData: ErrorDataType;
   debug: MutableRefObject<DebugObject[]>;
   cancel: any;
   refetch: (customConfig?: BaseConfigType) => void;
@@ -35,25 +37,37 @@ export type ResourceType<T> = {
 /**
  * Resource type object keys
  */
-export type ResourceKeyType =
-  | "data"
-  | "isLoading"
-  | "isFetching"
-  | "errorData"
-  | "debug"
-  | "cancel"
-  | "refetch";
+export type ResourceKeyType<T> = keyof ResourceType<T>;
 
-export type LoadingComponentType = () => JSX.Element;
+export type LoadingComponentType = (data: any) => JSX.Element;
+
+export type FetchingComponentType = (data?: any) => JSX.Element;
+
 export type ErrorComponentType = (
-  errorMessage: string,
-  errorData: any
+  errorMessage?: string,
+  errorData?: any,
+  data?: any
 ) => JSX.Element;
+// export type ContentWrapper_DisplayOptions = {
+//   whileFetching?: boolean;
+//   onError?: boolean;
+// };
+
+export type ContentWrapperType = (props: {
+  children: Internal_JsxComponentType;
+  isLoading: boolean;
+  isFetching: boolean;
+  errorMessage: string;
+  errorData: ErrorDataType;
+  data: any;
+}) => JSX.Element;
 
 export interface ContextContainerPropsType {
   children?: Internal_JsxComponentType;
   loadingComponent?: LoadingComponentType;
+  fetchingComponent?: FetchingComponentType;
   errorComponent?: ErrorComponentType;
+  contentWrapper?: ContentWrapperType;
 }
 
 export type ContextContainerType = (
