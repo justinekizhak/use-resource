@@ -37,8 +37,7 @@ export function useSelector<T>(
   dataKey: ResourceKeyType<T>,
   customContext = GlobalResourceContext
 ) {
-  const [counter, setCounter] = useState(0);
-  const [localValue, setLocalValue] = useState();
+  const [_, setCounter] = useState(0);
   const localValueRef = useRef();
   const valueType = useRef("");
   const { state, stateCallbacks } = useContext(customContext);
@@ -46,7 +45,7 @@ export function useSelector<T>(
     return;
   }
   const forceRefresh = () => {
-    setCounter(counter + 1);
+    setCounter((oldValue) => oldValue + 1);
   };
   const existingCallbacks = stateCallbacks.current[resourceName];
   if (!existingCallbacks) {
@@ -62,20 +61,21 @@ export function useSelector<T>(
     if (typeof value === "function") {
       valueType.current = "function";
       localValueRef.current = value;
-      // forceRefresh();
+      forceRefresh();
       return;
     }
-    if (localValue && compareObject(localValue, value)) {
+    if (compareObject(localValueRef.current, value)) {
       return;
     }
     valueType.current = "value";
-    setLocalValue(value);
+    localValueRef.current = value;
+    forceRefresh();
   };
   stateCallbacks.current[resourceName].push(callback);
   if (valueType.current === "function") {
     return localValueRef.current;
   }
-  return localValue;
+  return localValueRef.current;
 }
 
 export function usePublish(customContext = GlobalResourceContext) {

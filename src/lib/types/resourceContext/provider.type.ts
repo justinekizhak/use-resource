@@ -1,16 +1,7 @@
 import React from "react";
-import type {
-  ResourceType,
-  ResourceKeyType,
-  BeforeEventType,
-  EventType,
-  OnSuccessType,
-  OnFailureType,
-  OnFinishType,
-  FullTaskType
-} from "lib/types/main.type";
+import type { ResourceType, ResourceKeyType } from "lib/types/main.type";
 import { ResourceContextState } from "lib/types/resourceContext/context.type";
-import { AxiosRequestConfig } from "axios";
+import { EventQueueType } from "./eventQueue.type";
 
 export type DispatchType<T> = (
   key: string,
@@ -35,17 +26,3 @@ export type GlobalResourceContextType<T> = {
 export type ContextCallbackState = {
   [key: string]: SelectorCallbackType<any>[];
 };
-
-export type EventQueue_DataType = {
-  resourceName: string;
-  beforeEvent: BeforeEventType;
-  event: EventType;
-  onSuccess: OnSuccessType;
-  onFailure: OnFailureType;
-  onFinish: OnFinishType;
-  fullTask: FullTaskType;
-  baseConfig?: AxiosRequestConfig;
-};
-
-export type PublishCallbackType = (event: EventQueue_DataType) => void;
-export type EventQueueType = React.MutableRefObject<EventQueue_DataType[]>;
