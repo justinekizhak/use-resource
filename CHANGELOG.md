@@ -1,3 +1,26 @@
+# v0.2.3 (Sat Mar 05 2022)
+
+#### 🐛 Bug Fix
+
+- refactor: Cleanup and improve performance [#18](https://github.com/justinekizhak/use-resource-hook/pull/18) ([@justinekizhak](https://github.com/justinekizhak))
+- test: Setup Jest and MSW for unit-testing [#18](https://github.com/justinekizhak/use-resource-hook/pull/18) ([@justinekizhak](https://github.com/justinekizhak))
+- initial commit [#18](https://github.com/justinekizhak/use-resource-hook/pull/18) ([@justinekizhak](https://github.com/justinekizhak))
+- Add implementation for event-queuing [#17](https://github.com/justinekizhak/use-resource-hook/pull/17) ([@justinekizhak](https://github.com/justinekizhak))
+- Fix the render-sync issue for data object [#16](https://github.com/justinekizhak/use-resource-hook/pull/16) ([@justinekizhak](https://github.com/justinekizhak))
+- initial commit [#17](https://github.com/justinekizhak/use-resource-hook/pull/17) ([@justinekizhak](https://github.com/justinekizhak))
+- Add function for parallel request API calls [#15](https://github.com/justinekizhak/use-resource-hook/pull/15) ([@justinekizhak](https://github.com/justinekizhak))
+
+#### ⚠️ Pushed to `main`
+
+- Merge branch 'csb-89438b' into main ([@justinekizhak](https://github.com/justinekizhak))
+- build: Remove the target and module config related to tsc ([@justinekizhak](https://github.com/justinekizhak))
+
+#### Authors: 1
+
+- Justine Kizhakkinedath ([@justinekizhak](https://github.com/justinekizhak))
+
+---
+
 # v0.2.2 (Wed Feb 16 2022)
 
 #### 🐛 Bug Fix
