@@ -8,7 +8,6 @@ import axios, {
 
 import type {
   DebugObject,
-  ContextContainerPropsType,
   OnSuccessType,
   BeforeEventType,
   EventType,
@@ -16,8 +15,7 @@ import type {
   OnFinishType,
   NextCallbackType,
   BaseConfigType,
-  AccumulatorType,
-  ContentWrapperType
+  AccumulatorType
 } from "./types/main.type";
 import { GlobalResourceContext } from "./resourceContext/context";
 import type {
@@ -28,18 +26,19 @@ import type {
 import {
   defaultLoadingComponent,
   defaultErrorComponent,
-  defaultFetchingComponent
+  defaultFetchingComponent,
+  containerFactory
 } from "./utils/defaultComponents";
 
 import {
   getBaseConfig,
   getTriggerDependencies,
   getMessageQueueData,
-  getErrorMessage,
-  pushToAcc
+  pushToAcc,
+  useIsMounted
 } from "./utils/helpers";
 
-import { useDispatch } from "lib/resourceContext/hooks";
+import { useDispatch, usePublish } from "lib/resourceContext/hooks";
 
 import { refetchFunction } from "./utils/refetch";
 
@@ -77,34 +76,69 @@ export function useResource<T>(
     devMode = false
   } = options;
 
-  const useRequestChaining = Array.isArray(baseConfig);
-  if (useRequestChaining && baseConfig.length === 0) {
-    throw new Error("Please pass in the request config");
-  }
   const defaultConfig = getBaseConfig(baseConfig);
 
-  const dispatch = useDispatch(CustomContext);
+  // Counter is used for force-refreshing the parent component
+  const [_, setCounter] = useState(0);
 
-  const [data, setData] = useState<T>();
-  const [isLoading, setIsLoading] = useState(false);
-  const [isFetching, setIsFetching] = useState(false);
-  const firstTime = useRef(true);
-  const [errorData, setErrorData] = useState<AxiosError | AxiosResponse>();
+  // All the data is stored in refs, this will prevent any unnecessary re-rendering
+  const data = useRef<T>();
+  const isLoading = useRef(false);
+  const isFetching = useRef(false);
+  const errorData = useRef<AxiosError | AxiosResponse>();
   const debug = useRef<DebugObject[]>([]);
+
+  // Internal states here
+  const firstTime = useRef(true);
   const axiosInstance = useRef<AxiosInstance>(axios);
   const controllerInstance = useRef<AbortController>(new AbortController());
   const defaultConfigRef = useRef<AxiosRequestConfig>(defaultConfig);
   const baseConfigRef = useRef(baseConfig);
   const accumulator = useRef<AccumulatorType>([]);
 
+  // Custom hooks here
+  const isMounted = useIsMounted();
+  const dispatch = useDispatch(CustomContext);
+  const publish = usePublish(CustomContext);
+
+  const useRequestChaining = Array.isArray(baseConfig);
+  if (useRequestChaining && baseConfig.length === 0) {
+    throw new Error("Please pass in the request config");
+  }
+
+  // Callbacks here
+
+  const setData = (value: T | undefined) => {
+    data.current = value;
+  };
+
+  const setIsLoading = (value: boolean) => {
+    isLoading.current = value;
+  };
+
+  const setIsFetching = (value: boolean) => {
+    isFetching.current = value;
+  };
+
+  const setErrorData = (value: AxiosError | AxiosResponse | undefined) => {
+    errorData.current = value;
+  };
+
   const [triggerDeps, isMountTriggerable] = getTriggerDependencies(
     triggerOn,
     defaultConfigRef.current
   );
 
-  const [isMessageQueueAvailable, messageQueueName] = getMessageQueueData(
-    useMessageQueue
+  const [isMessageQueueAvailable] = getMessageQueueData(
+    useMessageQueue,
+    resourceName
   );
+
+  const forceRefresh = useCallback(() => {
+    if (isMounted.current) {
+      setCounter((prev) => prev + 1);
+    }
+  }, []);
 
   const defaultNext: NextCallbackType = (data) => {
     if (data) {
@@ -131,8 +165,9 @@ export function useResource<T>(
   const pushToMessageQueue = useCallback(
     (data) => {
       pushToDebug("PUSHING TO MESSAGE QUEUE: ", data);
+      publish(data);
     },
-    [pushToDebug]
+    [pushToDebug, publish]
   );
 
   useEffect(() => {
@@ -174,6 +209,7 @@ export function useResource<T>(
         setIsFetching(true);
         setData(undefined);
         setErrorData(undefined);
+        forceRefresh();
       }
     },
     [pushToDebug, updateGlobalState]
@@ -189,6 +225,7 @@ export function useResource<T>(
       pushToDebug("[FETCHING RESOURCE] TASK TRIGGERED", axiosConfig);
       pushToAcc(next, axiosConfig);
       const res = await axiosInstance.current(axiosConfig);
+      // await new Promise((resolve) => setTimeout(resolve, 2000));
       return res;
     },
     [pushToDebug]
@@ -201,11 +238,12 @@ export function useResource<T>(
       next = defaultNext,
       disableStateUpdate = false
     ) => {
-      const _res = res as AxiosResponse;
+      const _res: AxiosResponse = res;
       const _data = _res?.data;
       if (!disableStateUpdate) {
         updateGlobalState({ data: _data });
         setData(_data);
+        forceRefresh();
       }
       pushToAcc(next, _res);
       pushToDebug("[FETCHING RESOURCE] TASK SUCCESS", _res);
@@ -239,6 +277,7 @@ export function useResource<T>(
         updateGlobalState({ errorData: _error });
         setErrorData(_error);
       }
+      forceRefresh();
     },
     [pushToDebug, updateGlobalState]
   );
@@ -247,9 +286,10 @@ export function useResource<T>(
     (acc, next, disableStateUpdate = false) => {
       pushToDebug("[FETCHING RESOURCE] TASK END", acc);
       if (!disableStateUpdate) {
-        updateGlobalState({ isLoading: false });
+        updateGlobalState({ isLoading: false, isFetching: false });
         setIsLoading(false);
         setIsFetching(false);
+        forceRefresh();
       }
     },
     [pushToDebug, updateGlobalState]
@@ -266,11 +306,11 @@ export function useResource<T>(
         onFailure,
         onFinish,
         isMessageQueueAvailable,
-        messageQueueName,
         pushToMessageQueue,
         useRequestChaining,
         baseConfigRef,
-        controllerInstance
+        controllerInstance,
+        resourceName
       })(customConfig),
     [
       beforeEvent,
@@ -280,8 +320,8 @@ export function useResource<T>(
       onFinish,
       isMessageQueueAvailable,
       pushToMessageQueue,
-      messageQueueName,
-      useRequestChaining
+      useRequestChaining,
+      resourceName
     ]
   );
 
@@ -303,50 +343,33 @@ export function useResource<T>(
     controllerInstance.current.abort();
   }, []);
 
+  // Cancel the API call if the hook is unmounted
+  useEffect(() => {
+    if (!isMounted.current) {
+      cancel();
+    }
+  }, [isMounted.current]);
+
   useEffect(() => {
     updateGlobalState({ refetch, debug, cancel });
   }, [refetch, debug, cancel, updateGlobalState]);
 
-  const Container = ({
-    children,
-    loadingComponent = globalLoadingComponent,
-    fetchingComponent = globalFetchingComponent,
-    errorComponent = globalErrorComponent,
-    contentWrapper = undefined
-  }: ContextContainerPropsType) => {
-    const errorMessage = getErrorMessage(errorData);
-
-    const defaultWrapper: ContentWrapperType = (props) => (
-      <div className="content">
-        {props.isLoading && loadingComponent(props.data)}
-        {!props.isLoading && props.isFetching && fetchingComponent(props.data)}
-        {props.errorMessage &&
-          errorComponent(props.errorMessage, props.errorData, props.data)}
-        {props.children}
-      </div>
-    );
-
-    const wrapper = contentWrapper || defaultWrapper;
-
-    return (
-      <div className={`resource-${resourceName}`}>
-        {wrapper({
-          children,
-          isLoading,
-          isFetching,
-          errorMessage,
-          errorData,
-          data
-        })}
-      </div>
-    );
-  };
+  const Container = containerFactory({
+    globalLoadingComponent,
+    globalFetchingComponent,
+    globalErrorComponent,
+    isLoading: isLoading.current,
+    isFetching: isFetching.current,
+    data: data.current,
+    errorData: errorData.current,
+    resourceName
+  });
 
   const returnObject = {
-    data,
-    isLoading,
-    isFetching,
-    errorData,
+    isLoading: isLoading.current,
+    isFetching: isFetching.current,
+    data: data.current,
+    errorData: errorData.current,
     refetch,
     debug,
     cancel,

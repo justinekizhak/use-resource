@@ -24,7 +24,7 @@ export type Internal_JsxComponentType =
 
 export type ErrorDataType = AxiosError | AxiosResponse | object | undefined;
 
-export type ResourceType<T> = {
+export interface ResourceType<T> {
   data: T | undefined;
   isLoading: boolean;
   isFetching: boolean;
@@ -32,7 +32,11 @@ export type ResourceType<T> = {
   debug: MutableRefObject<DebugObject[]>;
   cancel: any;
   refetch: (customConfig?: BaseConfigType) => void;
-};
+}
+
+export type ValueOf<T> = T[keyof T];
+
+export type ValueOf_ResourceType<T> = ValueOf<ResourceType<T>>;
 
 /**
  * Resource type object keys
@@ -114,7 +118,24 @@ export type OnFinishType = (
   disableStateUpdate?: boolean
 ) => void;
 
+export type FullTaskType = (customConfig: AxiosRequestConfig) => void;
+
 export type PushToAccumulatorType = (
   next: NextCallbackType | undefined,
   res: ChainResponseType | undefined
 ) => void;
+
+export interface ContainerFactory_PropType<T> {
+  globalLoadingComponent: LoadingComponentType;
+  globalFetchingComponent: FetchingComponentType;
+  globalErrorComponent: ErrorComponentType;
+  errorData: ErrorDataType;
+  resourceName: string;
+  isLoading: boolean;
+  isFetching: boolean;
+  data: T;
+}
+
+export type ContainerFactoryType<T> = (
+  props: ContainerFactory_PropType<T>
+) => ContextContainerType;

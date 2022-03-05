@@ -1,6 +1,6 @@
-export * as CommonTypes from "./main.type";
-export * as UtilTypes from "./helpers.type";
-export * as RefetchCallbackTypes from "./refetch.type";
-export * as HookTypes from "./useResource.type";
-export * as ResourceContextTypes from "./resourceContext/context.type";
-export * as ResourceProviderTypes from "./resourceContext/provider.type";
+export * from "./main.type";
+export * from "./helpers.type";
+export * from "./refetch.type";
+export * from "./useResource.type";
+export * from "./resourceContext/context.type";
+export * from "./resourceContext/provider.type";

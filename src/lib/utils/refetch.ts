@@ -16,11 +16,11 @@ export const refetchFunction: RefetchFunctionType = ({
   onFailure: internal_onFailure,
   onFinish: internal_onFinish,
   isMessageQueueAvailable,
-  messageQueueName,
   pushToMessageQueue,
   useRequestChaining,
   baseConfigRef,
-  controllerInstance
+  controllerInstance,
+  resourceName
 }) => (customConfig: BaseConfigType = {}) => {
   const eventMaster: EventMasterFuncType = async (
     index = 0,
@@ -49,13 +49,14 @@ export const refetchFunction: RefetchFunctionType = ({
     };
     if (isMessageQueueAvailable) {
       pushToMessageQueue({
-        key: messageQueueName,
+        resourceName,
         beforeEvent: em_beforeEvent,
         event: em_event,
         onSuccess: em_onSuccess,
         onFailure: em_onFailure,
         onFinish: em_onFinish,
-        fullTask
+        fullTask,
+        baseConfig: em_baseConfig
       });
     } else {
       await fullTask();
