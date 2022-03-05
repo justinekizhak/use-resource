@@ -55,8 +55,9 @@ export const getMessageQueueData = (
 ): MessageQueueInfoType => {
   if (typeof data === "object") {
     const isAvailable = true;
-    const keyName = data?.keyName || fallbackQueueName;
-    return [isAvailable, keyName];
+    // @ts-ignore
+    const _keyName: string = (data && data.keyName) || fallbackQueueName;
+    return [isAvailable, _keyName];
   }
   const isAvailable = data;
   return [isAvailable, fallbackQueueName];
@@ -193,29 +194,19 @@ export const getFinalRequestChain = (
   };
 };
 
-export function useTraceUpdate(props: object) {
-  const prev = useRef(props);
-  useEffect(() => {
-    const changedProps = Object.entries(props).reduce((ps, [k, v]) => {
-      if (prev.current[k] !== v) {
-        ps[k] = [prev.current[k], v];
-      }
-      return ps;
-    }, {});
-    if (Object.keys(changedProps).length > 0) {
-      console.log("Changed props:", changedProps);
-    }
-    prev.current = props;
-  });
-}
-
 export function compareObject(oldObject: any, newObject: any) {
   return oldObject === newObject;
-  // if (typeof newObject === "boolean") {
-  //   return oldObject === newObject;
-  // }
-  // if (["string", "boolean", "function"].includes(typeof newObject)) {
-  //   return oldObject === newObject;
-  // }
-  // return JSON.stringify(oldObject) === JSON.stringify(newObject);
+}
+
+export function useIsMounted(unMountCallback = () => {}) {
+  const isMounted = useRef(true);
+
+  useEffect(() => {
+    return () => {
+      isMounted.current = false;
+      unMountCallback && unMountCallback();
+    };
+  }, []);
+
+  return isMounted;
 }

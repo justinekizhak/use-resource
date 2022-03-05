@@ -34,7 +34,8 @@ import {
   getBaseConfig,
   getTriggerDependencies,
   getMessageQueueData,
-  pushToAcc
+  pushToAcc,
+  useIsMounted
 } from "./utils/helpers";
 
 import { useDispatch, usePublish } from "lib/resourceContext/hooks";
@@ -75,26 +76,53 @@ export function useResource<T>(
     devMode = false
   } = options;
 
-  const useRequestChaining = Array.isArray(baseConfig);
-  if (useRequestChaining && baseConfig.length === 0) {
-    throw new Error("Please pass in the request config");
-  }
   const defaultConfig = getBaseConfig(baseConfig);
 
-  const dispatch = useDispatch(CustomContext);
-  const publish = usePublish(CustomContext);
+  // Counter is used for force-refreshing the parent component
+  const [_, setCounter] = useState(0);
 
-  const [data, setData] = useState<T>();
-  const [isLoading, setIsLoading] = useState(false);
-  const [isFetching, setIsFetching] = useState(false);
-  const firstTime = useRef(true);
-  const [errorData, setErrorData] = useState<AxiosError | AxiosResponse>();
+  // All the data is stored in refs, this will prevent any unnecessary re-rendering
+  const data = useRef<T>();
+  const isLoading = useRef(false);
+  const isFetching = useRef(false);
+  const errorData = useRef<AxiosError | AxiosResponse>();
   const debug = useRef<DebugObject[]>([]);
+
+  // Internal states here
+  const firstTime = useRef(true);
   const axiosInstance = useRef<AxiosInstance>(axios);
   const controllerInstance = useRef<AbortController>(new AbortController());
   const defaultConfigRef = useRef<AxiosRequestConfig>(defaultConfig);
   const baseConfigRef = useRef(baseConfig);
   const accumulator = useRef<AccumulatorType>([]);
+
+  // Custom hooks here
+  const isMounted = useIsMounted();
+  const dispatch = useDispatch(CustomContext);
+  const publish = usePublish(CustomContext);
+
+  const useRequestChaining = Array.isArray(baseConfig);
+  if (useRequestChaining && baseConfig.length === 0) {
+    throw new Error("Please pass in the request config");
+  }
+
+  // Callbacks here
+
+  const setData = (value: T | undefined) => {
+    data.current = value;
+  };
+
+  const setIsLoading = (value: boolean) => {
+    isLoading.current = value;
+  };
+
+  const setIsFetching = (value: boolean) => {
+    isFetching.current = value;
+  };
+
+  const setErrorData = (value: AxiosError | AxiosResponse | undefined) => {
+    errorData.current = value;
+  };
 
   const [triggerDeps, isMountTriggerable] = getTriggerDependencies(
     triggerOn,
@@ -105,6 +133,12 @@ export function useResource<T>(
     useMessageQueue,
     resourceName
   );
+
+  const forceRefresh = useCallback(() => {
+    if (isMounted.current) {
+      setCounter((prev) => prev + 1);
+    }
+  }, []);
 
   const defaultNext: NextCallbackType = (data) => {
     if (data) {
@@ -175,6 +209,7 @@ export function useResource<T>(
         setIsFetching(true);
         setData(undefined);
         setErrorData(undefined);
+        forceRefresh();
       }
     },
     [pushToDebug, updateGlobalState]
@@ -208,6 +243,7 @@ export function useResource<T>(
       if (!disableStateUpdate) {
         updateGlobalState({ data: _data });
         setData(_data);
+        forceRefresh();
       }
       pushToAcc(next, _res);
       pushToDebug("[FETCHING RESOURCE] TASK SUCCESS", _res);
@@ -241,6 +277,7 @@ export function useResource<T>(
         updateGlobalState({ errorData: _error });
         setErrorData(_error);
       }
+      forceRefresh();
     },
     [pushToDebug, updateGlobalState]
   );
@@ -252,6 +289,7 @@ export function useResource<T>(
         updateGlobalState({ isLoading: false, isFetching: false });
         setIsLoading(false);
         setIsFetching(false);
+        forceRefresh();
       }
     },
     [pushToDebug, updateGlobalState]
@@ -305,6 +343,13 @@ export function useResource<T>(
     controllerInstance.current.abort();
   }, []);
 
+  // Cancel the API call if the hook is unmounted
+  useEffect(() => {
+    if (!isMounted.current) {
+      cancel();
+    }
+  }, [isMounted.current]);
+
   useEffect(() => {
     updateGlobalState({ refetch, debug, cancel });
   }, [refetch, debug, cancel, updateGlobalState]);
@@ -313,18 +358,18 @@ export function useResource<T>(
     globalLoadingComponent,
     globalFetchingComponent,
     globalErrorComponent,
-    errorData,
-    resourceName,
-    isLoading,
-    isFetching,
-    data
+    isLoading: isLoading.current,
+    isFetching: isFetching.current,
+    data: data.current,
+    errorData: errorData.current,
+    resourceName
   });
 
   const returnObject = {
-    data,
-    isLoading,
-    isFetching,
-    errorData,
+    isLoading: isLoading.current,
+    isFetching: isFetching.current,
+    data: data.current,
+    errorData: errorData.current,
     refetch,
     debug,
     cancel,
