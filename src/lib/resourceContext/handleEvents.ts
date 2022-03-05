@@ -1,9 +1,11 @@
 import { AxiosRequestConfig } from "axios";
 import type { AccumulatorContainer, NextCallbackType } from "lib/types";
 import type {
+  EventQueueType,
   EventQueue_AccumulatorContainer,
   EventQueue_BeforeEventType,
   EventQueue_DataType,
+  EventQueue_DeDup_DataType,
   EventQueue_NextCallbackType,
   EventQueue_OnFailureType,
   EventQueue_OnFinishType,
@@ -21,7 +23,7 @@ const getDeDuplicatedEventSlice = (queueSlice: EventQueue_DataType[]) => {
     }
     eventMap[key].push(event);
   });
-  const output: EventQueue_DataType[] = [];
+  const output: EventQueue_DeDup_DataType[] = [];
   Object.values(eventMap).forEach((duplicatedEvents, index) => {
     const lastIndex = duplicatedEvents.length - 1;
     const lastEvent = duplicatedEvents[lastIndex];

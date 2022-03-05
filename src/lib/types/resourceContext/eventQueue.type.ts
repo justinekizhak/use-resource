@@ -51,5 +51,16 @@ export type EventQueue_DataType = {
   baseConfig?: AxiosRequestConfig;
 };
 
+export type EventQueue_DeDup_DataType = {
+  resourceName: string;
+  beforeEvent: EventQueue_BeforeEventType;
+  event: EventType;
+  onSuccess: EventQueue_OnSuccessType;
+  onFailure: EventQueue_OnFailureType;
+  onFinish: EventQueue_OnFinishType;
+  fullTask: FullTaskType;
+  baseConfig?: AxiosRequestConfig;
+};
+
 export type PublishCallbackType = (event: EventQueue_DataType) => void;
 export type EventQueueType = React.MutableRefObject<EventQueue_DataType[]>;

@@ -26,7 +26,7 @@ describe("basic-example", () => {
     setup();
     const counterEl = await screen.findByTitle("render-counter");
     const value = getNodeText(counterEl);
-    expect(value).toBe("3");
+    expect(value).toBe("2");
   });
   it("Check data content", async () => {
     setup();

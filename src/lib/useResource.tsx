@@ -238,7 +238,7 @@ export function useResource<T>(
       next = defaultNext,
       disableStateUpdate = false
     ) => {
-      const _res = res as AxiosResponse;
+      const _res: AxiosResponse = res;
       const _data = _res?.data;
       if (!disableStateUpdate) {
         updateGlobalState({ data: _data });

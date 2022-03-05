@@ -1,14 +1,14 @@
 import { useCallback, useContext, useRef, useState } from "react";
 import { compareObject } from "../utils/helpers";
 
-import type { ResourceKeyType } from "../types/main.type";
+import type { ResourceKeyType, ValueOf_ResourceType } from "../types/main.type";
 import type {
   DispatchType,
-  PublishCallbackType,
   SelectorCallbackType
 } from "../types/resourceContext/provider.type";
 
 import { GlobalResourceContext } from "./context";
+import type { PublishCallbackType } from "lib/types/resourceContext/eventQueue.type";
 
 export function useDispatch<T>(
   customContext = GlobalResourceContext
@@ -36,10 +36,9 @@ export function useSelector<T>(
   resourceName: string,
   dataKey: ResourceKeyType<T>,
   customContext = GlobalResourceContext
-) {
+): undefined | ValueOf_ResourceType<T> {
   const [_, setCounter] = useState(0);
   const localValueRef = useRef();
-  const valueType = useRef("");
   const { state, stateCallbacks } = useContext(customContext);
   if (!resourceName) {
     return;
@@ -53,28 +52,15 @@ export function useSelector<T>(
   }
   const resource = state.current[resourceName];
   const callback: SelectorCallbackType<T> = (_data = resource) => {
-    if (!dataKey) {
-      console.log("Data key is empty");
-      return;
-    }
-    const value = _data[dataKey];
-    if (typeof value === "function") {
-      valueType.current = "function";
-      localValueRef.current = value;
-      forceRefresh();
-      return;
-    }
+    const value = dataKey ? _data[dataKey] : _data;
     if (compareObject(localValueRef.current, value)) {
+      // The value is the same, no need to update
       return;
     }
-    valueType.current = "value";
     localValueRef.current = value;
     forceRefresh();
   };
   stateCallbacks.current[resourceName].push(callback);
-  if (valueType.current === "function") {
-    return localValueRef.current;
-  }
   return localValueRef.current;
 }
 

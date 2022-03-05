@@ -80,7 +80,8 @@ export const getBaseConfig = (
 
 export const getErrorMessage = (errorData: ErrorDataType): string => {
   const defaultErrorMessage = "Something went wrong. Please try again.";
-  const err = errorData as AxiosError;
+  // @ts-ignore
+  const err: AxiosError = errorData;
   if (err?.response?.data?.message) {
     return err.response.data.message || defaultErrorMessage;
   }

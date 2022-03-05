@@ -1,12 +1,8 @@
-import { useRef, useEffect } from "react";
-
+import type { EventQueue_DataType } from "lib/types/resourceContext/eventQueue.type";
+import { useEffect, useRef } from "react";
 import type { Internal_JsxComponentType } from "../types/main.type";
-import type {
-  ContextCallbackState,
-  EventQueue_DataType
-} from "../types/resourceContext/provider.type";
 import type { ResourceContextState } from "../types/resourceContext/context.type";
-
+import type { ContextCallbackState } from "../types/resourceContext/provider.type";
 import { GlobalResourceContext } from "./context";
 import { handleEvent } from "./handleEvents";
 
