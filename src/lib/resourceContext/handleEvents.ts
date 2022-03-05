@@ -1,16 +1,16 @@
 import { AxiosRequestConfig } from "axios";
-import {
-  AccumulatorContainer,
-  BeforeEventType,
-  NextCallbackType,
-  OnFailureType,
-  OnFinishType,
-  OnSuccessType
-} from "lib/types";
-import {
+import type { AccumulatorContainer, NextCallbackType } from "lib/types";
+import type {
   EventQueueType,
-  EventQueue_DataType
-} from "lib/types/resourceContext/provider.type";
+  EventQueue_AccumulatorContainer,
+  EventQueue_BeforeEventType,
+  EventQueue_DataType,
+  EventQueue_DeDup_DataType,
+  EventQueue_NextCallbackType,
+  EventQueue_OnFailureType,
+  EventQueue_OnFinishType,
+  EventQueue_OnSuccessType
+} from "lib/types/resourceContext/eventQueue.type";
 
 const getDeDuplicatedEventSlice = (queueSlice: EventQueue_DataType[]) => {
   const eventMap: {
@@ -23,31 +23,64 @@ const getDeDuplicatedEventSlice = (queueSlice: EventQueue_DataType[]) => {
     }
     eventMap[key].push(event);
   });
-  const output: EventQueue_DataType[] = [];
-  Object.values(eventMap).forEach((duplicatedEvents) => {
+  const output: EventQueue_DeDup_DataType[] = [];
+  Object.values(eventMap).forEach((duplicatedEvents, index) => {
     const lastIndex = duplicatedEvents.length - 1;
     const lastEvent = duplicatedEvents[lastIndex];
 
-    const beforeEvent: BeforeEventType = (acc, next, disableStateUpdate) => {
+    const beforeEvent: EventQueue_BeforeEventType = (
+      accList,
+      nextList,
+      disableStateUpdate
+    ) => {
       duplicatedEvents.forEach((event) => {
+        const acc: AccumulatorContainer = (accList && accList[index]) || {
+          current: []
+        };
+        const next: NextCallbackType =
+          (nextList && nextList(index)) || (() => ({ current: [] }));
         event.beforeEvent(acc, next, disableStateUpdate);
       });
     };
 
-    const onSuccess: OnSuccessType = (res, acc, next, disableStateUpdate) => {
+    const onSuccess: EventQueue_OnSuccessType = (
+      res,
+      accList,
+      nextList,
+      disableStateUpdate
+    ) => {
       duplicatedEvents.forEach((event) => {
+        const acc: AccumulatorContainer = (accList && accList[index]) || {
+          current: []
+        };
+        const next: NextCallbackType =
+          (nextList && nextList(index)) || (() => ({ current: [] }));
         event.onSuccess(res, acc, next, disableStateUpdate);
       });
     };
 
-    const onFailure: OnFailureType = (error, acc, next) => {
+    const onFailure: EventQueue_OnFailureType = (error, accList, nextList) => {
       duplicatedEvents.forEach((event) => {
+        const acc: AccumulatorContainer = (accList && accList[index]) || {
+          current: []
+        };
+        const next: NextCallbackType =
+          (nextList && nextList(index)) || (() => ({ current: [] }));
         event.onFailure(error, acc, next);
       });
     };
 
-    const onFinish: OnFinishType = (acc, next, disableStateUpdate) => {
+    const onFinish: EventQueue_OnFinishType = (
+      accList,
+      nextList,
+      disableStateUpdate
+    ) => {
       duplicatedEvents.forEach((event) => {
+        const acc: AccumulatorContainer = (accList && accList[index]) || {
+          current: []
+        };
+        const next: NextCallbackType =
+          (nextList && nextList(index)) || (() => ({ current: [] }));
         event.onFinish(acc, next, disableStateUpdate);
       });
     };
@@ -55,24 +88,32 @@ const getDeDuplicatedEventSlice = (queueSlice: EventQueue_DataType[]) => {
     const fullTask = async (customConfig: AxiosRequestConfig) => {
       const index = 0;
       const totalTask = 1;
+      const lastIndex = totalTask - 1;
       const isFirstInChain = index === 0;
       const isLastInChain = index === totalTask - 1;
-      const em_acc: AccumulatorContainer = { current: [] };
+      const accList: EventQueue_AccumulatorContainer = [{ current: [] }];
 
-      const em_next: NextCallbackType = (data) => {
-        if (data) {
-          em_acc.current.push(data);
-        }
-        return em_acc;
+      const nextList: EventQueue_NextCallbackType = (index: number) => {
+        const callback: NextCallbackType = (data) => {
+          if (data) {
+            accList[index].current.push(data);
+          }
+          return accList[index];
+        };
+        return callback;
       };
       try {
-        beforeEvent(em_acc, em_next, !isFirstInChain);
-        const res = await lastEvent.event(customConfig, em_acc, em_next);
-        onSuccess(res, em_acc, em_next, !isLastInChain);
+        beforeEvent(accList, nextList, !isFirstInChain);
+        const res = await lastEvent.event(
+          customConfig,
+          accList[lastIndex],
+          nextList(lastIndex)
+        );
+        onSuccess(res, accList, nextList, !isLastInChain);
       } catch (error) {
-        onFailure(error, em_acc, em_next);
+        onFailure(error, accList, nextList);
       } finally {
-        onFinish(em_acc, em_next, !isLastInChain);
+        onFinish(accList, nextList, !isLastInChain);
       }
     };
 

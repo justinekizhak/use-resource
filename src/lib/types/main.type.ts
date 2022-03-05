@@ -24,7 +24,7 @@ export type Internal_JsxComponentType =
 
 export type ErrorDataType = AxiosError | AxiosResponse | object | undefined;
 
-export type ResourceType<T> = {
+export interface ResourceType<T> {
   data: T | undefined;
   isLoading: boolean;
   isFetching: boolean;
@@ -32,7 +32,11 @@ export type ResourceType<T> = {
   debug: MutableRefObject<DebugObject[]>;
   cancel: any;
   refetch: (customConfig?: BaseConfigType) => void;
-};
+}
+
+export type ValueOf<T> = T[keyof T];
+
+export type ValueOf_ResourceType<T> = ValueOf<ResourceType<T>>;
 
 /**
  * Resource type object keys
