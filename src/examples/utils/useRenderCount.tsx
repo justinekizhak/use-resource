@@ -1,7 +1,7 @@
 import { useRef } from "react";
 
 export const useRenderCount = () => {
-  const renderCount = useRef(0);
+  const renderCount = useRef(1);
   const renderTimestamp = useRef([]);
 
   const currentTime = Date.now();

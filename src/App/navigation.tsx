@@ -13,6 +13,7 @@ export default function Navigation() {
         <Link to="/">Home</Link>
         <Link to="/basic">Basic</Link>
         <Link to="/context-sync">Context sync</Link>
+        <Link to="/event-queue">Event Queue</Link>
       </nav>
     </div>
   );

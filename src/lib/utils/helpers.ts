@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { MutableRefObject, useEffect, useRef } from "react";
 import { AxiosRequestConfig, AxiosResponse, AxiosError } from "axios";
 import type {
@@ -15,7 +14,8 @@ import type {
   OnFailureType,
   OnFinishType,
   BaseConfigType,
-  PushToAccumulatorType
+  PushToAccumulatorType,
+  ErrorDataType
 } from "../types/main.type";
 import type {
   Internal_ChainedRequestConfigType,
@@ -50,17 +50,16 @@ export const getTriggerDependencies = (
 };
 
 export const getMessageQueueData = (
-  data: boolean | object = false
+  data: boolean | object = false,
+  fallbackQueueName = ""
 ): MessageQueueInfoType => {
-  return [false, ""];
-  // if (typeof data === "object") {
-  //   const isAvailable = true;
-  //   const keyName = data?.keyName || "";
-  //   return [isAvailable, keyName];
-  // }
-  // const isAvailable = data;
-  // const keyName = `${Date.now()}`;
-  // return [isAvailable, keyName];
+  if (typeof data === "object") {
+    const isAvailable = true;
+    const keyName = data?.keyName || fallbackQueueName;
+    return [isAvailable, keyName];
+  }
+  const isAvailable = data;
+  return [isAvailable, fallbackQueueName];
 };
 
 export const getBaseConfig = (
@@ -78,9 +77,7 @@ export const getBaseConfig = (
   return defaultConfig;
 };
 
-export const getErrorMessage = (
-  errorData: AxiosError | AxiosResponse | undefined
-): string => {
+export const getErrorMessage = (errorData: ErrorDataType): string => {
   const defaultErrorMessage = "Something went wrong. Please try again.";
   const err = errorData as AxiosError;
   if (err?.response?.data?.message) {

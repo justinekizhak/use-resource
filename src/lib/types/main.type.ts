@@ -114,7 +114,24 @@ export type OnFinishType = (
   disableStateUpdate?: boolean
 ) => void;
 
+export type FullTaskType = (customConfig: AxiosRequestConfig) => void;
+
 export type PushToAccumulatorType = (
   next: NextCallbackType | undefined,
   res: ChainResponseType | undefined
 ) => void;
+
+export interface ContainerFactory_PropType<T> {
+  globalLoadingComponent: LoadingComponentType;
+  globalFetchingComponent: FetchingComponentType;
+  globalErrorComponent: ErrorComponentType;
+  errorData: ErrorDataType;
+  resourceName: string;
+  isLoading: boolean;
+  isFetching: boolean;
+  data: T;
+}
+
+export type ContainerFactoryType<T> = (
+  props: ContainerFactory_PropType<T>
+) => ContextContainerType;

@@ -20,11 +20,11 @@ export interface RefetchFunctionArgType {
   onFailure: OnFailureType;
   onFinish: OnFinishType;
   isMessageQueueAvailable: boolean;
-  messageQueueName: string;
   pushToMessageQueue: (data: any) => void;
   useRequestChaining: boolean;
   baseConfigRef: MutableRefObject<BaseConfigType>;
   controllerInstance: MutableRefObject<AbortController>;
+  resourceName: string;
 }
 
 export type RefetchFunctionType = (

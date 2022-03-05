@@ -3,7 +3,8 @@ import type { GlobalResourceContextType } from "../types/resourceContext/provide
 
 export const globalResourceContextDefault = {
   state: { current: {} },
-  stateCallbacks: { current: {} }
+  stateCallbacks: { current: {} },
+  eventQueue: { current: [] }
 };
 
 export const GlobalResourceContext = createContext<

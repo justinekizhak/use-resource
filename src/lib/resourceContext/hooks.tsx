@@ -1,9 +1,10 @@
-import { useCallback, useContext, useState } from "react";
+import { useCallback, useContext, useRef, useState } from "react";
 import { compareObject } from "../utils/helpers";
 
 import type { ResourceKeyType } from "../types/main.type";
 import type {
   DispatchType,
+  PublishCallbackType,
   SelectorCallbackType
 } from "../types/resourceContext/provider.type";
 
@@ -16,12 +17,6 @@ export function useDispatch<T>(
   const returnCallback: DispatchType<T> = useCallback(
     (key, data) => {
       if (!key || !data) {
-        return;
-      }
-      const updateKey = Object.keys(data)[0] as ResourceKeyType<T>;
-      const oldValue = state.current[key]?.[updateKey];
-      const newValue = data[updateKey];
-      if (compareObject(oldValue, newValue)) {
         return;
       }
       const oldData = state.current[key];
@@ -42,11 +37,17 @@ export function useSelector<T>(
   dataKey: ResourceKeyType<T>,
   customContext = GlobalResourceContext
 ) {
+  const [counter, setCounter] = useState(0);
   const [localValue, setLocalValue] = useState();
+  const localValueRef = useRef();
+  const valueType = useRef("");
   const { state, stateCallbacks } = useContext(customContext);
   if (!resourceName) {
     return;
   }
+  const forceRefresh = () => {
+    setCounter(counter + 1);
+  };
   const existingCallbacks = stateCallbacks.current[resourceName];
   if (!existingCallbacks) {
     stateCallbacks.current[resourceName] = [];
@@ -58,11 +59,32 @@ export function useSelector<T>(
       return;
     }
     const value = _data[dataKey];
+    if (typeof value === "function") {
+      valueType.current = "function";
+      localValueRef.current = value;
+      // forceRefresh();
+      return;
+    }
     if (localValue && compareObject(localValue, value)) {
       return;
     }
+    valueType.current = "value";
     setLocalValue(value);
   };
   stateCallbacks.current[resourceName].push(callback);
+  if (valueType.current === "function") {
+    return localValueRef.current;
+  }
   return localValue;
+}
+
+export function usePublish(customContext = GlobalResourceContext) {
+  const { eventQueue } = useContext(customContext);
+  const callback: PublishCallbackType = useCallback(
+    (event) => {
+      eventQueue.current.push(event);
+    },
+    [eventQueue]
+  );
+  return callback;
 }

@@ -1,17 +1,17 @@
 import { useState } from "react";
 import { useResource } from "../../lib";
-import { CommonTypes } from "../../lib/types";
+import { BaseConfigType } from "../../lib/types";
 import { useRenderCount } from "../utils/useRenderCount";
 
 export default function ApiInvoker() {
   const [todoIndex, setTodoIndex] = useState(1);
   const { RenderContainer } = useRenderCount();
 
-  const getConfig = (todoIndex = 1): CommonTypes.BaseConfigType => ({
+  const getConfig = (todoIndex = 1): BaseConfigType => ({
     url: `https://jsonplaceholder.typicode.com/todos/${todoIndex}`
   });
 
-  const { data, refetch } = useResource(getConfig(), "test", {
+  const { data, refetch, isFetching } = useResource(getConfig(), "test", {
     useGlobalContext: true
   });
 
@@ -26,6 +26,7 @@ export default function ApiInvoker() {
       <h1>Api Invoker</h1>
       <RenderContainer />
       {JSON.stringify(data)}
+      {isFetching + ""}
       <button onClick={handleClick}>Next item</button>
     </div>
   );
