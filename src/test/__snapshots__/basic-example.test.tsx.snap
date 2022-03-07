@@ -1,0 +1,36 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`basic-example Check data content 1`] = `
+"Snapshot Diff:
+- First value
++ Second value
+
+@@ -7,24 +7,21 @@
+      >
+        Total render count(including initial render):
+        <span
+          title=\\"render-counter\\"
+        >
+-         2
++         4
+        </span>
+      </div>
+    </div>
+    <div
+      class=\\"resource-resource\\"
+    >
+      <div
+        class=\\"content\\"
+      >
+-       <div
+-         class=\\"loading\\"
+-       >
+-          Loading... 
++       <div>
++         {\\"hello\\":\\"world\\"}
+        </div>
+-       <div />
+      </div>
+    </div>
+  </DocumentFragment>"
+`;
