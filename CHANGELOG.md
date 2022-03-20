@@ -1,3 +1,19 @@
+# v0.2.4 (Sun Mar 20 2022)
+
+#### 🐛 Bug Fix
+
+- fix: Change all relative paths to absolute ([@justinekizhak](https://github.com/justinekizhak))
+
+#### ⚠️ Pushed to `main`
+
+- test: Add snapshot testing ([@justinekizhak](https://github.com/justinekizhak))
+
+#### Authors: 1
+
+- Justine Kizhakkinedath ([@justinekizhak](https://github.com/justinekizhak))
+
+---
+
 # v0.2.3 (Sat Mar 05 2022)
 
 #### 🐛 Bug Fix
