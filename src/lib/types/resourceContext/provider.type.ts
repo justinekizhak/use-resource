@@ -1,6 +1,6 @@
 import React from "react";
-import type { ResourceType, ResourceKeyType } from "lib/types/main.type";
-import { ResourceContextState } from "lib/types/resourceContext/context.type";
+import type { ResourceType, ResourceKeyType } from "../main.type";
+import { ResourceContextState } from "../resourceContext/context.type";
 import { EventQueueType } from "./eventQueue.type";
 
 export type DispatchType<T> = (

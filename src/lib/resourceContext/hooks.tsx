@@ -8,7 +8,7 @@ import type {
 } from "../types/resourceContext/provider.type";
 
 import { GlobalResourceContext } from "./context";
-import type { PublishCallbackType } from "lib/types/resourceContext/eventQueue.type";
+import type { PublishCallbackType } from "../types/resourceContext/eventQueue.type";
 
 export function useDispatch<T>(
   customContext = GlobalResourceContext

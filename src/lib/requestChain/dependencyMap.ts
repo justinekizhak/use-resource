@@ -1,9 +1,9 @@
 import {
   DependencyMapType,
   CreateDependencyMapReturnType
-} from "lib/types/requestChain/dependencyMap.type";
-import type { ChainedRequestConfigType } from "lib/types/useResource.type";
-import { getAllDependencyName, getName } from "lib/utils/requestChain";
+} from "../types/requestChain/dependencyMap.type";
+import type { ChainedRequestConfigType } from "../types/useResource.type";
+import { getAllDependencyName, getName } from "../utils/requestChain";
 
 export const createDependencyMap = (
   requestChain: ChainedRequestConfigType[]

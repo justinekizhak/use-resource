@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { getAllDependencyName } from "lib/utils/requestChain";
+import { getAllDependencyName } from "../../utils/requestChain";
 import { getRequestChainName } from "../helpers/requestChain";
 
 describe("Test getAllDependencyName", () => {

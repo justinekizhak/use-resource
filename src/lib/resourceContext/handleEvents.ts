@@ -1,5 +1,5 @@
 import { AxiosRequestConfig } from "axios";
-import type { AccumulatorContainer, NextCallbackType } from "lib/types";
+import type { AccumulatorContainer, NextCallbackType } from "../types";
 import type {
   EventQueueType,
   EventQueue_AccumulatorContainer,
@@ -10,7 +10,7 @@ import type {
   EventQueue_OnFailureType,
   EventQueue_OnFinishType,
   EventQueue_OnSuccessType
-} from "lib/types/resourceContext/eventQueue.type";
+} from "../types/resourceContext/eventQueue.type";
 
 const getDeDuplicatedEventSlice = (queueSlice: EventQueue_DataType[]) => {
   const eventMap: {

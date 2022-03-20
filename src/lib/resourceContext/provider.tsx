@@ -1,4 +1,4 @@
-import type { EventQueue_DataType } from "lib/types/resourceContext/eventQueue.type";
+import type { EventQueue_DataType } from "../types/resourceContext/eventQueue.type";
 import { useEffect, useRef } from "react";
 import type { Internal_JsxComponentType } from "../types/main.type";
 import type { ResourceContextState } from "../types/resourceContext/context.type";
