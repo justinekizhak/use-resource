@@ -1,3 +1,19 @@
+# v0.3.0 (Sun Mar 20 2022)
+
+#### 🚀 Enhancement
+
+- feat: Fix relative path ([@justinekizhak](https://github.com/justinekizhak))
+
+#### ⚠️ Pushed to `main`
+
+- Merge branch 'main' of github.com:justinekizhak/use-resource-hook into main ([@justinekizhak](https://github.com/justinekizhak))
+
+#### Authors: 1
+
+- Justine Kizhakkinedath ([@justinekizhak](https://github.com/justinekizhak))
+
+---
+
 # v0.2.4 (Sun Mar 20 2022)
 
 #### 🐛 Bug Fix
