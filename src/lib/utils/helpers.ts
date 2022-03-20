@@ -31,11 +31,8 @@ export const getTriggerDependencies = (
     return [triggerOn, true];
   }
   // Second priority is if the triggerOn is a boolean
-  if (triggerOn === false) {
-    return [[], false];
-  }
-  if (triggerOn === true) {
-    return [[], true];
+  if (typeof triggerOn === "boolean") {
+    return [[], triggerOn];
   }
   // Third priority is if the triggerOn is a string
   if (triggerOn === "onMount") {
@@ -43,7 +40,7 @@ export const getTriggerDependencies = (
   }
   // Fourth priority is when request is a GET request
   if (axiosConfig.method === "get") {
-    return [[], false];
+    return [[], true];
   }
   // By default, on mount trigger is false
   return [[], false];

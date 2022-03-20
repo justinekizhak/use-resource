@@ -66,7 +66,7 @@ export function useResource<T>(
 ): UseResourceReturnType<T> {
   const {
     CustomContext = GlobalResourceContext,
-    triggerOn = "onMount",
+    triggerOn = "",
     onMountCallback = (customAxios: AxiosInstance) => {},
     globalLoadingComponent = defaultLoadingComponent,
     globalFetchingComponent = defaultFetchingComponent,
