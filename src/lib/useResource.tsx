@@ -38,7 +38,7 @@ import {
   useIsMounted
 } from "./utils/helpers";
 
-import { useDispatch, usePublish } from "lib/resourceContext/hooks";
+import { useDispatch, usePublish } from "./resourceContext/hooks";
 
 import { refetchFunction } from "./utils/refetch";
 
