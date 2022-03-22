@@ -1,7 +1,11 @@
 import { useCallback, useContext, useRef, useState } from "react";
 import { compareObject } from "../utils/helpers";
 
-import type { ResourceKeyType, ValueOf_ResourceType } from "../types/main.type";
+import type {
+  ResourceKeyType,
+  ResourceType,
+  ValueOf_ResourceType
+} from "../types/main.type";
 import type {
   DispatchType,
   SelectorCallbackType
@@ -20,7 +24,14 @@ export function useDispatch<T>(
         return;
       }
       const oldData = state.current[key];
-      const newData = { ...oldData, ...data };
+      // This will merge the data at the slice level not at the data inside the keys
+      // For example: If you pass a single key value pair in the data attribute inside the slice
+      // It will overwrite all the other values in the data attribute with the new key-value pair.
+      // To escape this behaviour, pass in a function which will give you the old data and you can
+      // do the merging on your own and the return value will be treated as the new slice.
+      const newDataSlice =
+        typeof data === "function" ? data(oldData) || {} : data;
+      const newData: ResourceType<T> = { ...oldData, ...newDataSlice };
       state.current[key] = newData;
       const allAffectedCallbacks = stateCallbacks.current[key];
       allAffectedCallbacks?.forEach((callback) => {
@@ -34,7 +45,7 @@ export function useDispatch<T>(
 
 export function useSelector<T>(
   resourceName: string,
-  dataKey: ResourceKeyType<T>,
+  dataKey?: ResourceKeyType<T>,
   customContext = GlobalResourceContext
 ): undefined | ValueOf_ResourceType<T> {
   const [_, setCounter] = useState(0);

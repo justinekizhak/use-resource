@@ -3,9 +3,13 @@ import type { ResourceType, ResourceKeyType } from "../main.type";
 import { ResourceContextState } from "../resourceContext/context.type";
 import { EventQueueType } from "./eventQueue.type";
 
+export type Dispatch_StateMutationFunction_Type<T> = (
+  state: ResourceType<T>
+) => ResourceType<T> | void;
+
 export type DispatchType<T> = (
   key: string,
-  stateSlice: ResourceType<T>
+  stateSlice: ResourceType<T> | Dispatch_StateMutationFunction_Type<T>
 ) => void;
 
 export type DispatchHookType<T> = (customContext?: React.Context<any>) => T;

@@ -31,12 +31,15 @@ export interface ResourceType<T> {
   errorData: ErrorDataType;
   debug: MutableRefObject<DebugObject[]>;
   cancel: any;
+  errorMessage: string;
   refetch: (customConfig?: BaseConfigType) => void;
 }
 
 export type ValueOf<T> = T[keyof T];
 
-export type ValueOf_ResourceType<T> = ValueOf<ResourceType<T>>;
+export type ValueOf_ResourceType<T> =
+  | ValueOf<ResourceType<T>>
+  | ResourceType<T>;
 
 /**
  * Resource type object keys

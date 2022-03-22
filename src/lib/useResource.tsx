@@ -15,7 +15,8 @@ import type {
   OnFinishType,
   NextCallbackType,
   BaseConfigType,
-  AccumulatorType
+  AccumulatorType,
+  ResourceType
 } from "./types/main.type";
 import { GlobalResourceContext } from "./resourceContext/context";
 import type {
@@ -35,10 +36,11 @@ import {
   getTriggerDependencies,
   getMessageQueueData,
   pushToAcc,
-  useIsMounted
+  useIsMounted,
+  getErrorMessage
 } from "./utils/helpers";
 
-import { useDispatch, usePublish } from "./resourceContext/hooks";
+import { useDispatch, usePublish, useSelector } from "./resourceContext/hooks";
 
 import { refetchFunction } from "./utils/refetch";
 
@@ -86,6 +88,7 @@ export function useResource<T>(
   const isLoading = useRef(false);
   const isFetching = useRef(false);
   const errorData = useRef<AxiosError | AxiosResponse>();
+  const errorMessage = useRef("");
   const debug = useRef<DebugObject[]>([]);
 
   // Internal states here
@@ -99,6 +102,11 @@ export function useResource<T>(
   // Custom hooks here
   const isMounted = useIsMounted();
   const dispatch = useDispatch(CustomContext);
+  const contextData: ResourceType<T> = useSelector(
+    resourceName,
+    undefined,
+    CustomContext
+  );
   const publish = usePublish(CustomContext);
 
   const useRequestChaining = Array.isArray(baseConfig);
@@ -106,7 +114,7 @@ export function useResource<T>(
     throw new Error("Please pass in the request config");
   }
 
-  // Callbacks here
+  // Data refs here
 
   const setData = (value: T | undefined) => {
     data.current = value;
@@ -123,6 +131,12 @@ export function useResource<T>(
   const setErrorData = (value: AxiosError | AxiosResponse | undefined) => {
     errorData.current = value;
   };
+
+  const setErrorMessage = (value: string = "") => {
+    errorMessage.current = value;
+  };
+
+  // End of data refs
 
   const [triggerDeps, isMountTriggerable] = getTriggerDependencies(
     triggerOn,
@@ -209,6 +223,7 @@ export function useResource<T>(
         setIsFetching(true);
         setData(undefined);
         setErrorData(undefined);
+        setErrorMessage();
         forceRefresh();
       }
     },
@@ -263,19 +278,28 @@ export function useResource<T>(
           "[FETCHING RESOURCE] RESPONSE ERROR RECEIVED",
           _error.response
         );
-        updateGlobalState({ errorData: _error.response });
+        const _errMsg = _error?.response?.statusText;
+        updateGlobalState({
+          errorData: _error.response,
+          errorMessage: _errMsg
+        });
         setErrorData(_error.response);
+        setErrorMessage(_errMsg);
       } else if (_error.request) {
         pushToDebug(
           "[FETCHING RESOURCE] REQUEST ERROR RECEIVED",
           _error.request
         );
-        updateGlobalState({ errorData: _error.request });
+        const _errMsg = _error?.request?.statusText;
+        updateGlobalState({ errorData: _error.request, errorMessage: _errMsg });
         setErrorData(_error.request);
+        setErrorMessage(_errMsg);
       } else {
         pushToDebug("[FETCHING RESOURCE] SYSTEM ERROR RECEIVED", error);
-        updateGlobalState({ errorData: _error });
+        const _errMsg = _error?.message;
+        updateGlobalState({ errorData: _error, errorMessage: _errMsg });
         setErrorData(_error);
+        setErrorMessage(_errMsg);
       }
       forceRefresh();
     },
@@ -354,6 +378,41 @@ export function useResource<T>(
     updateGlobalState({ refetch, debug, cancel });
   }, [refetch, debug, cancel, updateGlobalState]);
 
+  // Getters for fetching the data from context
+  const getIsLoading = () => {
+    if (useGlobalContext) {
+      return contextData?.isLoading;
+    }
+    return isLoading.current;
+  };
+  const getIsFetching = () => {
+    if (useGlobalContext) {
+      return contextData?.isFetching;
+    }
+    return isFetching.current;
+  };
+  const getData = () => {
+    if (useGlobalContext) {
+      return contextData?.data;
+    }
+    return data.current;
+  };
+
+  const getErrorData = () => {
+    if (useGlobalContext) {
+      return contextData?.errorData;
+    }
+    return errorData.current;
+  };
+
+  const getErrorMessage = () => {
+    if (useGlobalContext) {
+      return contextData?.errorMessage;
+    }
+    return errorMessage.current;
+  };
+  // End of getters
+
   const Container = containerFactory({
     globalLoadingComponent,
     globalFetchingComponent,
@@ -366,10 +425,11 @@ export function useResource<T>(
   });
 
   const returnObject = {
-    isLoading: isLoading.current,
-    isFetching: isFetching.current,
-    data: data.current,
-    errorData: errorData.current,
+    isLoading: getIsLoading(),
+    isFetching: getIsFetching(),
+    data: getData(),
+    errorData: getErrorData(),
+    errorMessage: getErrorMessage(),
     refetch,
     debug,
     cancel,

@@ -26,7 +26,7 @@
     "sourceMap": true,
     "outDir": "dist",
     "emitDeclarationOnly": false,
-    "declarationDir": "./dist/types",
+    "declarationDir": "./dist",
     "baseUrl": "src"
   }
 }
