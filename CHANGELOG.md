@@ -1,3 +1,19 @@
+# v0.3.3 (Sun Mar 20 2022)
+
+#### 🐛 Bug Fix
+
+- fix: Fix the custom config of the request-chain ([@justinekizhak](https://github.com/justinekizhak))
+
+#### ⚠️ Pushed to `main`
+
+- Merge branch 'main' of github.com:justinekizhak/use-resource-hook into main ([@justinekizhak](https://github.com/justinekizhak))
+
+#### Authors: 1
+
+- Justine Kizhakkinedath ([@justinekizhak](https://github.com/justinekizhak))
+
+---
+
 # v0.3.2 (Sun Mar 20 2022)
 
 #### 🐛 Bug Fix
