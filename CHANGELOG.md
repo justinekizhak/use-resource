@@ -1,3 +1,16 @@
+# v0.4.1 (Tue Mar 22 2022)
+
+#### ⚠️ Pushed to `main`
+
+- Merge branch 'main' of github.com:justinekizhak/use-resource-hook into main ([@justinekizhak](https://github.com/justinekizhak))
+- refactor: Code cleanup ([@justinekizhak](https://github.com/justinekizhak))
+
+#### Authors: 1
+
+- Justine Kizhakkinedath ([@justinekizhak](https://github.com/justinekizhak))
+
+---
+
 # v0.4.0 (Tue Mar 22 2022)
 
 #### 🚀 Enhancement
