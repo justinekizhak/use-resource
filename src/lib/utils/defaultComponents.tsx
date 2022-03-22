@@ -6,7 +6,6 @@ import type {
   FetchingComponentType,
   LoadingComponentType
 } from "../types/main.type";
-import { getErrorMessage } from "../utils/helpers";
 
 export const defaultLoadingComponent: LoadingComponentType = (data) => (
   <div className="loading"> Loading... </div>
@@ -34,7 +33,8 @@ export const containerFactory: ContainerFactoryType<any> =
     resourceName,
     isLoading,
     isFetching,
-    data
+    data,
+    errorMessage
   }) =>
   ({
     children,
@@ -43,8 +43,6 @@ export const containerFactory: ContainerFactoryType<any> =
     errorComponent = globalErrorComponent,
     contentWrapper = undefined
   }: ContextContainerPropsType) => {
-    const errorMessage = getErrorMessage(errorData);
-
     const defaultWrapper: ContentWrapperType = (props) => (
       <div className="content">
         {props.isLoading && loadingComponent(props.data)}

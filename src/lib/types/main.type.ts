@@ -137,6 +137,7 @@ export interface ContainerFactory_PropType<T> {
   isLoading: boolean;
   isFetching: boolean;
   data: T;
+  errorMessage: string;
 }
 
 export type ContainerFactoryType<T> = (

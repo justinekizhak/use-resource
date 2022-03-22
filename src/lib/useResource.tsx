@@ -36,8 +36,7 @@ import {
   getTriggerDependencies,
   getMessageQueueData,
   pushToAcc,
-  useIsMounted,
-  getErrorMessage
+  useIsMounted
 } from "./utils/helpers";
 
 import { useDispatch, usePublish, useSelector } from "./resourceContext/hooks";
@@ -149,10 +148,10 @@ export function useResource<T>(
   );
 
   const forceRefresh = useCallback(() => {
-    if (isMounted.current) {
+    if (isMounted.current && !useGlobalContext) {
       setCounter((prev) => prev + 1);
     }
-  }, []);
+  }, [useGlobalContext]);
 
   const defaultNext: NextCallbackType = (data) => {
     if (data) {
@@ -417,10 +416,11 @@ export function useResource<T>(
     globalLoadingComponent,
     globalFetchingComponent,
     globalErrorComponent,
-    isLoading: isLoading.current,
-    isFetching: isFetching.current,
-    data: data.current,
-    errorData: errorData.current,
+    isLoading: getIsLoading(),
+    isFetching: getIsFetching(),
+    data: getData(),
+    errorData: getErrorData(),
+    errorMessage: getErrorMessage(),
     resourceName
   });
 

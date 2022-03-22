@@ -75,18 +75,21 @@ export const getBaseConfig = (
   return defaultConfig;
 };
 
-export const getErrorMessage = (errorData: ErrorDataType): string => {
-  const defaultErrorMessage = "Something went wrong. Please try again.";
-  // @ts-ignore
-  const err: AxiosError = errorData;
-  if (err?.response?.data?.message) {
-    return err.response.data.message || defaultErrorMessage;
-  }
-  if (err?.message) {
-    return err.message || defaultErrorMessage;
-  }
-  return "";
-};
+/**
+ * Deprecated
+ */
+// export const getErrorMessage = (errorData: ErrorDataType): string => {
+//   const defaultErrorMessage = "Something went wrong. Please try again.";
+//   // @ts-ignore
+//   const err: AxiosError = errorData;
+//   if (err?.response?.data?.message) {
+//     return err.response.data.message || defaultErrorMessage;
+//   }
+//   if (err?.message) {
+//     return err.message || defaultErrorMessage;
+//   }
+//   return "";
+// };
 
 export const getFunc = (
   requestObject: ChainedRequestConfigType,
