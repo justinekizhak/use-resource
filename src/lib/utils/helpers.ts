@@ -39,7 +39,8 @@ export const getTriggerDependencies = (
     return [[], true];
   }
   // Fourth priority is when request is a GET request
-  if (axiosConfig.method === "get") {
+  const method = (axiosConfig.method || "GET").toUpperCase();
+  if (["GET"].includes(method)) {
     return [[], true];
   }
   // By default, on mount trigger is false

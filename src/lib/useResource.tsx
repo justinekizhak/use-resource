@@ -74,10 +74,9 @@ export function useResource<T>(
     globalErrorComponent = defaultErrorComponent,
     useMessageQueue = false,
     useGlobalContext = false,
-    devMode = false
+    devMode = false,
+    deps = []
   } = options;
-
-  const defaultConfig = getBaseConfig(baseConfig);
 
   // Counter is used for force-refreshing the parent component
   const [_, setCounter] = useState(0);
@@ -94,7 +93,9 @@ export function useResource<T>(
   const firstTime = useRef(true);
   const axiosInstance = useRef<AxiosInstance>(axios);
   const controllerInstance = useRef<AbortController>(new AbortController());
-  const defaultConfigRef = useRef<AxiosRequestConfig>(defaultConfig);
+  const defaultConfigRef = useRef<AxiosRequestConfig>(
+    getBaseConfig(baseConfig)
+  );
   const baseConfigRef = useRef(baseConfig);
   const accumulator = useRef<AccumulatorType>([]);
 
@@ -146,6 +147,12 @@ export function useResource<T>(
     useMessageQueue,
     resourceName
   );
+
+  // Update the config with the new baseConfig
+  useEffect(() => {
+    baseConfigRef.current = baseConfig;
+    defaultConfigRef.current = getBaseConfig(baseConfig);
+  }, deps);
 
   const forceRefresh = useCallback(() => {
     if (isMounted.current && !useGlobalContext) {

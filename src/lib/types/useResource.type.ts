@@ -29,6 +29,7 @@ export interface UseResourceOptionsType<T> {
   useMessageQueue?: boolean | object;
   useGlobalContext?: boolean;
   devMode?: boolean;
+  deps?: any[];
 }
 
 export interface UseResourceReturnType<T> extends ResourceType<T> {
