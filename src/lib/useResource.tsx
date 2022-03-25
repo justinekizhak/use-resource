@@ -148,12 +148,6 @@ export function useResource<T>(
     resourceName
   );
 
-  // Update the config with the new baseConfig
-  useEffect(() => {
-    baseConfigRef.current = baseConfig;
-    defaultConfigRef.current = getBaseConfig(baseConfig);
-  }, deps);
-
   const forceRefresh = useCallback(() => {
     if (isMounted.current && !useGlobalContext) {
       setCounter((prev) => prev + 1);
@@ -201,6 +195,8 @@ export function useResource<T>(
   }, [onMountCallback]);
 
   const triggerDepString = JSON.stringify(triggerDeps);
+
+  const configDepString = JSON.stringify(deps);
 
   const updateGlobalState = useCallback(
     (data) => {
@@ -355,19 +351,56 @@ export function useResource<T>(
     ]
   );
 
-  // Run this useEffect when the hook is mounted or if the deps changes.
+  /**
+   * This function wil run when trigger or config deps is updated.
+   */
+  const onMountTrigger = useCallback(() => {
+    pushToDebug("INITIALIZING");
+    if (isMountTriggerable) {
+      pushToDebug("ON MOUNT TRIGGERING");
+      refetch();
+    } else {
+      pushToDebug("SKIPPING ON MOUNT TRIGGER");
+    }
+  }, [isMountTriggerable, pushToDebug, refetch]);
+
+  /**
+   * This is to keep track if the trigger deps is updated.
+   * If it is updated then we need skip the refetch in the config deps trigger.
+   * Otherwise if the user is using both trigger and config deps, and if both are
+   * changed then there will be 2 refetches.
+   */
+  const oldTriggerDepString = useRef(triggerDepString);
+
+  /**
+   * Config updated. Re initialize.
+   */
   useEffect(() => {
-    const callback = () => {
-      pushToDebug("INITIALIZING");
-      if (isMountTriggerable) {
-        pushToDebug("ON MOUNT TRIGGERING");
-        refetch();
-      } else {
-        pushToDebug("SKIPPING ON MOUNT TRIGGER");
-      }
-    };
-    callback();
-  }, [isMountTriggerable, pushToDebug, refetch, triggerDepString]);
+    pushToDebug("CONFIG DEPS UPDATED. RE-INITIALIZE.");
+    baseConfigRef.current = baseConfig;
+    defaultConfigRef.current = getBaseConfig(baseConfig);
+
+    // Is trigger deps updated
+    // If updated then dont trigger on mount
+    // Because the triggerDeps useEffect will run, so we can safely skip this refetch.
+    const triggerDepsChanged = oldTriggerDepString.current !== triggerDepString;
+    if (!triggerDepsChanged) {
+      onMountTrigger();
+    }
+  }, [configDepString, onMountTrigger, pushToDebug]);
+
+  /**
+   * Run this useEffect when the hook is mounted or if the deps changes.
+   */
+  useEffect(() => {
+    // Check if the trigger deps has changed and run it.
+    const triggerDepsChanged = oldTriggerDepString.current !== triggerDepString;
+    if (triggerDepsChanged) {
+      // Update the old trigger deps string
+      oldTriggerDepString.current = triggerDepString;
+      onMountTrigger();
+    }
+  }, [triggerDepString, onMountTrigger]);
 
   const cancel = useCallback(() => {
     controllerInstance.current.abort();
