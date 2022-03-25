@@ -122,7 +122,9 @@ export const getFinalRequestChain = (
   internal_onSuccess: OnSuccessType,
   internal_onFailure: OnFailureType,
   internal_onFinish: OnFinishType,
-  controllerInstance: MutableRefObject<AbortController> | undefined = undefined
+  controllerInstance:
+    | MutableRefObject<AbortController | undefined>
+    | undefined = undefined
 ): Internal_ChainedRequestConfigType => {
   const oldChainedRequestData = fullBaseConfigList[index];
   const finalConfig = {

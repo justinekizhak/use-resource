@@ -92,7 +92,7 @@ export function useResource<T>(
   // Internal states here
   const firstTime = useRef(true);
   const axiosInstance = useRef<AxiosInstance>(axios);
-  const controllerInstance = useRef<AbortController>(new AbortController());
+  const controllerInstance = useRef<AbortController>();
   const defaultConfigRef = useRef<AxiosRequestConfig>(
     getBaseConfig(baseConfig)
   );
@@ -235,7 +235,7 @@ export function useResource<T>(
   const event: EventType = useCallback(
     async (customConfig, acc = accumulator, next = defaultNext) => {
       const axiosConfig = {
-        signal: controllerInstance.current.signal,
+        signal: controllerInstance.current?.signal,
         ...defaultConfigRef.current,
         ...customConfig
       };
@@ -403,7 +403,7 @@ export function useResource<T>(
   }, [triggerDepString, onMountTrigger]);
 
   const cancel = useCallback(() => {
-    controllerInstance.current.abort();
+    controllerInstance.current?.abort();
   }, []);
 
   // Cancel the API call if the hook is unmounted

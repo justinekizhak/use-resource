@@ -23,7 +23,7 @@ export interface RefetchFunctionArgType {
   pushToMessageQueue: (data: any) => void;
   useRequestChaining: boolean;
   baseConfigRef: MutableRefObject<BaseConfigType>;
-  controllerInstance: MutableRefObject<AbortController>;
+  controllerInstance: MutableRefObject<AbortController | undefined>;
   resourceName: string;
 }
 
@@ -51,7 +51,7 @@ export interface RequestChainHanderArgType {
   internal_onSuccess: OnSuccessType;
   internal_onFailure: OnFailureType;
   internal_onFinish: OnFinishType;
-  controllerInstance: MutableRefObject<AbortController>;
+  controllerInstance: MutableRefObject<AbortController | undefined>;
   eventMaster: EventMasterFuncType;
 }
 
