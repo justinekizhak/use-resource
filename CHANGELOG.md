@@ -1,3 +1,19 @@
+# v0.5.0 (Fri Mar 25 2022)
+
+#### 🚀 Enhancement
+
+- feat: Add deps for updating the dependencies ([@justinekizhak](https://github.com/justinekizhak))
+
+#### ⚠️ Pushed to `main`
+
+- Merge branch 'main' of github.com:justinekizhak/use-resource-hook into main ([@justinekizhak](https://github.com/justinekizhak))
+
+#### Authors: 1
+
+- Justine Kizhakkinedath ([@justinekizhak](https://github.com/justinekizhak))
+
+---
+
 # v0.4.1 (Tue Mar 22 2022)
 
 #### ⚠️ Pushed to `main`
