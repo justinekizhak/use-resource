@@ -1,6 +1,4 @@
 {
   "entryPoints": ["./src/lib/index.ts"],
-  "out": "docs/api",
-  "categorizeByGroup": true,
-  "categoryOrder": ["Loading", "Other Category", "*"]
+  "out": "build/api"
 }
