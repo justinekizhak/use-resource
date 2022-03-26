@@ -1,3 +1,15 @@
+# v0.8.0 (Sat Mar 26 2022)
+
+#### 🚀 Enhancement
+
+- Feature: Add API documentation [#21](https://github.com/justinekizhak/use-resource-hook/pull/21) ([@justinekizhak](https://github.com/justinekizhak))
+
+#### Authors: 1
+
+- Justine Kizhakkinedath ([@justinekizhak](https://github.com/justinekizhak))
+
+---
+
 # v0.7.0 (Fri Mar 25 2022)
 
 #### 🚀 Enhancement
