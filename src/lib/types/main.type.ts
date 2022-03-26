@@ -7,12 +7,19 @@ import {
 import { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
 import type { ChainedRequestConfigType } from "./useResource.type";
 
+/**
+ * This object is stored in the debugger.
+ */
 export interface DebugObject {
   timestamp: string;
   message?: string;
   data?: object;
 }
 
+/**
+ * Used internally.
+ * @ignore
+ */
 export type Internal_JsxComponentType =
   | boolean
   | ReactChild
@@ -22,16 +29,66 @@ export type Internal_JsxComponentType =
   | null
   | undefined;
 
+/**
+ * Contains the error information of a failed request.
+ */
 export type ErrorDataType = AxiosError | AxiosResponse | object | undefined;
 
+/**
+ * This is the resource object which is returned by the useResource hook.
+ */
 export interface ResourceType<T> {
+  /**
+   * The data of the resource.
+   * Contains only the response data if the request was successful.
+   * If you want to get the full response, then you can access it using the `transformSuccess` callback.
+   * For more information, see the {@link TransformSuccessType}
+   */
   data: T | undefined;
+  /**
+   * This value describes if the request is in progress or not.
+   *
+   * This value will only be true for the first request.
+   * Once the hook is mounted this is not going to be used anymore.
+   *
+   * For the subsequent request use the {@link isFetching} property.
+   */
   isLoading: boolean;
+  /**
+   * This value describes if the request is in progress or not.
+   *
+   * For showing a loading indicator only for the first time on mount, use the {@link isLoading} property.
+   *
+   * This flag is also set for the initial loading as well.
+   * For all other purposes, feel free to use this property.
+   */
   isFetching: boolean;
+  /**
+   * Contains the error data if the request failed.
+   */
   errorData: ErrorDataType;
+  /**
+   * Contains all the info about the request lifecycle. This is useful for debugging.
+   */
   debug: MutableRefObject<DebugObject[]>;
-  cancel: any;
+  /**
+   * You can invoke this method to manually cancel the request.
+   */
+  cancel: () => void;
+  /**
+   * This field will contain the request error message if the request failed.
+   */
   errorMessage: string;
+  /**
+   * This method can be used to trigger the request manually.
+   *
+   * Only GET request are triggered on mount(unless you pass the {@link triggerOn} option).
+   *
+   * Apart from GET request for all other request you will have to use this method to
+   * trigger the request manually.
+   *
+   * @param customConfig You can pass in custom config to override the default config.
+   */
   refetch: (customConfig?: BaseConfigType) => void;
 }
 
@@ -46,8 +103,29 @@ export type ValueOf_ResourceType<T> =
  */
 export type ResourceKeyType<T> = keyof ResourceType<T>;
 
+/**
+ * Component shown when the request is in progress.
+ *
+ * Runs only for the first time when the request is in progress.
+ *
+ * This is useful when you have separate loading indicator for the initial loading
+ * and subsequent loading.
+ *
+ * @param data TODO
+ * @category Components
+ * @category LoadingComponent
+ */
 export type LoadingComponentType = (data: any) => JSX.Element;
 
+/**
+ * Component shown when the request is in progress.
+ *
+ * Shown for all the times when the request is in progress.
+ *
+ * @param data TODO
+ * @category Components
+ * @category LoadingComponent
+ */
 export type FetchingComponentType = (data?: any) => JSX.Element;
 
 export type ErrorComponentType = (
@@ -55,10 +133,6 @@ export type ErrorComponentType = (
   errorData?: any,
   data?: any
 ) => JSX.Element;
-// export type ContentWrapper_DisplayOptions = {
-//   whileFetching?: boolean;
-//   onError?: boolean;
-// };
 
 export type ContentWrapperType = (props: {
   children: Internal_JsxComponentType;
@@ -90,18 +164,33 @@ export type NextCallbackType = (
   data: ChainResponseType
 ) => AccumulatorContainer;
 
+/**
+ * This the lifecycle hook which runs before the event is initiated.
+ *
+ * @category LifecycleHook
+ */
 export type BeforeEventType = (
   accumulator?: AccumulatorContainer,
   next?: NextCallbackType,
   disableStateUpdate?: boolean
 ) => void;
 
+/**
+ * This the lifecycle hook which contains the API request event.
+ *
+ * @category LifecycleHook
+ */
 export type EventType = (
   customConfig: AxiosRequestConfig,
   accumulator?: AccumulatorContainer,
   next?: NextCallbackType
 ) => Promise<AxiosResponse>;
 
+/**
+ * This the lifecycle hook which runs if the request is successful.
+ *
+ * @category LifecycleHook
+ */
 export type OnSuccessType = (
   response: AxiosResponse,
   accumulator?: AccumulatorContainer,
@@ -109,12 +198,22 @@ export type OnSuccessType = (
   disableStateUpdate?: boolean
 ) => void;
 
+/**
+ * This the lifecycle hook which runs if there is any error
+ *
+ * @category LifecycleHook
+ */
 export type OnFailureType = (
   error: any | AxiosError,
   accumulator?: AccumulatorContainer,
   next?: NextCallbackType
 ) => void;
 
+/**
+ * This the lifecycle hook which runs after the event is completed.
+ *
+ * @category LifecycleHook
+ */
 export type OnFinishType = (
   accumulator?: AccumulatorContainer,
   next?: NextCallbackType,
@@ -128,6 +227,11 @@ export type PushToAccumulatorType = (
   res: ChainResponseType | undefined
 ) => void;
 
+/**
+ * Props for the ContainerFactory function.
+ *
+ * @category Props
+ */
 export interface ContainerFactory_PropType<T> {
   globalLoadingComponent: LoadingComponentType;
   globalFetchingComponent: FetchingComponentType;
@@ -140,6 +244,11 @@ export interface ContainerFactory_PropType<T> {
   errorMessage: string;
 }
 
+/**
+ * Factory function for generating Container components.
+ *
+ * @category Components
+ */
 export type ContainerFactoryType<T> = (
   props: ContainerFactory_PropType<T>
 ) => ContextContainerType;

@@ -2,7 +2,7 @@
 
 [![Release](https://github.com/justinekizhak/use-resource-hook/actions/workflows/publish.yml/badge.svg)](https://github.com/justinekizhak/use-resource-hook/actions/workflows/publish.yml)
 
-The easiest way to fetch data from an API without any boilerplate code.
+The easiest way to do API calls.
 
 ## Installation
 
@@ -85,8 +85,8 @@ function App() {
   );
 
   const handleClick = () => {
-    refetch()
-  }
+    refetch();
+  };
 
   return (
     <div>
@@ -101,6 +101,7 @@ function App() {
   );
 }
 ```
+
 # Links
 
 [NPM Package](https://www.npmjs.com/package/@justinekizhak/use-resource-hook)
