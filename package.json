@@ -51,7 +51,7 @@
     "release": "auto shipit --base-branch=main",
     "pretest": "cp tsconfig.json tsconfig.json.save",
     "posttest": "mv tsconfig.json.save tsconfig.json",
-    "build:doc": "yarn typedoc"
+    "build:docs": "yarn typedoc"
   },
   "browserslist": [
     ">0.2%",
