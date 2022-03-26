@@ -16,7 +16,8 @@ import type {
   NextCallbackType,
   BaseConfigType,
   AccumulatorType,
-  ResourceType
+  ResourceType,
+  ValueOf_ResourceType
 } from "./types/main.type";
 import { GlobalResourceContext } from "./resourceContext/context";
 import type {
@@ -44,21 +45,22 @@ import { useDispatch, usePublish, useSelector } from "./resourceContext/hooks";
 import { refetchFunction } from "./utils/refetch";
 
 /**
- * Input parameters:
- * 1. baseConfig,
- * 2. resourceName
- * 3. options
  *
- *
- * Returns:
- * 1. data
- * 2. isLoading
- * 3. errorMessage
- * 4. refetch
- * 5. debug
- * 6. cancel
- * 7. Container
- * 8. isFetching
+ * @param baseConfig The request config for the API request.
+ * @param resourceName The name of the resource.
+ * This is required if you want to use the ResourceContext.
+ * This is how we can identify the resource in the store and it should be unique throughout a ResourceContext.
+ * @param options All the options and flags available for the resource.
+ * @returns Returns an object containing the following properties:
+ *    1. data
+ *    2. isLoading
+ *    3. isFetching
+ *    4. errorData
+ *    5. errorMessage
+ *    6. refetch
+ *    7. debug
+ *    8. cancel
+ *    9. Container
  */
 export function useResource<T>(
   baseConfig: BaseConfigType,
@@ -102,11 +104,11 @@ export function useResource<T>(
   // Custom hooks here
   const isMounted = useIsMounted();
   const dispatch = useDispatch(CustomContext);
-  const contextData: ResourceType<T> = useSelector(
-    resourceName,
-    undefined,
-    CustomContext
-  );
+
+  // Here _contextData is of ResourceType as we are not passing any data key.
+  const _contextData = useSelector(resourceName, undefined, CustomContext);
+  const contextData = _contextData as ResourceType<T>;
+
   const publish = usePublish(CustomContext);
 
   const useRequestChaining = Array.isArray(baseConfig);

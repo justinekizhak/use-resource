@@ -47,9 +47,9 @@ export function useSelector<T>(
   resourceName: string,
   dataKey?: ResourceKeyType<T>,
   customContext = GlobalResourceContext
-): undefined | ValueOf_ResourceType<T> {
+): ValueOf_ResourceType<T> {
   const [_, setCounter] = useState(0);
-  const localValueRef = useRef();
+  const localValueRef = useRef<ValueOf_ResourceType<T>>();
   const { state, stateCallbacks } = useContext(customContext);
   if (!resourceName) {
     return;
@@ -63,7 +63,7 @@ export function useSelector<T>(
   }
   const resource = state.current[resourceName];
   const callback: SelectorCallbackType<T> = (_data = resource) => {
-    const value = dataKey ? _data[dataKey] : _data;
+    const value: ValueOf_ResourceType<T> = dataKey ? _data[dataKey] : _data;
     if (compareObject(localValueRef.current, value)) {
       // The value is the same, no need to update
       return;
@@ -75,6 +75,13 @@ export function useSelector<T>(
   return localValueRef.current;
 }
 
+/**
+ * This hook is used for queuing up the requests.
+ *
+ * @param customContext ResourceContext where the event is published.
+ * This is optional. If no value is provided then the default context will be used.
+ * @returns A callback
+ */
 export function usePublish(customContext = GlobalResourceContext) {
   const { eventQueue } = useContext(customContext);
   const callback: PublishCallbackType = useCallback(

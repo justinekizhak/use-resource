@@ -24,22 +24,23 @@
     "axios": "0.25.0"
   },
   "devDependencies": {
-    "@types/node": "^17.0.21",
-    "react": "17.0.2",
-    "react-dom": "17.0.2",
-    "react-router-dom": "6.2.1",
-    "react-scripts": "4.0.3",
     "@auto-it/all-contributors": "^10.32.6",
     "@auto-it/conventional-commits": "^10.32.6",
     "@auto-it/first-time-contributor": "^10.32.6",
     "@auto-it/magic-zero": "^10.32.6",
     "@testing-library/react": "^12.1.3",
     "@types/jest": "^27.4.0",
+    "@types/node": "^17.0.21",
     "@types/react": "17.0.20",
     "@types/react-dom": "17.0.9",
     "auto": "^10.32.6",
     "msw": "^0.38.2",
+    "react": "17.0.2",
+    "react-dom": "17.0.2",
+    "react-router-dom": "6.2.1",
+    "react-scripts": "4.0.3",
     "snapshot-diff": "^0.9.0",
+    "typedoc": "^0.22.13",
     "typescript": "4.4.2"
   },
   "scripts": {
@@ -49,7 +50,8 @@
     "eject": "react-scripts eject",
     "release": "auto shipit --base-branch=main",
     "pretest": "cp tsconfig.json tsconfig.json.save",
-    "posttest": "mv tsconfig.json.save tsconfig.json"
+    "posttest": "mv tsconfig.json.save tsconfig.json",
+    "build:doc": "yarn typedoc"
   },
   "browserslist": [
     ">0.2%",
