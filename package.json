@@ -58,7 +58,7 @@
     "release": "auto shipit --base-branch=main",
     "pretest": "cp tsconfig.json tsconfig.json.save",
     "posttest": "mv tsconfig.json.save tsconfig.json",
-    "build:docs": "yarn typedoc",
+    "build:docs": "yarn docusaurus:build && yarn typedoc",
     "docusaurus:docusaurus": "docusaurus",
     "docusaurus:start": "docusaurus start",
     "docusaurus:build": "docusaurus build",
