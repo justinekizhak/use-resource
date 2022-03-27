@@ -102,10 +102,30 @@ function App() {
 }
 ```
 
+## Getting started
+
+### Docs
+
+Tutorial docs are generated using Docusaurus and the API docs are generated using typedoc.
+
+To write API docs, refer: https://typedoc.org/guides/doccomments/
+
+To develop docs run:
+
+This will run both the typedoc and docusaurus at the same time
+
+```bash
+npm run docs:dev # yarn docs:dev
+```
+
+To build docs run:
+
+```bash
+npm run docs:build # yarn docs:build
+```
+
 # Links
 
 [NPM Package](https://www.npmjs.com/package/@justinekizhak/use-resource-hook)
 
 [Doc site](https://use-resource-hook.vercel.app/)
-
-[Doc repo](https://github.com/justinekizhak/use-resource-hook-docs)

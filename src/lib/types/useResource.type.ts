@@ -53,6 +53,10 @@ export interface ChainedRequestConfigType extends Object {
   dependencyList?: string[] | null | undefined;
 }
 
+/**
+ * Used internally
+ * @internal
+ */
 export interface Internal_ChainedRequestConfigType extends Object {
   baseConfig: AxiosRequestConfig;
   beforeEvent?: BeforeEventType;

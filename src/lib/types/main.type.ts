@@ -18,7 +18,7 @@ export interface DebugObject {
 
 /**
  * Used internally.
- * @ignore
+ * @internal
  */
 export type Internal_JsxComponentType =
   | boolean

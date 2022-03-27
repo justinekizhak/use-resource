@@ -58,7 +58,6 @@
     "release": "auto shipit --base-branch=main",
     "pretest": "cp tsconfig.json tsconfig.json.save",
     "posttest": "mv tsconfig.json.save tsconfig.json",
-    "build:docs": "yarn docusaurus:build && yarn typedoc",
     "docusaurus:docusaurus": "docusaurus",
     "docusaurus:start": "docusaurus start",
     "docusaurus:build": "docusaurus build",
@@ -67,7 +66,11 @@
     "docusaurus:clear": "docusaurus clear",
     "docusaurus:serve": "docusaurus serve",
     "docusaurus:write-translations": "docusaurus write-translations",
-    "docusaurus:write-heading-ids": "docusaurus write-heading-ids"
+    "docusaurus:write-heading-ids": "docusaurus write-heading-ids",
+    "typedoc:start": "yarn typedoc --watch",
+    "typedoc:build": "yarn typedoc",
+    "docs:dev": "yarn typedoc:start & yarn docusaurus:start",
+    "docs:build": "yarn typedoc:build && yarn docusaurus:build"
   },
   "browserslist": [
     ">0.2%",

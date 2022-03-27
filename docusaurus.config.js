@@ -54,11 +54,11 @@ const config = {
             position: "left",
             label: "Tutorial"
           },
-          // {
-          //   href: "/api",
-          //   label: "API",
-          //   position: "left"
-          // },
+          {
+            href: "pathname:///api/index.html",
+            label: "API",
+            position: "left"
+          },
           {
             href: "https://github.com/facebook/docusaurus",
             label: "GitHub",
