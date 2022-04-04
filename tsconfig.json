@@ -27,6 +27,9 @@
     "outDir": "dist",
     "emitDeclarationOnly": false,
     "declarationDir": "./dist",
-    "baseUrl": "src"
+    "baseUrl": "src",
+    "target": "es5",
+    "module": "esnext",
+    "noEmit": true
   }
 }

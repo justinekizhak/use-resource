@@ -1,5 +1,5 @@
 import { MutableRefObject, useEffect, useRef } from "react";
-import { AxiosRequestConfig, AxiosResponse, AxiosError } from "axios";
+import { AxiosRequestConfig } from "axios";
 import type {
   MessageQueueInfoType,
   TransformConfigType,
@@ -14,8 +14,7 @@ import type {
   OnFailureType,
   OnFinishType,
   BaseConfigType,
-  PushToAccumulatorType,
-  ErrorDataType
+  PushToAccumulatorType
 } from "../types/main.type";
 import type {
   Internal_ChainedRequestConfigType,

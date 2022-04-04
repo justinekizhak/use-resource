@@ -16,8 +16,7 @@ import type {
   NextCallbackType,
   BaseConfigType,
   AccumulatorType,
-  ResourceType,
-  ValueOf_ResourceType
+  ResourceType
 } from "./types/main.type";
 import { GlobalResourceContext } from "./resourceContext/context";
 import type {
@@ -70,7 +69,7 @@ export function useResource<T>(
   const {
     CustomContext = GlobalResourceContext,
     triggerOn = "",
-    onMountCallback = (customAxios: AxiosInstance) => {},
+    onMountCallback = () => {},
     globalLoadingComponent = defaultLoadingComponent,
     globalFetchingComponent = defaultFetchingComponent,
     globalErrorComponent = defaultErrorComponent,
@@ -118,9 +117,9 @@ export function useResource<T>(
 
   // Data refs here
 
-  const setData = (value: T | undefined) => {
+  const setData = useCallback((value: T | undefined) => {
     data.current = value;
-  };
+  }, []);
 
   const setIsLoading = (value: boolean) => {
     isLoading.current = value;
@@ -210,6 +209,7 @@ export function useResource<T>(
   );
 
   const beforeEvent: BeforeEventType = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (acc = accumulator, next = defaultNext, disableStateUpdate = false) => {
       pushToDebug("[FETCHING RESOURCE] BEFORE TASK");
       if (!disableStateUpdate) {
@@ -235,6 +235,7 @@ export function useResource<T>(
   );
 
   const event: EventType = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async (customConfig, acc = accumulator, next = defaultNext) => {
       const axiosConfig = {
         signal: controllerInstance.current?.signal,
@@ -253,6 +254,7 @@ export function useResource<T>(
   const onSuccess: OnSuccessType = useCallback(
     (
       res,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       acc = accumulator,
       next = defaultNext,
       disableStateUpdate = false
@@ -271,6 +273,7 @@ export function useResource<T>(
   );
 
   const onFailure: OnFailureType = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (error, acc = accumulator, next = defaultNext) => {
       if (!error) {
         return;

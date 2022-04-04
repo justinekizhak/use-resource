@@ -109,7 +109,7 @@ export type ValueOf_ResourceType<T> =
 /**
  * Resource type object keys
  */
-export type ResourceKeyType<T> =
+export type ResourceKeyType =
   | "data"
   | "isLoading"
   | "isFetching"
