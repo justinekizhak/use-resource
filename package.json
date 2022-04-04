@@ -93,5 +93,10 @@
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",
     "access": "public"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app"
+    ]
   }
 }
