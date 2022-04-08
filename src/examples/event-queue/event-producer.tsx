@@ -1,4 +1,4 @@
-import { useResource, useSelector } from "../../lib";
+import { useResource } from "../../lib";
 import { useRenderCount } from "../utils/useRenderCount";
 
 export default function EventProducer() {

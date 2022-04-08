@@ -4,11 +4,15 @@
 
 The easiest way to do API calls.
 
-## Installation
+## Getting started
+
+### Installation
 
 ```bash
 npm i @justinekizhak/use-resource-hook
 ```
+
+Refer some of the examples below on how to use it.
 
 # Examples
 
@@ -102,7 +106,7 @@ function App() {
 }
 ```
 
-## Getting started
+## Development
 
 ### Docs
 

@@ -1,5 +1,5 @@
 import { MutableRefObject, useEffect, useRef } from "react";
-import { AxiosRequestConfig, AxiosResponse, AxiosError } from "axios";
+import { AxiosRequestConfig } from "axios";
 import type {
   MessageQueueInfoType,
   TransformConfigType,
@@ -14,8 +14,7 @@ import type {
   OnFailureType,
   OnFinishType,
   BaseConfigType,
-  PushToAccumulatorType,
-  ErrorDataType
+  PushToAccumulatorType
 } from "../types/main.type";
 import type {
   Internal_ChainedRequestConfigType,
@@ -208,8 +207,13 @@ export function useIsMounted(unMountCallback = () => {}) {
   useEffect(() => {
     return () => {
       isMounted.current = false;
-      unMountCallback && unMountCallback();
+      if (unMountCallback && typeof unMountCallback === "function") {
+        unMountCallback();
+      }
     };
+    // Need to check the dependency array. For some reason is the unMountCallback is added the functionality breaks.
+    // It breaks the updatation
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return isMounted;

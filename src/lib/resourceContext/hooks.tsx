@@ -45,7 +45,7 @@ export function useDispatch<T>(
 
 export function useSelector<T>(
   resourceName: string,
-  dataKey?: ResourceKeyType<T>,
+  dataKey?: ResourceKeyType,
   customContext = GlobalResourceContext
 ): ValueOf_ResourceType<T> {
   const [_, setCounter] = useState(0);

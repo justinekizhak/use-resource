@@ -16,9 +16,9 @@ export type DispatchHookType<T> = (customContext?: React.Context<any>) => T;
 
 export type SelectorCallbackType<T> = (resourceData: ResourceType<T>) => void;
 
-export type SelectorType<T> = (
+export type SelectorType = (
   resourceName: string,
-  dataKeyOrCallback: ResourceKeyType<T>
+  dataKeyOrCallback: ResourceKeyType
 ) => void;
 
 export type GlobalResourceContextType<T> = {

@@ -7,7 +7,7 @@ import type {
   LoadingComponentType
 } from "../types/main.type";
 
-export const defaultLoadingComponent: LoadingComponentType = (data) => (
+export const defaultLoadingComponent: LoadingComponentType = () => (
   <div className="loading"> Loading... </div>
 );
 
@@ -18,11 +18,9 @@ export const defaultFetchingComponent: FetchingComponentType = (data) => (
   </div>
 );
 
-export const defaultErrorComponent: ErrorComponentType = (
-  errorMessage,
-  errorData,
-  data
-) => <div className="error-message"> {errorMessage} </div>;
+export const defaultErrorComponent: ErrorComponentType = (errorMessage) => (
+  <div className="error-message"> {errorMessage} </div>
+);
 
 export const containerFactory: ContainerFactoryType<any> =
   ({

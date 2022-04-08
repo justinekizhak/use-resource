@@ -32,7 +32,7 @@ const config = {
           editUrl: "https://github.com/justinekizhak/use-resource-hook"
         },
         theme: {
-          customCss: require.resolve("./doc-src/css/custom.css")
+          customCss: require.resolve("./doc-src/css/main.css")
         }
       })
     ]

@@ -34,6 +34,9 @@ export type Internal_JsxComponentType =
  */
 export type ErrorDataType = AxiosError | AxiosResponse | object | undefined;
 
+export type ResourceCancelMethodType = () => void;
+export type ResourceRefetchMethodType = (customConfig?: BaseConfigType) => void;
+
 /**
  * This is the resource object which is returned by the useResource hook.
  */
@@ -74,7 +77,7 @@ export interface ResourceType<T> {
   /**
    * You can invoke this method to manually cancel the request.
    */
-  cancel: () => void;
+  cancel: ResourceCancelMethodType;
   /**
    * This field will contain the request error message if the request failed.
    */
@@ -89,19 +92,32 @@ export interface ResourceType<T> {
    *
    * @param customConfig You can pass in custom config to override the default config.
    */
-  refetch: (customConfig?: BaseConfigType) => void;
+  refetch: ResourceRefetchMethodType;
 }
 
-export type ValueOf<T> = T[keyof T];
-
 export type ValueOf_ResourceType<T> =
-  | ValueOf<ResourceType<T>>
+  | T
+  | boolean
+  | ErrorDataType
+  | string
+  | MutableRefObject<DebugObject[]>
+  | ResourceCancelMethodType
+  | ResourceRefetchMethodType
+  | undefined
   | ResourceType<T>;
 
 /**
  * Resource type object keys
  */
-export type ResourceKeyType<T> = keyof ResourceType<T>;
+export type ResourceKeyType =
+  | "data"
+  | "isLoading"
+  | "isFetching"
+  | "errorData"
+  | "debug"
+  | "cancel"
+  | "errorMessage"
+  | "refetch";
 
 /**
  * Component shown when the request is in progress.
