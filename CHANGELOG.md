@@ -1,3 +1,21 @@
+# v0.9.0 (Fri Apr 08 2022)
+
+#### 🚀 Enhancement
+
+- Feature/add documentation [#25](https://github.com/justinekizhak/use-resource-hook/pull/25) ([@justinekizhak](https://github.com/justinekizhak))
+- Feature: Integrate docusaurus and typedoc [#22](https://github.com/justinekizhak/use-resource-hook/pull/22) ([@justinekizhak](https://github.com/justinekizhak))
+
+#### 🐛 Bug Fix
+
+- build: Update dependencies version [#24](https://github.com/justinekizhak/use-resource-hook/pull/24) ([@justinekizhak](https://github.com/justinekizhak))
+- Feature: Update node v14 [#23](https://github.com/justinekizhak/use-resource-hook/pull/23) ([@justinekizhak](https://github.com/justinekizhak))
+
+#### Authors: 1
+
+- Justine Kizhakkinedath ([@justinekizhak](https://github.com/justinekizhak))
+
+---
+
 # v0.8.0 (Sat Mar 26 2022)
 
 #### 🚀 Enhancement
