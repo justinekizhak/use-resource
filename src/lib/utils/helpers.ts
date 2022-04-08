@@ -207,8 +207,13 @@ export function useIsMounted(unMountCallback = () => {}) {
   useEffect(() => {
     return () => {
       isMounted.current = false;
-      unMountCallback && unMountCallback();
+      if (unMountCallback && typeof unMountCallback === "function") {
+        unMountCallback();
+      }
     };
+    // Need to check the dependency array. For some reason is the unMountCallback is added the functionality breaks.
+    // It breaks the updatation
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return isMounted;

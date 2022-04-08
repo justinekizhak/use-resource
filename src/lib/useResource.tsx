@@ -70,6 +70,7 @@ export function useResource<T>(
     CustomContext = GlobalResourceContext,
     triggerOn = "",
     onMountCallback = () => {},
+    onUnmountCallback = () => {},
     globalLoadingComponent = defaultLoadingComponent,
     globalFetchingComponent = defaultFetchingComponent,
     globalErrorComponent = defaultErrorComponent,
@@ -100,8 +101,17 @@ export function useResource<T>(
   const baseConfigRef = useRef(baseConfig);
   const accumulator = useRef<AccumulatorType>([]);
 
+  // internal variables
+  const _cancel = useRef(() => {});
+
+  // Cancel the API call if the hook is unmounted
+  const _onUnmountCallback = useCallback(() => {
+    _cancel.current();
+    onUnmountCallback();
+  }, [_cancel, onUnmountCallback]);
+
   // Custom hooks here
-  const isMounted = useIsMounted();
+  const isMounted = useIsMounted(_onUnmountCallback);
   const dispatch = useDispatch(CustomContext);
 
   // Here _contextData is of ResourceType as we are not passing any data key.
@@ -153,7 +163,7 @@ export function useResource<T>(
     if (isMounted.current && !useGlobalContext) {
       setCounter((prev) => prev + 1);
     }
-  }, [useGlobalContext]);
+  }, [isMounted, useGlobalContext]);
 
   const defaultNext: NextCallbackType = (data) => {
     if (data) {
@@ -231,7 +241,7 @@ export function useResource<T>(
         forceRefresh();
       }
     },
-    [pushToDebug, updateGlobalState]
+    [forceRefresh, pushToDebug, setData, updateGlobalState]
   );
 
   const event: EventType = useCallback(
@@ -269,7 +279,7 @@ export function useResource<T>(
       pushToAcc(next, _res);
       pushToDebug("[FETCHING RESOURCE] TASK SUCCESS", _res);
     },
-    [pushToDebug, updateGlobalState]
+    [forceRefresh, pushToDebug, setData, updateGlobalState]
   );
 
   const onFailure: OnFailureType = useCallback(
@@ -310,7 +320,7 @@ export function useResource<T>(
       }
       forceRefresh();
     },
-    [pushToDebug, updateGlobalState]
+    [forceRefresh, pushToDebug, updateGlobalState]
   );
 
   const onFinish: OnFinishType = useCallback(
@@ -323,7 +333,7 @@ export function useResource<T>(
         forceRefresh();
       }
     },
-    [pushToDebug, updateGlobalState]
+    [forceRefresh, pushToDebug, updateGlobalState]
   );
 
   const refetch = useCallback(
@@ -392,7 +402,16 @@ export function useResource<T>(
     if (!triggerDepsChanged) {
       onMountTrigger();
     }
-  }, [configDepString, onMountTrigger, pushToDebug]);
+    // Don't add `baseConfig` into the dependency array. The baseConfig should only be updated if the
+    // dependency string is updated.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    configDepString,
+    onMountTrigger,
+    pushToDebug,
+    baseConfigRef,
+    triggerDepString
+  ]);
 
   /**
    * Run this useEffect when the hook is mounted or if the deps changes.
@@ -411,12 +430,7 @@ export function useResource<T>(
     controllerInstance.current?.abort();
   }, []);
 
-  // Cancel the API call if the hook is unmounted
-  useEffect(() => {
-    if (!isMounted.current) {
-      cancel();
-    }
-  }, [isMounted.current]);
+  _cancel.current = cancel;
 
   useEffect(() => {
     updateGlobalState({ refetch, debug, cancel });
