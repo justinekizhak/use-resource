@@ -20,7 +20,7 @@ import type {
 import { GlobalResourceContextType } from "./resourceContext/provider.type";
 
 export type OnMountCallbackType = (customAxios: AxiosInstance) => void;
-export type onUnmountCallback = () => void;
+export type OnUnmountCallbackType = () => void;
 
 export interface UseResource_ContainerOptions_Type {
   loadingComponent?: LoadingComponentType;
@@ -33,7 +33,7 @@ export interface UseResourceOptionsType<T> {
   CustomContext?: React.Context<GlobalResourceContextType<T>> | undefined;
   triggerOn?: string | boolean | any[];
   onMountCallback?: OnMountCallbackType;
-  onUnmountCallback?: onUnmountCallback;
+  onUnmountCallback?: OnUnmountCallbackType;
   useMessageQueue?: boolean | object;
   useGlobalContext?: boolean;
   devMode?: boolean;

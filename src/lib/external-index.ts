@@ -16,6 +16,15 @@ import { GlobalResourceContextProvider } from "./resourceContext/provider";
 
 export { useResource } from "./useResource";
 
+/**
+ * GlobalResource object.
+ *
+ * Use this object when you want to add the global-resource-provider or use its corresponding context.
+ *
+ * You can also create your own global-resource context and use it.
+ *
+ * For creating your own global-resource context, see {@link generateContextDefault}.
+ */
 export const GlobalResource = {
   Context: GlobalResourceContext,
   Provider: GlobalResourceContextProvider
