@@ -1,5 +1,5 @@
 {
   "entryPoints": ["./src/lib/index.ts"],
   "out": "static/api",
-  "readme": "./doc-src/typedoc/README.md"
+  "readme": "./src/doc-src/typedoc/api-doc-landing-page.md"
 }

@@ -1,0 +1,5 @@
+/* Any styles here will be common to both docusaurus and examples */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

@@ -128,6 +128,32 @@ To build docs run:
 npm run docs:build # yarn docs:build
 ```
 
+| Scripts                       | Description                                                      |
+| ----------------------------- | ---------------------------------------------------------------- |
+| start                         | Start the development server.                                    |
+| build                         | Build the library for deploying to NPM registry.                 |
+| test                          | Run all test cases.                                              |
+| eject                         | Eject the CRA.                                                   |
+| release                       | Create a release and auto publish to NPM.                        |
+| pretest                       | Run before the tests.                                            |
+| posttest                      | Run after the test.                                              |
+| docusaurus:docusaurus         |                                                                  |
+| docusaurus:start              | Start the docusaurus docs server.                                |
+| docusaurus:build              | Build the docusaurus docs.                                       |
+| docusaurus:swizzle            |                                                                  |
+| docusaurus:deploy             |                                                                  |
+| docusaurus:clear              |                                                                  |
+| docusaurus:serve              |                                                                  |
+| docusaurus:write-translations |                                                                  |
+| docusaurus:write-heading-ids  |                                                                  |
+| typedoc:start                 | Start the typedoc dev server.                                    |
+| typedoc:build                 | Build the typedoc docs for production.                           |
+| docs:tailwind                 | Base script for CSS for the documentation site.                  |
+| docs:watch-css                | Run the tailwind server in dev mode.                             |
+| docs:build-css                | Build the tailwind css.                                          |
+| docs:dev                      | Main entry script to start the documentation server in dev mode. |
+| docs:build                    | Main entry script to build the full documentation site.          |
+
 # Links
 
 [NPM Package](https://www.npmjs.com/package/@justinekizhak/use-resource-hook)

@@ -29,3 +29,5 @@ yarn-error.log*
 /static/api
 
 tailwind-output.css
+
+/static/examples

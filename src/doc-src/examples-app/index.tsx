@@ -1,10 +1,10 @@
-import "./styles.css";
+import "../css/examples-app.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navigation from "./navigation";
 
-import BasicExample from "../examples/basic";
-import ContextSync from "../examples/context-sync";
-import EventQueue from "../examples/event-queue";
+import BasicExample from "../components/examples/basic";
+import ContextSync from "../components/examples/context-sync";
+import EventQueue from "../components/examples/event-queue";
 
 function Home() {
   return <div>Please select one of the examples</div>;
@@ -13,7 +13,7 @@ function Home() {
 export default function App() {
   return (
     <div className="App">
-      <BrowserRouter>
+      <BrowserRouter basename="/examples">
         <Navigation />
         <Routes>
           <Route path="" element={<Home />} />
