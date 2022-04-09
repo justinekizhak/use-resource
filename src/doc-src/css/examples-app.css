@@ -1,0 +1,10 @@
+/* Styles for the examples app */
+@import url("./tailwind-output.css");
+
+.App {
+  font-family: sans-serif;
+}
+
+a {
+  padding-right: 1rem;
+}

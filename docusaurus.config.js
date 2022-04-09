@@ -32,7 +32,7 @@ const config = {
           editUrl: "https://github.com/justinekizhak/use-resource-hook"
         },
         theme: {
-          customCss: require.resolve("./doc-src/css/main.css")
+          customCss: require.resolve("./src/doc-src/css/docs.css")
         }
       })
     ]
@@ -60,7 +60,12 @@ const config = {
             position: "left"
           },
           {
-            href: "https://github.com/facebook/docusaurus",
+            href: "pathname:///examples/index.html",
+            label: "Examples",
+            position: "left"
+          },
+          {
+            href: "https://github.com/justinekizhak/use-resource-hook",
             label: "GitHub",
             position: "right"
           }
