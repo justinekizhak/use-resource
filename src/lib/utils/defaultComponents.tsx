@@ -1,3 +1,4 @@
+import { UseResource_ContainerOptions_Type } from "lib/types";
 import type {
   ContainerFactoryType,
   ContentWrapperType,
@@ -29,19 +30,27 @@ export const defaultFetchingComponent: FetchingComponentType = () => (
  * @param errorMessage string
  * @returns Error message component
  */
-export const defaultErrorComponent: ErrorComponentType = (errorMessage) => (
+export const defaultErrorComponent: ErrorComponentType = ({ errorMessage }) => (
   <div className="error-message"> {errorMessage} </div>
 );
 
 /**
+ * The container factory receives all the data from the hook, but all the display logic is
+ * done in the `content-wrapper` inside the `content-component`.
  *
+ * First the `factory-function` receives all the data and returns a `container-component`.
+ * The `container-component` will merge the `container-options` with the `default-options`.
+ *
+ * This merged options is then passed down to the `content-wrapper`.
+ *
+ * Inside the
  * @param factoryProps
  * @returns
+ *
+ * @internal
  */
 export const containerFactory: ContainerFactoryType<any> = ({
-  globalLoadingComponent,
-  globalFetchingComponent,
-  globalErrorComponent,
+  containerOptions,
   errorData,
   resourceName,
   isLoading,
@@ -49,18 +58,26 @@ export const containerFactory: ContainerFactoryType<any> = ({
   data,
   errorMessage
 }) => {
+  const defaultContainerOptions: UseResource_ContainerOptions_Type = {
+    loadingComponent: defaultLoadingComponent,
+    fetchingComponent: defaultFetchingComponent,
+    errorComponent: defaultErrorComponent,
+    hideWhenLoading: false
+  };
+
+  const mergedContainerOptions: UseResource_ContainerOptions_Type = {
+    ...defaultContainerOptions,
+    ...containerOptions
+  };
   /**
    * All the logic for the container-factory should be inside this.
    * @param param0
    * @returns
    */
-  const component: ContextContainerType = ({
+  const ContentComponent: ContextContainerType = ({
     children,
-    loadingComponent = globalLoadingComponent,
-    fetchingComponent = globalFetchingComponent,
-    errorComponent = globalErrorComponent,
     contentWrapper = undefined,
-    hideWhenLoading = false
+    containerOptions = mergedContainerOptions
   }: ContextContainerPropsType) => {
     /**
      *
@@ -69,6 +86,12 @@ export const containerFactory: ContainerFactoryType<any> = ({
      * @returns
      */
     const defaultWrapper: ContentWrapperType = (props) => {
+      const {
+        loadingComponent = () => {},
+        fetchingComponent = () => {},
+        errorComponent = () => {},
+        hideWhenLoading = false
+      } = props;
       // Show content if loading or fetching is false and the hideWhenLoading flag is false
       // If the hideWhenLoading flag is true, then always show the content.
       const showContent = !(isLoading || isFetching) || !hideWhenLoading;
@@ -76,8 +99,7 @@ export const containerFactory: ContainerFactoryType<any> = ({
         <div className="content">
           {props.isLoading && loadingComponent(props)}
           {!props.isLoading && props.isFetching && fetchingComponent(props)}
-          {props.errorMessage &&
-            errorComponent(props.errorMessage, props.errorData, props.data)}
+          {props.errorMessage && errorComponent(props)}
           {showContent ? props.children : null}
         </div>
       );
@@ -93,11 +115,12 @@ export const containerFactory: ContainerFactoryType<any> = ({
           isFetching,
           errorMessage,
           errorData,
-          data
+          data,
+          ...containerOptions
         })}
       </div>
     );
   };
 
-  return component;
+  return ContentComponent;
 };

@@ -24,12 +24,7 @@ import type {
   UseResourceReturnType
 } from "./types/useResource.type";
 
-import {
-  defaultLoadingComponent,
-  defaultErrorComponent,
-  defaultFetchingComponent,
-  containerFactory
-} from "./utils/defaultComponents";
+import { containerFactory } from "./utils/defaultComponents";
 
 import {
   getBaseConfig,
@@ -71,9 +66,7 @@ export function useResource<T>(
     triggerOn = "",
     onMountCallback = () => {},
     onUnmountCallback = () => {},
-    globalLoadingComponent = defaultLoadingComponent,
-    globalFetchingComponent = defaultFetchingComponent,
-    globalErrorComponent = defaultErrorComponent,
+    containerOptions = {},
     useMessageQueue = false,
     useGlobalContext = false,
     devMode = false,
@@ -472,9 +465,7 @@ export function useResource<T>(
   // End of getters
 
   const Container = containerFactory({
-    globalLoadingComponent,
-    globalFetchingComponent,
-    globalErrorComponent,
+    containerOptions,
     isLoading: getIsLoading(),
     isFetching: getIsFetching(),
     data: getData(),

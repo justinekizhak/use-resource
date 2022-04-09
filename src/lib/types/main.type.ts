@@ -5,7 +5,10 @@ import {
   ReactPortal
 } from "react";
 import { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
-import type { ChainedRequestConfigType } from "./useResource.type";
+import type {
+  ChainedRequestConfigType,
+  UseResource_ContainerOptions_Type
+} from "./useResource.type";
 
 /**
  * This object is stored in the debugger.
@@ -127,45 +130,69 @@ export type ResourceKeyType =
  * This is useful when you have separate loading indicator for the initial loading
  * and subsequent loading.
  *
- * @param data TODO
+ * @param props The component receives all of the `content-wrapper` props.
+ * This will include all the resource data as well as the options it was passed.
  * @category Components
  * @category LoadingComponent
  */
-export type LoadingComponentType = (data: any) => JSX.Element;
+export type LoadingComponentType = (
+  props: ContentWrapper_Props_Type
+) => JSX.Element;
 
 /**
  * Component shown when the request is in progress.
  *
  * Shown for all the times when the request is in progress.
  *
- * @param data TODO
+ * @param props The component receives all of the `content-wrapper` props.
+ * This will include all the resource data as well as the options it was passed.
  * @category Components
  * @category LoadingComponent
  */
-export type FetchingComponentType = (data?: any) => JSX.Element;
-
-export type ErrorComponentType = (
-  errorMessage?: string,
-  errorData?: any,
-  data?: any
+export type FetchingComponentType = (
+  props: ContentWrapper_Props_Type
 ) => JSX.Element;
 
-export type ContentWrapperType = (props: {
+/**
+ * Component shown when there is an error.
+ *
+ * Shown after a request failed.
+ *
+ * @param props The component receives all of the `content-wrapper` props.
+ * This will include all the resource data as well as the options it was passed.
+ * @category Components
+ * @category ErrorComponent
+ */
+export type ErrorComponentType = (
+  props: ContentWrapper_Props_Type
+) => JSX.Element;
+
+/**
+ * This is the prop type for the content wrapper.
+ *
+ * This is also passed to the following components:
+ * 1. {@link LoadingComponentType}
+ * 2. {@link FetchingComponentType}
+ * 3. {@link ErrorComponentType}
+ */
+export interface ContentWrapper_Props_Type
+  extends UseResource_ContainerOptions_Type {
   children: Internal_JsxComponentType;
   isLoading: boolean;
   isFetching: boolean;
   errorMessage: string;
   errorData: ErrorDataType;
   data: any;
-}) => JSX.Element;
+}
+
+export type ContentWrapperType = (
+  props: ContentWrapper_Props_Type
+) => JSX.Element;
 
 export interface ContextContainerPropsType {
   children?: Internal_JsxComponentType;
-  loadingComponent?: LoadingComponentType;
-  fetchingComponent?: FetchingComponentType;
-  errorComponent?: ErrorComponentType;
   contentWrapper?: ContentWrapperType;
-  hideWhenLoading?: boolean;
+  containerOptions?: UseResource_ContainerOptions_Type;
 }
 
 export type ContextContainerType = (
@@ -250,9 +277,7 @@ export type PushToAccumulatorType = (
  * @category Props
  */
 export interface ContainerFactory_PropType<T> {
-  globalLoadingComponent: LoadingComponentType;
-  globalFetchingComponent: FetchingComponentType;
-  globalErrorComponent: ErrorComponentType;
+  containerOptions: UseResource_ContainerOptions_Type;
   errorData: ErrorDataType;
   resourceName: string;
   isLoading: boolean;
