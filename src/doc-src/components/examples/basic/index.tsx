@@ -12,8 +12,10 @@ export default function App() {
   return (
     <div className="App">
       <RenderContainer />
-      <Container>
-        <div className="bg-red-500">Content: {JSON.stringify(data)}</div>
+      <Container hideWhenLoading>
+        <div className="px-3 py-2 font-mono bg-gray-300">
+          Content: {JSON.stringify(data)}
+        </div>
       </Container>
     </div>
   );

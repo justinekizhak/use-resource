@@ -2,23 +2,23 @@ import { useCallback, useContext, useRef, useState } from "react";
 import { compareObject } from "../utils/helpers";
 
 import type {
-  ResourceKeyType,
-  ResourceType,
-  ValueOf_ResourceType
+  ResourceKey_T,
+  Resource_T,
+  ValueOf_Resource_T
 } from "../types/main.type";
 import type {
-  DispatchType,
-  SelectorCallbackType
+  Dispatch_T,
+  SelectorCallback_T
 } from "../types/resourceContext/provider.type";
 
 import { GlobalResourceContext } from "./context";
-import type { PublishCallbackType } from "../types/resourceContext/eventQueue.type";
+import type { PublishCallback_T } from "../types/resourceContext/eventQueue.type";
 
 export function useDispatch<T>(
   customContext = GlobalResourceContext
-): DispatchType<T> {
+): Dispatch_T<T> {
   const { state, stateCallbacks } = useContext(customContext);
-  const returnCallback: DispatchType<T> = useCallback(
+  const returnCallback: Dispatch_T<T> = useCallback(
     (key, data) => {
       if (!key || !data) {
         return;
@@ -31,7 +31,7 @@ export function useDispatch<T>(
       // do the merging on your own and the return value will be treated as the new slice.
       const newDataSlice =
         typeof data === "function" ? data(oldData) || {} : data;
-      const newData: ResourceType<T> = { ...oldData, ...newDataSlice };
+      const newData: Resource_T<T> = { ...oldData, ...newDataSlice };
       state.current[key] = newData;
       const allAffectedCallbacks = stateCallbacks.current[key];
       allAffectedCallbacks?.forEach((callback) => {
@@ -45,11 +45,11 @@ export function useDispatch<T>(
 
 export function useSelector<T>(
   resourceName: string,
-  dataKey?: ResourceKeyType,
+  dataKey?: ResourceKey_T,
   customContext = GlobalResourceContext
-): ValueOf_ResourceType<T> {
+): ValueOf_Resource_T<T> {
   const [_, setCounter] = useState(0);
-  const localValueRef = useRef<ValueOf_ResourceType<T>>();
+  const localValueRef = useRef<ValueOf_Resource_T<T>>();
   const { state, stateCallbacks } = useContext(customContext);
   if (!resourceName) {
     return;
@@ -62,8 +62,8 @@ export function useSelector<T>(
     stateCallbacks.current[resourceName] = [];
   }
   const resource = state.current[resourceName];
-  const callback: SelectorCallbackType<T> = (_data = resource) => {
-    const value: ValueOf_ResourceType<T> = dataKey ? _data[dataKey] : _data;
+  const callback: SelectorCallback_T<T> = (_data = resource) => {
+    const value: ValueOf_Resource_T<T> = dataKey ? _data[dataKey] : _data;
     if (compareObject(localValueRef.current, value)) {
       // The value is the same, no need to update
       return;
@@ -84,7 +84,7 @@ export function useSelector<T>(
  */
 export function usePublish(customContext = GlobalResourceContext) {
   const { eventQueue } = useContext(customContext);
-  const callback: PublishCallbackType = useCallback(
+  const callback: PublishCallback_T = useCallback(
     (event) => {
       eventQueue.current.push(event);
     },

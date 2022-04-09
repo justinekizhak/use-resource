@@ -1,7 +1,7 @@
-import type { ChainedRequestConfigType } from "../types/useResource.type";
+import type { ChainedRequestConfig_T } from "../types/useResource.type";
 import { getName } from "../utils/requestChain";
 import { getAllDependencyName } from "../utils/requestChain";
-import type { RequestIndexMapType } from "../types/requestChain/dependencyMap.type";
+import type { RequestIndexMap_T } from "../types/requestChain/dependencyMap.type";
 
 function getIsDepsResolved(
   allResolvedDeps: string[],
@@ -19,10 +19,10 @@ function getIsDepsResolved(
 }
 
 interface RequestMap {
-  [key: string]: ChainedRequestConfigType;
+  [key: string]: ChainedRequestConfig_T;
 }
 
-function getRequestMap(requestChain: ChainedRequestConfigType[]): RequestMap {
+function getRequestMap(requestChain: ChainedRequestConfig_T[]): RequestMap {
   const output: RequestMap = {};
   requestChain.forEach((request, index) => {
     const name = getName(request, index);
@@ -31,10 +31,7 @@ function getRequestMap(requestChain: ChainedRequestConfigType[]): RequestMap {
   return output;
 }
 
-async function dummyApi(
-  requestConfig: ChainedRequestConfigType,
-  index: number
-) {
+async function dummyApi(requestConfig: ChainedRequestConfig_T, index: number) {
   const p = new Promise((resolve) =>
     setTimeout(() => {
       console.log("test: ", requestConfig.requestName);
@@ -57,9 +54,9 @@ function removeItemAll(arr: string[], value: string) {
 }
 
 function getRequestIndexMap(
-  requestChain: ChainedRequestConfigType[]
-): RequestIndexMapType {
-  const map: RequestIndexMapType = {};
+  requestChain: ChainedRequestConfig_T[]
+): RequestIndexMap_T {
+  const map: RequestIndexMap_T = {};
   requestChain.forEach((request, index) => {
     const name = getName(request);
     map[name] = index;
@@ -68,7 +65,7 @@ function getRequestIndexMap(
 }
 
 export async function execute(
-  requestChain: ChainedRequestConfigType[],
+  requestChain: ChainedRequestConfig_T[],
   apiHandler = dummyApi
 ) {
   const requestMap = getRequestMap(requestChain);

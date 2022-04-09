@@ -7,29 +7,24 @@ import axios, {
 } from "axios";
 
 import type {
-  DebugObject,
-  OnSuccessType,
-  BeforeEventType,
-  EventType,
-  OnFailureType,
-  OnFinishType,
-  NextCallbackType,
-  BaseConfigType,
-  AccumulatorType,
-  ResourceType
+  DebugObject_T,
+  OnSuccess_T,
+  BeforeEvent_T,
+  Event_T,
+  OnFailure_T,
+  OnFinish_T,
+  NextCallback_T,
+  BaseConfig_T,
+  Accumulator_T,
+  Resource_T
 } from "./types/main.type";
 import { GlobalResourceContext } from "./resourceContext/context";
 import type {
-  UseResourceOptionsType,
-  UseResourceReturnType
+  UseResourceOptions_T,
+  UseResourceReturn_T
 } from "./types/useResource.type";
 
-import {
-  defaultLoadingComponent,
-  defaultErrorComponent,
-  defaultFetchingComponent,
-  containerFactory
-} from "./utils/defaultComponents";
+import { containerFactory } from "./utils/defaultComponents";
 
 import {
   getBaseConfig,
@@ -62,18 +57,16 @@ import { refetchFunction } from "./utils/refetch";
  *    9. Container
  */
 export function useResource<T>(
-  baseConfig: BaseConfigType,
+  baseConfig: BaseConfig_T,
   resourceName: string = "resource",
-  options: UseResourceOptionsType<T> = {}
-): UseResourceReturnType<T> {
+  options: UseResourceOptions_T<T> = {}
+): UseResourceReturn_T<T> {
   const {
     CustomContext = GlobalResourceContext,
     triggerOn = "",
     onMountCallback = () => {},
     onUnmountCallback = () => {},
-    globalLoadingComponent = defaultLoadingComponent,
-    globalFetchingComponent = defaultFetchingComponent,
-    globalErrorComponent = defaultErrorComponent,
+    containerOptions = {},
     useMessageQueue = false,
     useGlobalContext = false,
     devMode = false,
@@ -89,7 +82,7 @@ export function useResource<T>(
   const isFetching = useRef(false);
   const errorData = useRef<AxiosError | AxiosResponse>();
   const errorMessage = useRef("");
-  const debug = useRef<DebugObject[]>([]);
+  const debug = useRef<DebugObject_T[]>([]);
 
   // Internal states here
   const firstTime = useRef(true);
@@ -99,7 +92,7 @@ export function useResource<T>(
     getBaseConfig(baseConfig)
   );
   const baseConfigRef = useRef(baseConfig);
-  const accumulator = useRef<AccumulatorType>([]);
+  const accumulator = useRef<Accumulator_T>([]);
 
   // internal variables
   const _cancel = useRef(() => {});
@@ -114,9 +107,9 @@ export function useResource<T>(
   const isMounted = useIsMounted(_onUnmountCallback);
   const dispatch = useDispatch(CustomContext);
 
-  // Here _contextData is of ResourceType as we are not passing any data key.
+  // Here _contextData is of Resource_T as we are not passing any data key.
   const _contextData = useSelector(resourceName, undefined, CustomContext);
-  const contextData = _contextData as ResourceType<T>;
+  const contextData = _contextData as Resource_T<T>;
 
   const publish = usePublish(CustomContext);
 
@@ -165,7 +158,7 @@ export function useResource<T>(
     }
   }, [isMounted, useGlobalContext]);
 
-  const defaultNext: NextCallbackType = (data) => {
+  const defaultNext: NextCallback_T = (data) => {
     if (data) {
       accumulator.current.push(data);
     }
@@ -178,7 +171,7 @@ export function useResource<T>(
         console.log(message, data);
       }
       const timestamp = Date.now() + "";
-      const fullData: DebugObject = { timestamp, message };
+      const fullData: DebugObject_T = { timestamp, message };
       if (data) {
         fullData["data"] = data;
       }
@@ -218,7 +211,7 @@ export function useResource<T>(
     [useGlobalContext, resourceName, dispatch]
   );
 
-  const beforeEvent: BeforeEventType = useCallback(
+  const beforeEvent: BeforeEvent_T = useCallback(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (acc = accumulator, next = defaultNext, disableStateUpdate = false) => {
       pushToDebug("[FETCHING RESOURCE] BEFORE TASK");
@@ -244,7 +237,7 @@ export function useResource<T>(
     [forceRefresh, pushToDebug, setData, updateGlobalState]
   );
 
-  const event: EventType = useCallback(
+  const event: Event_T = useCallback(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async (customConfig, acc = accumulator, next = defaultNext) => {
       const axiosConfig = {
@@ -261,7 +254,7 @@ export function useResource<T>(
     [pushToDebug]
   );
 
-  const onSuccess: OnSuccessType = useCallback(
+  const onSuccess: OnSuccess_T = useCallback(
     (
       res,
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -282,7 +275,7 @@ export function useResource<T>(
     [forceRefresh, pushToDebug, setData, updateGlobalState]
   );
 
-  const onFailure: OnFailureType = useCallback(
+  const onFailure: OnFailure_T = useCallback(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (error, acc = accumulator, next = defaultNext) => {
       if (!error) {
@@ -323,7 +316,7 @@ export function useResource<T>(
     [forceRefresh, pushToDebug, updateGlobalState]
   );
 
-  const onFinish: OnFinishType = useCallback(
+  const onFinish: OnFinish_T = useCallback(
     (acc, next, disableStateUpdate = false) => {
       pushToDebug("[FETCHING RESOURCE] TASK END", acc);
       if (!disableStateUpdate) {
@@ -337,7 +330,7 @@ export function useResource<T>(
   );
 
   const refetch = useCallback(
-    (customConfig?: BaseConfigType) =>
+    (customConfig?: BaseConfig_T) =>
       refetchFunction({
         accumulator,
         defaultNext,
@@ -472,9 +465,7 @@ export function useResource<T>(
   // End of getters
 
   const Container = containerFactory({
-    globalLoadingComponent,
-    globalFetchingComponent,
-    globalErrorComponent,
+    containerOptions,
     isLoading: getIsLoading(),
     isFetching: getIsFetching(),
     data: getData(),

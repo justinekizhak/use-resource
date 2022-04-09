@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { useResource } from "../lib-imports";
-import { BaseConfigType } from "../lib-imports";
+import { BaseConfig_T } from "../lib-imports";
 import { useRenderCount } from "../utils/useRenderCount";
 
 export default function ApiInvoker() {
   const [todoIndex, setTodoIndex] = useState(1);
   const { RenderContainer } = useRenderCount();
 
-  const getConfig = (todoIndex = 1): BaseConfigType => ({
+  const getConfig = (todoIndex = 1): BaseConfig_T => ({
     url: `https://jsonplaceholder.typicode.com/todos/${todoIndex}`
   });
 

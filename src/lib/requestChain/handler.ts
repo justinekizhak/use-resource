@@ -1,13 +1,13 @@
 import type {
-  NextCallbackType,
-  AccumulatorContainer
+  NextCallback_T,
+  AccumulatorContainer_T
 } from "../types/main.type";
-import type { RequestChainHandlerType } from "../types/refetch.type";
-import type { ChainedRequestConfigType } from "../types/useResource.type";
+import type { RequestChainHandler_T } from "../types/refetch.type";
+import type { ChainedRequestConfig_T } from "../types/useResource.type";
 import { getFinalRequestChain } from "../utils/helpers";
 import { execute } from "./parallelApiHandler";
 
-export const requestChainHandler: RequestChainHandlerType =
+export const requestChainHandler: RequestChainHandler_T =
   ({
     baseConfigRef,
     internal_beforeEvent,
@@ -19,15 +19,15 @@ export const requestChainHandler: RequestChainHandlerType =
     eventMaster
   }) =>
   async () => {
-    const cr_acc: AccumulatorContainer = { current: [] };
-    const cr_next: NextCallbackType = (data: any) => {
+    const cr_acc: AccumulatorContainer_T = { current: [] };
+    const cr_next: NextCallback_T = (data: any) => {
       if (data) {
         cr_acc.current.push(data);
       }
       return cr_acc;
     };
     // @ts-ignore
-    const baseConfigList: ChainedRequestConfigType[] = baseConfigRef.current;
+    const baseConfigList: ChainedRequestConfig_T[] = baseConfigRef.current;
     await execute(baseConfigList, async (requestConfig, index) => {
       const {
         baseConfig: cr_baseConfig,

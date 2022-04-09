@@ -1,24 +1,24 @@
 import { MutableRefObject, useEffect, useRef } from "react";
 import { AxiosRequestConfig } from "axios";
 import type {
-  MessageQueueInfoType,
-  TransformConfigType,
-  TransformFailureType,
-  TransformSuccessType
+  MessageQueueInfo_T,
+  TransformConfig_T,
+  TransformFailure_T,
+  TransformSuccess_T
 } from "../types/helpers.type";
 
 import type {
-  OnSuccessType,
-  BeforeEventType,
-  EventType,
-  OnFailureType,
-  OnFinishType,
-  BaseConfigType,
-  PushToAccumulatorType
+  OnSuccess_T,
+  BeforeEvent_T,
+  Event_T,
+  OnFailure_T,
+  OnFinish_T,
+  BaseConfig_T,
+  PushToAccumulator_T
 } from "../types/main.type";
 import type {
-  Internal_ChainedRequestConfigType,
-  ChainedRequestConfigType
+  Internal_ChainedRequestConfig_T,
+  ChainedRequestConfig_T
 } from "../types/useResource.type";
 
 export const getTriggerDependencies = (
@@ -49,7 +49,7 @@ export const getTriggerDependencies = (
 export const getMessageQueueData = (
   data: boolean | object = false,
   fallbackQueueName = ""
-): MessageQueueInfoType => {
+): MessageQueueInfo_T => {
   if (typeof data === "object") {
     const isAvailable = true;
     // @ts-ignore
@@ -61,7 +61,7 @@ export const getMessageQueueData = (
 };
 
 export const getBaseConfig = (
-  baseConfig: BaseConfigType,
+  baseConfig: BaseConfig_T,
   index = 0
 ): AxiosRequestConfig => {
   const useRequestChaining = Array.isArray(baseConfig);
@@ -75,26 +75,7 @@ export const getBaseConfig = (
   return defaultConfig;
 };
 
-/**
- * Deprecated
- */
-// export const getErrorMessage = (errorData: ErrorDataType): string => {
-//   const defaultErrorMessage = "Something went wrong. Please try again.";
-//   // @ts-ignore
-//   const err: AxiosError = errorData;
-//   if (err?.response?.data?.message) {
-//     return err.response.data.message || defaultErrorMessage;
-//   }
-//   if (err?.message) {
-//     return err.message || defaultErrorMessage;
-//   }
-//   return "";
-// };
-
-export const getFunc = (
-  requestObject: ChainedRequestConfigType,
-  key: string
-) => {
+export const getFunc = (requestObject: ChainedRequestConfig_T, key: string) => {
   const func =
     // @ts-ignore
     requestObject && typeof requestObject[key] === "function"
@@ -104,7 +85,7 @@ export const getFunc = (
   return func;
 };
 
-export const pushToAcc: PushToAccumulatorType = (next, res) => {
+export const pushToAcc: PushToAccumulator_T = (next, res) => {
   if (next && typeof next === "function") {
     if (res) {
       next(res);
@@ -113,37 +94,37 @@ export const pushToAcc: PushToAccumulatorType = (next, res) => {
 };
 
 export const getFinalRequestChain = (
-  newChainedRequestData: ChainedRequestConfigType,
+  newChainedRequestData: ChainedRequestConfig_T,
   index: number,
-  fullBaseConfigList: ChainedRequestConfigType[],
-  internal_beforeEvent: BeforeEventType,
-  internal_event: EventType,
-  internal_onSuccess: OnSuccessType,
-  internal_onFailure: OnFailureType,
-  internal_onFinish: OnFinishType,
+  fullBaseConfigList: ChainedRequestConfig_T[],
+  internal_beforeEvent: BeforeEvent_T,
+  internal_event: Event_T,
+  internal_onSuccess: OnSuccess_T,
+  internal_onFailure: OnFailure_T,
+  internal_onFinish: OnFinish_T,
   controllerInstance:
     | MutableRefObject<AbortController | undefined>
     | undefined = undefined
-): Internal_ChainedRequestConfigType => {
+): Internal_ChainedRequestConfig_T => {
   const oldChainedRequestData = fullBaseConfigList[index];
   const finalConfig = {
     ...oldChainedRequestData["baseConfig"],
     ...newChainedRequestData["baseConfig"]
   };
   // The new beforeEvent will overwrite the old beforeEvent
-  const _beforeEvent: BeforeEventType = (
+  const _beforeEvent: BeforeEvent_T = (
     acc,
     next,
     disableStateUpdate = false
   ) => {
-    const func: BeforeEventType = getFunc(newChainedRequestData, "beforeEvent");
+    const func: BeforeEvent_T = getFunc(newChainedRequestData, "beforeEvent");
     func(acc, next);
     internal_beforeEvent(acc, next, disableStateUpdate);
   };
 
   // The new event will overwrite all the event
-  const _event: EventType = async (customConfig, acc, next) => {
-    const func: TransformConfigType = getFunc(
+  const _event: Event_T = async (customConfig, acc, next) => {
+    const func: TransformConfig_T = getFunc(
       newChainedRequestData,
       "transformConfig"
     );
@@ -158,13 +139,13 @@ export const getFinalRequestChain = (
   };
 
   // Runs the request through the user callback then the response is sent to the actual success event
-  const _onSuccess: OnSuccessType = (
+  const _onSuccess: OnSuccess_T = (
     res,
     acc,
     next,
     disableStateUpdate = false
   ) => {
-    const func: TransformSuccessType = getFunc(
+    const func: TransformSuccess_T = getFunc(
       newChainedRequestData,
       "transformSuccess"
     );
@@ -172,8 +153,8 @@ export const getFinalRequestChain = (
     internal_onSuccess(res2, acc, next, disableStateUpdate);
   };
 
-  const _onFailure: OnFailureType = (error, acc, next) => {
-    const func: TransformFailureType = getFunc(
+  const _onFailure: OnFailure_T = (error, acc, next) => {
+    const func: TransformFailure_T = getFunc(
       newChainedRequestData,
       "transformFailure"
     );
@@ -181,8 +162,8 @@ export const getFinalRequestChain = (
     internal_onFailure(res, acc, next);
   };
 
-  const _onFinish: OnFinishType = (acc, next, disableStateUpdate = false) => {
-    const func: OnFinishType = getFunc(newChainedRequestData, "onFinish");
+  const _onFinish: OnFinish_T = (acc, next, disableStateUpdate = false) => {
+    const func: OnFinish_T = getFunc(newChainedRequestData, "onFinish");
     func(acc, next);
     internal_onFinish(acc, next, disableStateUpdate);
   };

@@ -1,5 +1,10 @@
 {
-  "entryPoints": ["./src/lib/index.ts"],
+  "entryPoints": [
+    "./src/lib/types/index.ts",
+    "./src/lib/internal-index.ts",
+    "./src/lib/external-index.ts"
+  ],
   "out": "static/api",
+  "name": "Use Resource Hook",
   "readme": "./src/doc-src/typedoc/api-doc-landing-page.md"
 }
