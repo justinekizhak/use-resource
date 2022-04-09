@@ -1,5 +1,6 @@
 import { useResource } from "../lib-imports";
 import { useRenderCount } from "../utils/useRenderCount";
+import Spinner from "react-bootstrap/Spinner";
 
 export default function EventProducer() {
   const { RenderContainer } = useRenderCount();
@@ -7,26 +8,28 @@ export default function EventProducer() {
     url: `https://jsonplaceholder.typicode.com/todos/1`
   };
 
+  const loadingComponent = () => {
+    return (
+      <Spinner animation="border" role="status">
+        <span className="visually-hidden">Loading...</span>
+      </Spinner>
+    );
+  };
+
   const { data, Container, refetch } = useResource(config, "todoDetails", {
     useMessageQueue: true,
-    useGlobalContext: true
+    useGlobalContext: true,
+    globalFetchingComponent: loadingComponent,
+    globalLoadingComponent: loadingComponent
   });
-
-  // const refetch = useSelector("todoDetails", "refetch");
-  // const duplicateData = useSelector("todoDetails", "data");
-
-  // const { data: data2 } = useResource(config, "todoDetails2", {
-  //   useMessageQueue: true,
-  //   useGlobalContext: false
-  // });
 
   return (
     <div className="App">
       <RenderContainer />
-      <Container>
-        <div>Content: {JSON.stringify(data)}</div>
-        {/* <div>Content duplicate: {JSON.stringify(duplicateData)}</div> */}
-        {/* <div>Content 2: {JSON.stringify(data2)}</div> */}
+      <Container hideWhenLoading>
+        <div className="px-3 py-2 font-mono bg-gray-300">
+          Content: {JSON.stringify(data)}
+        </div>
 
         <button
           onClick={() =>
@@ -34,6 +37,7 @@ export default function EventProducer() {
               url: `https://jsonplaceholder.typicode.com/todos/2`
             })
           }
+          className="mt-2 btn btn-primary"
         >
           Update
         </button>

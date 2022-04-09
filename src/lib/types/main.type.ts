@@ -165,6 +165,7 @@ export interface ContextContainerPropsType {
   fetchingComponent?: FetchingComponentType;
   errorComponent?: ErrorComponentType;
   contentWrapper?: ContentWrapperType;
+  hideWhenLoading?: boolean;
 }
 
 export type ContextContainerType = (
