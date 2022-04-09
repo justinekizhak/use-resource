@@ -1,13 +1,13 @@
-import type { BaseConfigType } from "../types/main.type";
+import type { BaseConfig_T } from "../types/main.type";
 import type {
-  EventMasterFuncType,
-  RefetchFunctionType
+  EventMasterFunc_T,
+  RefetchFunction_T
 } from "../types/refetch.type";
 
 import { getBaseConfig } from "./helpers";
 import { requestChainHandler } from "../requestChain/handler";
 
-export const refetchFunction: RefetchFunctionType =
+export const refetchFunction: RefetchFunction_T =
   ({
     accumulator: internal_accumulator,
     defaultNext: internal_defaultNext,
@@ -23,8 +23,8 @@ export const refetchFunction: RefetchFunctionType =
     controllerInstance,
     resourceName
   }) =>
-  (customConfig: BaseConfigType = {}) => {
-    const eventMaster: EventMasterFuncType = async (
+  (customConfig: BaseConfig_T = {}) => {
+    const eventMaster: EventMasterFunc_T = async (
       index = 0,
       em_acc = internal_accumulator,
       em_next = internal_defaultNext,

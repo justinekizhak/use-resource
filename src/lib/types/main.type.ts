@@ -6,8 +6,8 @@ import {
 } from "react";
 import { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
 import type {
-  ChainedRequestConfigType,
-  UseResource_ContainerOptions_Type
+  ChainedRequestConfig_T,
+  UseResource_ContainerOptions__T
 } from "./useResource.type";
 
 /**
@@ -23,7 +23,7 @@ export interface DebugObject {
  * Used internally.
  * @internal
  */
-export type Internal_JsxComponentType =
+export type Internal_JsxComponent_T =
   | boolean
   | ReactChild
   | ReactFragment
@@ -35,20 +35,20 @@ export type Internal_JsxComponentType =
 /**
  * Contains the error information of a failed request.
  */
-export type ErrorDataType = AxiosError | AxiosResponse | object | undefined;
+export type ErrorData_T = AxiosError | AxiosResponse | object | undefined;
 
-export type ResourceCancelMethodType = () => void;
-export type ResourceRefetchMethodType = (customConfig?: BaseConfigType) => void;
+export type ResourceCancelMethod_T = () => void;
+export type ResourceRefetchMethod_T = (customConfig?: BaseConfig_T) => void;
 
 /**
  * This is the resource object which is returned by the useResource hook.
  */
-export interface ResourceType<T> {
+export interface Resource_T<T> {
   /**
    * The data of the resource.
    * Contains only the response data if the request was successful.
    * If you want to get the full response, then you can access it using the `transformSuccess` callback.
-   * For more information, see the {@link TransformSuccessType}
+   * For more information, see the {@link TransformSuccess_T}
    */
   data: T | undefined;
   /**
@@ -72,7 +72,7 @@ export interface ResourceType<T> {
   /**
    * Contains the error data if the request failed.
    */
-  errorData: ErrorDataType;
+  errorData: ErrorData_T;
   /**
    * Contains all the info about the request lifecycle. This is useful for debugging.
    */
@@ -80,7 +80,7 @@ export interface ResourceType<T> {
   /**
    * You can invoke this method to manually cancel the request.
    */
-  cancel: ResourceCancelMethodType;
+  cancel: ResourceCancelMethod_T;
   /**
    * This field will contain the request error message if the request failed.
    */
@@ -95,24 +95,24 @@ export interface ResourceType<T> {
    *
    * @param customConfig You can pass in custom config to override the default config.
    */
-  refetch: ResourceRefetchMethodType;
+  refetch: ResourceRefetchMethod_T;
 }
 
-export type ValueOf_ResourceType<T> =
+export type ValueOf_Resource_T<T> =
   | T
   | boolean
-  | ErrorDataType
+  | ErrorData_T
   | string
   | MutableRefObject<DebugObject[]>
-  | ResourceCancelMethodType
-  | ResourceRefetchMethodType
+  | ResourceCancelMethod_T
+  | ResourceRefetchMethod_T
   | undefined
-  | ResourceType<T>;
+  | Resource_T<T>;
 
 /**
  * Resource type object keys
  */
-export type ResourceKeyType =
+export type ResourceKey_T =
   | "data"
   | "isLoading"
   | "isFetching"
@@ -135,8 +135,8 @@ export type ResourceKeyType =
  * @category Components
  * @category LoadingComponent
  */
-export type LoadingComponentType = (
-  props: ContentWrapper_Props_Type
+export type LoadingComponent_T = (
+  props: ContentWrapper_Props__T
 ) => JSX.Element;
 
 /**
@@ -149,8 +149,8 @@ export type LoadingComponentType = (
  * @category Components
  * @category LoadingComponent
  */
-export type FetchingComponentType = (
-  props: ContentWrapper_Props_Type
+export type FetchingComponent_T = (
+  props: ContentWrapper_Props__T
 ) => JSX.Element;
 
 /**
@@ -163,59 +163,53 @@ export type FetchingComponentType = (
  * @category Components
  * @category ErrorComponent
  */
-export type ErrorComponentType = (
-  props: ContentWrapper_Props_Type
-) => JSX.Element;
+export type ErrorComponent_T = (props: ContentWrapper_Props__T) => JSX.Element;
 
 /**
  * This is the prop type for the content wrapper.
  *
  * This is also passed to the following components:
- * 1. {@link LoadingComponentType}
- * 2. {@link FetchingComponentType}
- * 3. {@link ErrorComponentType}
+ * 1. {@link LoadingComponent_T}
+ * 2. {@link FetchingComponent_T}
+ * 3. {@link ErrorComponent_T}
  */
-export interface ContentWrapper_Props_Type
-  extends UseResource_ContainerOptions_Type {
-  children: Internal_JsxComponentType;
+export interface ContentWrapper_Props__T
+  extends UseResource_ContainerOptions__T {
+  children: Internal_JsxComponent_T;
   isLoading: boolean;
   isFetching: boolean;
   errorMessage: string;
-  errorData: ErrorDataType;
+  errorData: ErrorData_T;
   data: any;
 }
 
-export type ContentWrapperType = (
-  props: ContentWrapper_Props_Type
-) => JSX.Element;
+export type ContentWrapper_T = (props: ContentWrapper_Props__T) => JSX.Element;
 
-export interface ContextContainerPropsType {
-  children?: Internal_JsxComponentType;
-  contentWrapper?: ContentWrapperType;
-  containerOptions?: UseResource_ContainerOptions_Type;
+export interface ContextContainerProps_T {
+  children?: Internal_JsxComponent_T;
+  contentWrapper?: ContentWrapper_T;
+  containerOptions?: UseResource_ContainerOptions__T;
 }
 
-export type ContextContainerType = (
-  props: ContextContainerPropsType
+export type ContextContainer_T = (
+  props: ContextContainerProps_T
 ) => JSX.Element;
 
-export type BaseConfigType = AxiosRequestConfig | ChainedRequestConfigType[];
+export type BaseConfig_T = AxiosRequestConfig | ChainedRequestConfig_T[];
 
-export type ChainResponseType = object | AxiosResponse | void;
-export type AccumulatorType = (object | AxiosResponse)[];
-export type AccumulatorContainer = { current: AccumulatorType };
-export type NextCallbackType = (
-  data: ChainResponseType
-) => AccumulatorContainer;
+export type ChainResponse_T = object | AxiosResponse | void;
+export type Accumulator_T = (object | AxiosResponse)[];
+export type AccumulatorContainer = { current: Accumulator_T };
+export type NextCallback_T = (data: ChainResponse_T) => AccumulatorContainer;
 
 /**
  * This the lifecycle hook which runs before the event is initiated.
  *
  * @category LifecycleHook
  */
-export type BeforeEventType = (
+export type BeforeEvent_T = (
   accumulator?: AccumulatorContainer,
-  next?: NextCallbackType,
+  next?: NextCallback_T,
   disableStateUpdate?: boolean
 ) => void;
 
@@ -224,10 +218,10 @@ export type BeforeEventType = (
  *
  * @category LifecycleHook
  */
-export type EventType = (
+export type Event_T = (
   customConfig: AxiosRequestConfig,
   accumulator?: AccumulatorContainer,
-  next?: NextCallbackType
+  next?: NextCallback_T
 ) => Promise<AxiosResponse>;
 
 /**
@@ -235,10 +229,10 @@ export type EventType = (
  *
  * @category LifecycleHook
  */
-export type OnSuccessType = (
+export type OnSuccess_T = (
   response: AxiosResponse,
   accumulator?: AccumulatorContainer,
-  next?: NextCallbackType,
+  next?: NextCallback_T,
   disableStateUpdate?: boolean
 ) => void;
 
@@ -247,10 +241,10 @@ export type OnSuccessType = (
  *
  * @category LifecycleHook
  */
-export type OnFailureType = (
+export type OnFailure_T = (
   error: any | AxiosError,
   accumulator?: AccumulatorContainer,
-  next?: NextCallbackType
+  next?: NextCallback_T
 ) => void;
 
 /**
@@ -258,17 +252,17 @@ export type OnFailureType = (
  *
  * @category LifecycleHook
  */
-export type OnFinishType = (
+export type OnFinish_T = (
   accumulator?: AccumulatorContainer,
-  next?: NextCallbackType,
+  next?: NextCallback_T,
   disableStateUpdate?: boolean
 ) => void;
 
-export type FullTaskType = (customConfig: AxiosRequestConfig) => void;
+export type FullTask_T = (customConfig: AxiosRequestConfig) => void;
 
-export type PushToAccumulatorType = (
-  next: NextCallbackType | undefined,
-  res: ChainResponseType | undefined
+export type PushToAccumulator_T = (
+  next: NextCallback_T | undefined,
+  res: ChainResponse_T | undefined
 ) => void;
 
 /**
@@ -276,9 +270,9 @@ export type PushToAccumulatorType = (
  *
  * @category Props
  */
-export interface ContainerFactory_PropType<T> {
-  containerOptions: UseResource_ContainerOptions_Type;
-  errorData: ErrorDataType;
+export interface ContainerFactory_Prop_T<T> {
+  containerOptions: UseResource_ContainerOptions__T;
+  errorData: ErrorData_T;
   resourceName: string;
   isLoading: boolean;
   isFetching: boolean;
@@ -291,6 +285,6 @@ export interface ContainerFactory_PropType<T> {
  *
  * @category Components
  */
-export type ContainerFactoryType<T> = (
-  props: ContainerFactory_PropType<T>
-) => ContextContainerType;
+export type ContainerFactory_T<T> = (
+  props: ContainerFactory_Prop_T<T>
+) => ContextContainer_T;

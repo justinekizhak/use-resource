@@ -1,19 +1,19 @@
-import { UseResource_ContainerOptions_Type } from "lib/types";
+import { UseResource_ContainerOptions__T } from "lib/types";
 import type {
-  ContainerFactoryType,
-  ContentWrapperType,
-  ContextContainerPropsType,
-  ContextContainerType,
-  ErrorComponentType,
-  FetchingComponentType,
-  LoadingComponentType
+  ContainerFactory_T,
+  ContentWrapper_T,
+  ContextContainerProps_T,
+  ContextContainer_T,
+  ErrorComponent_T,
+  FetchingComponent_T,
+  LoadingComponent_T
 } from "../types/main.type";
 
 /**
  * This is the default loading component that will be used if no loading component is provided.
  * @returns loading component
  */
-export const defaultLoadingComponent: LoadingComponentType = () => (
+export const defaultLoadingComponent: LoadingComponent_T = () => (
   <div className="loading"> Loading... </div>
 );
 
@@ -21,7 +21,7 @@ export const defaultLoadingComponent: LoadingComponentType = () => (
  * This is the default fetching component that will be used if no fetching component is provided.
  * @returns Fetching component
  */
-export const defaultFetchingComponent: FetchingComponentType = () => (
+export const defaultFetchingComponent: FetchingComponent_T = () => (
   <div className="fetching">Fetching...</div>
 );
 
@@ -30,7 +30,7 @@ export const defaultFetchingComponent: FetchingComponentType = () => (
  * @param errorMessage string
  * @returns Error message component
  */
-export const defaultErrorComponent: ErrorComponentType = ({ errorMessage }) => (
+export const defaultErrorComponent: ErrorComponent_T = ({ errorMessage }) => (
   <div className="error-message"> {errorMessage} </div>
 );
 
@@ -49,7 +49,7 @@ export const defaultErrorComponent: ErrorComponentType = ({ errorMessage }) => (
  *
  * @internal
  */
-export const containerFactory: ContainerFactoryType<any> = ({
+export const containerFactory: ContainerFactory_T<any> = ({
   containerOptions,
   errorData,
   resourceName,
@@ -58,14 +58,14 @@ export const containerFactory: ContainerFactoryType<any> = ({
   data,
   errorMessage
 }) => {
-  const defaultContainerOptions: UseResource_ContainerOptions_Type = {
+  const defaultContainerOptions: UseResource_ContainerOptions__T = {
     loadingComponent: defaultLoadingComponent,
     fetchingComponent: defaultFetchingComponent,
     errorComponent: defaultErrorComponent,
     hideWhenLoading: false
   };
 
-  const mergedContainerOptions: UseResource_ContainerOptions_Type = {
+  const mergedContainerOptions: UseResource_ContainerOptions__T = {
     ...defaultContainerOptions,
     ...containerOptions
   };
@@ -74,18 +74,18 @@ export const containerFactory: ContainerFactoryType<any> = ({
    * @param param0
    * @returns
    */
-  const ContentComponent: ContextContainerType = ({
+  const ContentComponent: ContextContainer_T = ({
     children,
     contentWrapper = undefined,
     containerOptions = mergedContainerOptions
-  }: ContextContainerPropsType) => {
+  }: ContextContainerProps_T) => {
     /**
      *
      * All the logic inside the container instance should be inside this.
      * @param props
      * @returns
      */
-    const defaultWrapper: ContentWrapperType = (props) => {
+    const defaultWrapper: ContentWrapper_T = (props) => {
       const {
         loadingComponent = () => {},
         fetchingComponent = () => {},

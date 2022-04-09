@@ -1,17 +1,17 @@
-import type { EventQueue_DataType } from "../types/resourceContext/eventQueue.type";
+import type { EventQueue_Data_T } from "../types/resourceContext/eventQueue.type";
 import { useEffect, useRef } from "react";
-import type { Internal_JsxComponentType } from "../types/main.type";
+import type { Internal_JsxComponent_T } from "../types/main.type";
 import type { ResourceContextState } from "../types/resourceContext/context.type";
 import type { ContextCallbackState } from "../types/resourceContext/provider.type";
 import { GlobalResourceContext } from "./context";
 import { handleEvent } from "./handleEvents";
 
 export const GlobalResourceContextProvider = (props: {
-  children: Internal_JsxComponentType;
+  children: Internal_JsxComponent_T;
 }) => {
   const state = useRef<ResourceContextState<any>>({});
   const stateCallbacks = useRef<ContextCallbackState>({});
-  const eventQueue = useRef<EventQueue_DataType[]>([]);
+  const eventQueue = useRef<EventQueue_Data_T[]>([]);
 
   useEffect(() => {
     const interval = setInterval(() => {

@@ -1,5 +1,5 @@
 import { createContext } from "react";
-import type { GlobalResourceContextType } from "../types/resourceContext/provider.type";
+import type { GlobalResourceContext_T } from "../types/resourceContext/provider.type";
 
 /**
  * Create and return the initial value for the global resource context.
@@ -20,7 +20,7 @@ export function generateContextDefault<T = any>(
   state = {},
   stateCallbacks = {},
   eventQueue = []
-): GlobalResourceContextType<T> {
+): GlobalResourceContext_T<T> {
   return {
     state: { current: state },
     stateCallbacks: { current: stateCallbacks },

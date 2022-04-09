@@ -1,20 +1,20 @@
 import { AxiosRequestConfig } from "axios";
-import type { AccumulatorContainer, NextCallbackType } from "../types";
+import type { AccumulatorContainer, NextCallback_T } from "../types";
 import type {
-  EventQueueType,
+  EventQueue_T,
   EventQueue_AccumulatorContainer,
-  EventQueue_BeforeEventType,
-  EventQueue_DataType,
-  EventQueue_DeDup_DataType,
-  EventQueue_NextCallbackType,
-  EventQueue_OnFailureType,
-  EventQueue_OnFinishType,
-  EventQueue_OnSuccessType
+  EventQueue_BeforeEvent_T,
+  EventQueue_Data_T,
+  EventQueue_DeDup_Data_T,
+  EventQueue_NextCallback_T,
+  EventQueue_OnFailure_T,
+  EventQueue_OnFinish_T,
+  EventQueue_OnSuccess_T
 } from "../types/resourceContext/eventQueue.type";
 
-const getDeDuplicatedEventSlice = (queueSlice: EventQueue_DataType[]) => {
+const getDeDuplicatedEventSlice = (queueSlice: EventQueue_Data_T[]) => {
   const eventMap: {
-    [key: string]: EventQueue_DataType[];
+    [key: string]: EventQueue_Data_T[];
   } = {};
   queueSlice?.forEach((event) => {
     const key = event.resourceName;
@@ -23,12 +23,12 @@ const getDeDuplicatedEventSlice = (queueSlice: EventQueue_DataType[]) => {
     }
     eventMap[key].push(event);
   });
-  const output: EventQueue_DeDup_DataType[] = [];
+  const output: EventQueue_DeDup_Data_T[] = [];
   Object.values(eventMap).forEach((duplicatedEvents, index) => {
     const lastIndex = duplicatedEvents.length - 1;
     const lastEvent = duplicatedEvents[lastIndex];
 
-    const beforeEvent: EventQueue_BeforeEventType = (
+    const beforeEvent: EventQueue_BeforeEvent_T = (
       accList,
       nextList,
       disableStateUpdate
@@ -37,13 +37,13 @@ const getDeDuplicatedEventSlice = (queueSlice: EventQueue_DataType[]) => {
         const acc: AccumulatorContainer = (accList && accList[index]) || {
           current: []
         };
-        const next: NextCallbackType =
+        const next: NextCallback_T =
           (nextList && nextList(index)) || (() => ({ current: [] }));
         event.beforeEvent(acc, next, disableStateUpdate);
       });
     };
 
-    const onSuccess: EventQueue_OnSuccessType = (
+    const onSuccess: EventQueue_OnSuccess_T = (
       res,
       accList,
       nextList,
@@ -53,24 +53,24 @@ const getDeDuplicatedEventSlice = (queueSlice: EventQueue_DataType[]) => {
         const acc: AccumulatorContainer = (accList && accList[index]) || {
           current: []
         };
-        const next: NextCallbackType =
+        const next: NextCallback_T =
           (nextList && nextList(index)) || (() => ({ current: [] }));
         event.onSuccess(res, acc, next, disableStateUpdate);
       });
     };
 
-    const onFailure: EventQueue_OnFailureType = (error, accList, nextList) => {
+    const onFailure: EventQueue_OnFailure_T = (error, accList, nextList) => {
       duplicatedEvents.forEach((event) => {
         const acc: AccumulatorContainer = (accList && accList[index]) || {
           current: []
         };
-        const next: NextCallbackType =
+        const next: NextCallback_T =
           (nextList && nextList(index)) || (() => ({ current: [] }));
         event.onFailure(error, acc, next);
       });
     };
 
-    const onFinish: EventQueue_OnFinishType = (
+    const onFinish: EventQueue_OnFinish_T = (
       accList,
       nextList,
       disableStateUpdate
@@ -79,7 +79,7 @@ const getDeDuplicatedEventSlice = (queueSlice: EventQueue_DataType[]) => {
         const acc: AccumulatorContainer = (accList && accList[index]) || {
           current: []
         };
-        const next: NextCallbackType =
+        const next: NextCallback_T =
           (nextList && nextList(index)) || (() => ({ current: [] }));
         event.onFinish(acc, next, disableStateUpdate);
       });
@@ -93,8 +93,8 @@ const getDeDuplicatedEventSlice = (queueSlice: EventQueue_DataType[]) => {
       const isLastInChain = index === totalTask - 1;
       const accList: EventQueue_AccumulatorContainer = [{ current: [] }];
 
-      const nextList: EventQueue_NextCallbackType = (index: number) => {
-        const callback: NextCallbackType = (data) => {
+      const nextList: EventQueue_NextCallback_T = (index: number) => {
+        const callback: NextCallback_T = (data) => {
           if (data) {
             accList[index].current.push(data);
           }
@@ -132,7 +132,7 @@ const getDeDuplicatedEventSlice = (queueSlice: EventQueue_DataType[]) => {
   return output;
 };
 
-export function handleEvent(events: EventQueueType) {
+export function handleEvent(events: EventQueue_T) {
   const indexToRemove = 0;
   const numberToRemove = 10;
   const queueSlice = events.current.splice(indexToRemove, numberToRemove);

@@ -1,5 +1,5 @@
 import { useRenderCount } from "../utils/useRenderCount";
-import { ResourceType, useSelector } from "../lib-imports";
+import { Resource_T, useSelector } from "../lib-imports";
 
 export default function ApiConsumer() {
   const { RenderContainer } = useRenderCount();
@@ -17,7 +17,7 @@ export default function ApiConsumer() {
    * It will return the entire resource object which you can use as you want.
    * The number of re-render will be exactly the same as the re-renders in the invoker component
    */
-  const fullData: ResourceType<any> = useSelector("test") || {};
+  const fullData: Resource_T<any> = useSelector("test") || {};
 
   return (
     <div>

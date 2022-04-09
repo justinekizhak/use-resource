@@ -1,32 +1,32 @@
 import React from "react";
-import type { ResourceType, ResourceKeyType } from "../main.type";
+import type { Resource_T, ResourceKey_T } from "../main.type";
 import { ResourceContextState } from "../resourceContext/context.type";
-import { EventQueueType } from "./eventQueue.type";
+import { EventQueue_T } from "./eventQueue.type";
 
-export type Dispatch_StateMutationFunction_Type<T> = (
-  state: ResourceType<T>
-) => ResourceType<T> | void;
+export type Dispatch_StateMutationFunction__T<T> = (
+  state: Resource_T<T>
+) => Resource_T<T> | void;
 
-export type DispatchType<T> = (
+export type Dispatch_T<T> = (
   key: string,
-  stateSlice: ResourceType<T> | Dispatch_StateMutationFunction_Type<T>
+  stateSlice: Resource_T<T> | Dispatch_StateMutationFunction__T<T>
 ) => void;
 
-export type DispatchHookType<T> = (customContext?: React.Context<any>) => T;
+export type DispatchHook_T<T> = (customContext?: React.Context<any>) => T;
 
-export type SelectorCallbackType<T> = (resourceData: ResourceType<T>) => void;
+export type SelectorCallback_T<T> = (resourceData: Resource_T<T>) => void;
 
-export type SelectorType = (
+export type Selector_T = (
   resourceName: string,
-  dataKeyOrCallback: ResourceKeyType
+  dataKeyOrCallback: ResourceKey_T
 ) => void;
 
-export type GlobalResourceContextType<T> = {
+export type GlobalResourceContext_T<T> = {
   state: React.MutableRefObject<ResourceContextState<T>>;
   stateCallbacks: React.MutableRefObject<ContextCallbackState>;
-  eventQueue: EventQueueType;
+  eventQueue: EventQueue_T;
 };
 
 export type ContextCallbackState = {
-  [key: string]: SelectorCallbackType<any>[];
+  [key: string]: SelectorCallback_T<any>[];
 };

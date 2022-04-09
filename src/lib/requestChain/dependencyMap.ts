@@ -1,14 +1,14 @@
 import {
-  DependencyMapType,
-  CreateDependencyMapReturnType
+  DependencyMap_T,
+  CreateDependencyMapReturn_T
 } from "../types/requestChain/dependencyMap.type";
-import type { ChainedRequestConfigType } from "../types/useResource.type";
+import type { ChainedRequestConfig_T } from "../types/useResource.type";
 import { getAllDependencyName, getName } from "../utils/requestChain";
 
 export const createDependencyMap = (
-  requestChain: ChainedRequestConfigType[]
-): CreateDependencyMapReturnType => {
-  const map: DependencyMapType = {};
+  requestChain: ChainedRequestConfig_T[]
+): CreateDependencyMapReturn_T => {
+  const map: DependencyMap_T = {};
   let start: string = "";
   let previousDep: string | null = null;
   requestChain.forEach((request, index) => {
@@ -28,7 +28,7 @@ export const createDependencyMap = (
 };
 
 export const validateRequestChain = (
-  requestChain: ChainedRequestConfigType[]
+  requestChain: ChainedRequestConfig_T[]
 ) => {
   const invalidDeps: string[] = [];
   // Check for valid dependencies

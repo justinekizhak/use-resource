@@ -1,12 +1,12 @@
-export interface DependencyMapType {
+export interface DependencyMap_T {
   [key: string]: string[] | null | undefined;
 }
 
-export interface CreateDependencyMapReturnType {
-  dependencyMap: DependencyMapType;
+export interface CreateDependencyMapReturn_T {
+  dependencyMap: DependencyMap_T;
   start: string;
 }
 
-export interface RequestIndexMapType {
+export interface RequestIndexMap_T {
   [key: string]: number;
 }
