@@ -1,7 +1,7 @@
 import { AxiosRequestConfig } from "axios";
 import { MutableRefObject } from "react";
 import type {
-  AccumulatorContainer,
+  AccumulatorContainer_T,
   BaseConfig_T,
   BeforeEvent_T,
   NextCallback_T,
@@ -12,7 +12,7 @@ import type {
 } from "./main.type";
 
 export interface RefetchFunctionArg_T {
-  accumulator: AccumulatorContainer;
+  accumulator: AccumulatorContainer_T;
   defaultNext: NextCallback_T;
   beforeEvent: BeforeEvent_T;
   event: Event_T;
@@ -33,7 +33,7 @@ export type RefetchFunction_T = (
 
 export type EventMasterFunc_T = (
   index?: number,
-  em_acc?: AccumulatorContainer,
+  em_acc?: AccumulatorContainer_T,
   em_next?: NextCallback_T,
   em_baseConfig?: AxiosRequestConfig,
   em_beforeEvent?: BeforeEvent_T,

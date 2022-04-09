@@ -75,22 +75,6 @@ export const getBaseConfig = (
   return defaultConfig;
 };
 
-/**
- * Deprecated
- */
-// export const getErrorMessage = (errorData: ErrorData_T): string => {
-//   const defaultErrorMessage = "Something went wrong. Please try again.";
-//   // @ts-ignore
-//   const err: AxiosError = errorData;
-//   if (err?.response?.data?.message) {
-//     return err.response.data.message || defaultErrorMessage;
-//   }
-//   if (err?.message) {
-//     return err.message || defaultErrorMessage;
-//   }
-//   return "";
-// };
-
 export const getFunc = (requestObject: ChainedRequestConfig_T, key: string) => {
   const func =
     // @ts-ignore

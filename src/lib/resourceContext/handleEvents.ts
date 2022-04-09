@@ -1,5 +1,5 @@
 import { AxiosRequestConfig } from "axios";
-import type { AccumulatorContainer, NextCallback_T } from "../types";
+import type { AccumulatorContainer_T, NextCallback_T } from "../types";
 import type {
   EventQueue_T,
   EventQueue_AccumulatorContainer,
@@ -34,7 +34,7 @@ const getDeDuplicatedEventSlice = (queueSlice: EventQueue_Data_T[]) => {
       disableStateUpdate
     ) => {
       duplicatedEvents.forEach((event) => {
-        const acc: AccumulatorContainer = (accList && accList[index]) || {
+        const acc: AccumulatorContainer_T = (accList && accList[index]) || {
           current: []
         };
         const next: NextCallback_T =
@@ -50,7 +50,7 @@ const getDeDuplicatedEventSlice = (queueSlice: EventQueue_Data_T[]) => {
       disableStateUpdate
     ) => {
       duplicatedEvents.forEach((event) => {
-        const acc: AccumulatorContainer = (accList && accList[index]) || {
+        const acc: AccumulatorContainer_T = (accList && accList[index]) || {
           current: []
         };
         const next: NextCallback_T =
@@ -61,7 +61,7 @@ const getDeDuplicatedEventSlice = (queueSlice: EventQueue_Data_T[]) => {
 
     const onFailure: EventQueue_OnFailure_T = (error, accList, nextList) => {
       duplicatedEvents.forEach((event) => {
-        const acc: AccumulatorContainer = (accList && accList[index]) || {
+        const acc: AccumulatorContainer_T = (accList && accList[index]) || {
           current: []
         };
         const next: NextCallback_T =
@@ -76,7 +76,7 @@ const getDeDuplicatedEventSlice = (queueSlice: EventQueue_Data_T[]) => {
       disableStateUpdate
     ) => {
       duplicatedEvents.forEach((event) => {
-        const acc: AccumulatorContainer = (accList && accList[index]) || {
+        const acc: AccumulatorContainer_T = (accList && accList[index]) || {
           current: []
         };
         const next: NextCallback_T =

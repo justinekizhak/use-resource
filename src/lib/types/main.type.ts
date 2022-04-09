@@ -13,7 +13,7 @@ import type {
 /**
  * This object is stored in the debugger.
  */
-export interface DebugObject {
+export interface DebugObject_T {
   timestamp: string;
   message?: string;
   data?: object;
@@ -76,7 +76,7 @@ export interface Resource_T<T> {
   /**
    * Contains all the info about the request lifecycle. This is useful for debugging.
    */
-  debug: MutableRefObject<DebugObject[]>;
+  debug: MutableRefObject<DebugObject_T[]>;
   /**
    * You can invoke this method to manually cancel the request.
    */
@@ -103,7 +103,7 @@ export type ValueOf_Resource_T<T> =
   | boolean
   | ErrorData_T
   | string
-  | MutableRefObject<DebugObject[]>
+  | MutableRefObject<DebugObject_T[]>
   | ResourceCancelMethod_T
   | ResourceRefetchMethod_T
   | undefined
@@ -199,8 +199,8 @@ export type BaseConfig_T = AxiosRequestConfig | ChainedRequestConfig_T[];
 
 export type ChainResponse_T = object | AxiosResponse | void;
 export type Accumulator_T = (object | AxiosResponse)[];
-export type AccumulatorContainer = { current: Accumulator_T };
-export type NextCallback_T = (data: ChainResponse_T) => AccumulatorContainer;
+export type AccumulatorContainer_T = { current: Accumulator_T };
+export type NextCallback_T = (data: ChainResponse_T) => AccumulatorContainer_T;
 
 /**
  * This the lifecycle hook which runs before the event is initiated.
@@ -208,7 +208,7 @@ export type NextCallback_T = (data: ChainResponse_T) => AccumulatorContainer;
  * @category LifecycleHook
  */
 export type BeforeEvent_T = (
-  accumulator?: AccumulatorContainer,
+  accumulator?: AccumulatorContainer_T,
   next?: NextCallback_T,
   disableStateUpdate?: boolean
 ) => void;
@@ -220,7 +220,7 @@ export type BeforeEvent_T = (
  */
 export type Event_T = (
   customConfig: AxiosRequestConfig,
-  accumulator?: AccumulatorContainer,
+  accumulator?: AccumulatorContainer_T,
   next?: NextCallback_T
 ) => Promise<AxiosResponse>;
 
@@ -231,7 +231,7 @@ export type Event_T = (
  */
 export type OnSuccess_T = (
   response: AxiosResponse,
-  accumulator?: AccumulatorContainer,
+  accumulator?: AccumulatorContainer_T,
   next?: NextCallback_T,
   disableStateUpdate?: boolean
 ) => void;
@@ -243,7 +243,7 @@ export type OnSuccess_T = (
  */
 export type OnFailure_T = (
   error: any | AxiosError,
-  accumulator?: AccumulatorContainer,
+  accumulator?: AccumulatorContainer_T,
   next?: NextCallback_T
 ) => void;
 
@@ -253,7 +253,7 @@ export type OnFailure_T = (
  * @category LifecycleHook
  */
 export type OnFinish_T = (
-  accumulator?: AccumulatorContainer,
+  accumulator?: AccumulatorContainer_T,
   next?: NextCallback_T,
   disableStateUpdate?: boolean
 ) => void;

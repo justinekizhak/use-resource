@@ -1,6 +1,6 @@
 import React from "react";
 import type { Resource_T, ResourceKey_T } from "../main.type";
-import { ResourceContextState } from "../resourceContext/context.type";
+import { ResourceContextState_T } from "../resourceContext/context.type";
 import { EventQueue_T } from "./eventQueue.type";
 
 export type Dispatch_StateMutationFunction__T<T> = (
@@ -22,7 +22,7 @@ export type Selector_T = (
 ) => void;
 
 export type GlobalResourceContext_T<T> = {
-  state: React.MutableRefObject<ResourceContextState<T>>;
+  state: React.MutableRefObject<ResourceContextState_T<T>>;
   stateCallbacks: React.MutableRefObject<ContextCallbackState>;
   eventQueue: EventQueue_T;
 };

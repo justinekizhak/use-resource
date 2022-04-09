@@ -1,4 +1,7 @@
-import type { NextCallback_T, AccumulatorContainer } from "../types/main.type";
+import type {
+  NextCallback_T,
+  AccumulatorContainer_T
+} from "../types/main.type";
 import type { RequestChainHandler_T } from "../types/refetch.type";
 import type { ChainedRequestConfig_T } from "../types/useResource.type";
 import { getFinalRequestChain } from "../utils/helpers";
@@ -16,7 +19,7 @@ export const requestChainHandler: RequestChainHandler_T =
     eventMaster
   }) =>
   async () => {
-    const cr_acc: AccumulatorContainer = { current: [] };
+    const cr_acc: AccumulatorContainer_T = { current: [] };
     const cr_next: NextCallback_T = (data: any) => {
       if (data) {
         cr_acc.current.push(data);

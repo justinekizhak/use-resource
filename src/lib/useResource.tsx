@@ -7,7 +7,7 @@ import axios, {
 } from "axios";
 
 import type {
-  DebugObject,
+  DebugObject_T,
   OnSuccess_T,
   BeforeEvent_T,
   Event_T,
@@ -82,7 +82,7 @@ export function useResource<T>(
   const isFetching = useRef(false);
   const errorData = useRef<AxiosError | AxiosResponse>();
   const errorMessage = useRef("");
-  const debug = useRef<DebugObject[]>([]);
+  const debug = useRef<DebugObject_T[]>([]);
 
   // Internal states here
   const firstTime = useRef(true);
@@ -171,7 +171,7 @@ export function useResource<T>(
         console.log(message, data);
       }
       const timestamp = Date.now() + "";
-      const fullData: DebugObject = { timestamp, message };
+      const fullData: DebugObject_T = { timestamp, message };
       if (data) {
         fullData["data"] = data;
       }
