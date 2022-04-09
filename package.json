@@ -76,7 +76,7 @@
     "typedoc:build": "yarn typedoc",
     "docs:tailwind": "npx tailwindcss -i ./src/doc-src/css/tailwind.css -o ./src/doc-src/css/tailwind-output.css",
     "docs:watch-css": "yarn docs:tailwind --watch",
-    "docs:build-css": "rm ./src/doc-src/css/tailwind-output.css && yarn docs:tailwind -m",
+    "docs:build-css": "rm -f ./src/doc-src/css/tailwind-output.css && yarn docs:tailwind -m",
     "examples:dev": "concurrently 'npm:start' 'npm:docs:watch-css'",
     "docs:dev": "concurrently 'npm:start' 'npm:docs:watch-css' 'npm:typedoc:start' 'npm:docusaurus:start'",
     "docs:build": "yarn docs:build-css && yarn examples:build && yarn typedoc:build && yarn docusaurus:build"
