@@ -43,7 +43,7 @@ export function generateDefaultPushToAcc(accumulator: AccumulatorContainer_T) {
         if (!eventObject) {
           accumulator.events[eventKeycode] = [];
         }
-        accumulator.events[eventKeycode].push(data);
+        accumulator.events[eventKeycode]?.push(data);
       }
 
       // Pushing to request object
@@ -58,7 +58,7 @@ export function generateDefaultPushToAcc(accumulator: AccumulatorContainer_T) {
         if (!eventObj) {
           accumulator.requestsByName[requestName][eventKeycode] = [];
         }
-        accumulator.requestsByName[requestName][eventKeycode].push(data);
+        accumulator.requestsByName[requestName][eventKeycode]?.push(data);
       }
 
       // Pushing to requestsByIndex
@@ -74,7 +74,7 @@ export function generateDefaultPushToAcc(accumulator: AccumulatorContainer_T) {
         if (!eventObj) {
           accumulator.requestsByIndex[requestIndex][eventKeycode] = [];
         }
-        accumulator.requestsByIndex[requestIndex][eventKeycode].push(data);
+        accumulator.requestsByIndex[requestIndex][eventKeycode]?.push(data);
       }
     }
     if (customObject) {

@@ -254,19 +254,20 @@ export type AccumulatorContainer_T = {
   customData: object;
 };
 
-/**
- * The AccumulatorContainer_Events_T is used to store the data-objects grouped by their event key-code.
- */
-export interface AccumulatorContainer_Events_T {
-  [key: string]: object[];
-}
-
 export type EventKeyCodes_T =
   | "beforeEvent"
   | "onEvent"
   | "onSuccess"
   | "onFailure"
   | "onFinish";
+
+/**
+ * This the schema used to store the data-objects grouped by their event key-code.
+ */
+export type AccumulatorContainer_Events_T = {
+  // eslint-disable-next-line no-unused-vars
+  [key in EventKeyCodes_T]?: object[];
+};
 
 export interface PushToAcc_Meta_T {
   eventKeycode?: EventKeyCodes_T;
