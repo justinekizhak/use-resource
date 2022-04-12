@@ -189,6 +189,7 @@ export interface ContextContainerProps_T {
   children?: Internal_JsxComponent_T;
   contentWrapper?: ContentWrapper_T;
   containerOptions?: UseResource_ContainerOptions__T;
+  hideWhenLoading: boolean;
 }
 
 export type ContextContainer_T = (

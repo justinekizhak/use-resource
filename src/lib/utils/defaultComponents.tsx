@@ -61,8 +61,7 @@ export const containerFactory: ContainerFactory_T<any> = ({
   const defaultContainerOptions: UseResource_ContainerOptions__T = {
     loadingComponent: defaultLoadingComponent,
     fetchingComponent: defaultFetchingComponent,
-    errorComponent: defaultErrorComponent,
-    hideWhenLoading: false
+    errorComponent: defaultErrorComponent
   };
 
   const mergedContainerOptions: UseResource_ContainerOptions__T = {
@@ -77,7 +76,8 @@ export const containerFactory: ContainerFactory_T<any> = ({
   const ContentComponent: ContextContainer_T = ({
     children,
     contentWrapper = undefined,
-    containerOptions = mergedContainerOptions
+    containerOptions = mergedContainerOptions,
+    hideWhenLoading = false
   }: ContextContainerProps_T) => {
     /**
      *
@@ -87,19 +87,20 @@ export const containerFactory: ContainerFactory_T<any> = ({
      */
     const defaultWrapper: ContentWrapper_T = (props) => {
       const {
-        loadingComponent = () => {},
-        fetchingComponent = () => {},
-        errorComponent = () => {},
-        hideWhenLoading = false
+        loadingComponent: _loadingComponent = () => {},
+        fetchingComponent: _fetchingComponent = () => {},
+        errorComponent: _errorComponent = () => {},
+        hideWhenLoading: _hideWhenLoading = false
       } = props;
       // Show content if loading or fetching is false and the hideWhenLoading flag is false
       // If the hideWhenLoading flag is true, then always show the content.
-      const showContent = !(isLoading || isFetching) || !hideWhenLoading;
+      const showContent =
+        !(props.isLoading || props.isFetching) || !hideWhenLoading;
       return (
         <div className="content">
-          {props.isLoading && loadingComponent(props)}
-          {!props.isLoading && props.isFetching && fetchingComponent(props)}
-          {props.errorMessage && errorComponent(props)}
+          {props.isLoading && _loadingComponent(props)}
+          {!props.isLoading && props.isFetching && _fetchingComponent(props)}
+          {props.errorMessage && _errorComponent(props)}
           {showContent ? props.children : null}
         </div>
       );
@@ -116,7 +117,8 @@ export const containerFactory: ContainerFactory_T<any> = ({
           errorMessage,
           errorData,
           data,
-          ...containerOptions
+          ...containerOptions,
+          hideWhenLoading
         })}
       </div>
     );
