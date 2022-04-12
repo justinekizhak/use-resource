@@ -14,7 +14,8 @@ import type {
   OnFailure_T,
   OnFinish_T,
   BaseConfig_T,
-  PushToAccumulator_T
+  CheckAndPushToAcc_T,
+  PushToAcc_Meta_T
 } from "../types/main.type";
 import type {
   Internal_ChainedRequestConfig_T,
@@ -75,20 +76,24 @@ export const getBaseConfig = (
   return defaultConfig;
 };
 
-export const getFunc = (requestObject: ChainedRequestConfig_T, key: string) => {
+export const getFunc = (
+  requestObject: ChainedRequestConfig_T,
+  key: string,
+  fallbackFunction: any = () => {}
+) => {
   const func =
     // @ts-ignore
     requestObject && typeof requestObject[key] === "function"
       ? // @ts-ignore
         requestObject[key]
-      : () => {};
+      : fallbackFunction;
   return func;
 };
 
-export const pushToAcc: PushToAccumulator_T = (next, res) => {
-  if (next && typeof next === "function") {
-    if (res) {
-      next(res);
+export const checkAndPushToAcc: CheckAndPushToAcc_T = (pushToAcc, args) => {
+  if (pushToAcc && typeof pushToAcc === "function") {
+    if (Array.isArray(args)) {
+      pushToAcc(args[0], args[1]);
     }
   }
 };
@@ -111,6 +116,12 @@ export const getFinalRequestChain = (
     ...oldChainedRequestData["baseConfig"],
     ...newChainedRequestData["baseConfig"]
   };
+
+  // This metadata is used for pushing the data to the accumulator
+  const requestMetadata: PushToAcc_Meta_T = {
+    requestName: newChainedRequestData["requestName"],
+    requestIndex: index
+  };
   // The new beforeEvent will overwrite the old beforeEvent
   const _beforeEvent: BeforeEvent_T = (
     acc,
@@ -118,8 +129,8 @@ export const getFinalRequestChain = (
     disableStateUpdate = false
   ) => {
     const func: BeforeEvent_T = getFunc(newChainedRequestData, "beforeEvent");
-    func(acc, next);
-    internal_beforeEvent(acc, next, disableStateUpdate);
+    func(acc, next, undefined, requestMetadata);
+    internal_beforeEvent(acc, next, disableStateUpdate, requestMetadata);
   };
 
   // The new event will overwrite all the event
@@ -133,8 +144,14 @@ export const getFinalRequestChain = (
       ...finalConfig,
       ...customConfig
     };
-    const newConfig: AxiosRequestConfig = func(config, acc, next) || config;
-    const res = await internal_event(newConfig, acc, next);
+    const newConfig: AxiosRequestConfig =
+      func(config, acc, next, requestMetadata) || config;
+    const customEvent = getFunc(
+      newChainedRequestData,
+      "customEvent",
+      internal_event
+    );
+    const res = await customEvent(newConfig, acc, next, requestMetadata);
     return res;
   };
 
@@ -149,8 +166,8 @@ export const getFinalRequestChain = (
       newChainedRequestData,
       "transformSuccess"
     );
-    const res2: any = func(res, acc, next) || res;
-    internal_onSuccess(res2, acc, next, disableStateUpdate);
+    const res2: any = func(res, acc, next, requestMetadata) || res;
+    internal_onSuccess(res2, acc, next, disableStateUpdate, requestMetadata);
   };
 
   const _onFailure: OnFailure_T = (error, acc, next) => {
@@ -158,14 +175,14 @@ export const getFinalRequestChain = (
       newChainedRequestData,
       "transformFailure"
     );
-    const res = func(error, acc, next) || error;
-    internal_onFailure(res, acc, next);
+    const res = func(error, acc, next, requestMetadata) || error;
+    internal_onFailure(res, acc, next, requestMetadata);
   };
 
   const _onFinish: OnFinish_T = (acc, next, disableStateUpdate = false) => {
     const func: OnFinish_T = getFunc(newChainedRequestData, "onFinish");
-    func(acc, next);
-    internal_onFinish(acc, next, disableStateUpdate);
+    func(acc, next, undefined, requestMetadata);
+    internal_onFinish(acc, next, disableStateUpdate, requestMetadata);
   };
 
   return {

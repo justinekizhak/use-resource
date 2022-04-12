@@ -1,5 +1,8 @@
 import { AxiosRequestConfig } from "axios";
-import { generateDefaultAccContainer } from "lib/utils/defaultValues";
+import {
+  generateDefaultAccContainer,
+  generateDefaultPushToAcc
+} from "lib/utils/defaultValues";
 import type { AccumulatorContainer_T, PushToAcc_T } from "../types";
 import type {
   EventQueue_T,
@@ -99,15 +102,12 @@ const getDeDuplicatedEventSlice = (queueSlice: EventQueue_Data_T[]) => {
       const lastIndex = totalTask - 1;
       const isFirstInChain = index === 0;
       const isLastInChain = index === totalTask - 1;
-      const acc: EventQueue_AccumulatorContainer_T = [{ current: [] }];
+      const acc: EventQueue_AccumulatorContainer_T = [
+        generateDefaultAccContainer()
+      ];
 
       const pushToAcc: EventQueue_PushToAcc_T = (index: number) => {
-        const callback: PushToAcc_T = (data) => {
-          if (data) {
-            acc[index].current.push(data);
-          }
-          return acc[index];
-        };
+        const callback = generateDefaultPushToAcc(acc[index]);
         return callback;
       };
       try {

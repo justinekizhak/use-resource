@@ -6,11 +6,23 @@ import type {
 
 import { getBaseConfig } from "./helpers";
 import { requestChainHandler } from "../requestChain/handler";
+import { resetAcc } from "./defaultValues";
 
+/**
+ * This function is a generator function which will generate and return the refetch function.
+ *
+ * It will handle all the logic for single or chained request. Also if we are using the message queue or not.
+ *
+ * For the handling of the local state update vs the global resource context update, those are handled within the
+ * events themselves.
+ *
+ * @param args
+ * @returns
+ */
 export const refetchFunction: RefetchFunction_T =
   ({
     accumulator: internal_accumulator,
-    defaultNext: internal_defaultNext,
+    defaultPushToAcc: internal_defaultNext,
     beforeEvent: internal_beforeEvent,
     event: internal_event,
     onSuccess: internal_onSuccess,
@@ -24,6 +36,30 @@ export const refetchFunction: RefetchFunction_T =
     resourceName
   }) =>
   (customConfig: BaseConfig_T = {}) => {
+    /**
+     * Event master function contains the logic for a single request.
+     *
+     * If we have a chained request then it is handled by the `requestChainHandler` function.
+     *
+     * So before we run this we need to check if the request is a single or a chained request.
+     *
+     * If it is a chained request then we will pass in the `eventMaster` to the `requestChainHandler` function.
+     *
+     * The `requestChainHandler` function will execute all the requests using the `eventMaster` function itself.
+     *
+     * Obviously, the dependent request will be resolved before running the eventMaster.
+     *
+     * @param index
+     * @param em_acc
+     * @param em_next
+     * @param em_baseConfig
+     * @param em_beforeEvent
+     * @param em_event
+     * @param em_onSuccess
+     * @param em_onFailure
+     * @param em_onFinish
+     * @param totalTask
+     */
     const eventMaster: EventMasterFunc_T = async (
       index = 0,
       em_acc = internal_accumulator,
@@ -37,6 +73,7 @@ export const refetchFunction: RefetchFunction_T =
       totalTask = 1
     ) => {
       const fullTask = async () => {
+        resetAcc(em_acc);
         const isFirstInChain = index === 0;
         const isLastInChain = index === totalTask - 1;
         try {
@@ -66,7 +103,7 @@ export const refetchFunction: RefetchFunction_T =
       }
     };
     if (!useRequestChaining) {
-      internal_accumulator.current = [];
+      resetAcc(internal_accumulator);
       eventMaster();
     } else {
       const main = requestChainHandler({

@@ -13,10 +13,10 @@ import type {
   Event_T,
   OnFailure_T,
   OnFinish_T,
-  PushToAcc_T,
   BaseConfig_T,
-  Accumulator_T,
-  Resource_T
+  Resource_T,
+  PushToAcc_T,
+  PushToAcc_Meta_T
 } from "./types/main.type";
 import { GlobalResourceContext } from "./resourceContext/context";
 import type {
@@ -30,13 +30,17 @@ import {
   getBaseConfig,
   getTriggerDependencies,
   getMessageQueueData,
-  pushToAcc,
+  checkAndPushToAcc,
   useIsMounted
 } from "./utils/helpers";
 
 import { useDispatch, usePublish, useSelector } from "./resourceContext/hooks";
 
 import { refetchFunction } from "./utils/refetch";
+import {
+  generateDefaultAccContainer,
+  generateDefaultPushToAcc
+} from "./utils/defaultValues";
 
 /**
  *
@@ -45,16 +49,7 @@ import { refetchFunction } from "./utils/refetch";
  * This is required if you want to use the ResourceContext.
  * This is how we can identify the resource in the store and it should be unique throughout a ResourceContext.
  * @param options All the options and flags available for the resource.
- * @returns Returns an object containing the following properties:
- *    1. data
- *    2. isLoading
- *    3. isFetching
- *    4. errorData
- *    5. errorMessage
- *    6. refetch
- *    7. debug
- *    8. cancel
- *    9. Container
+ * @returns Returns the resource data
  */
 export function useResource<T>(
   baseConfig: BaseConfig_T,
@@ -92,7 +87,8 @@ export function useResource<T>(
     getBaseConfig(baseConfig)
   );
   const baseConfigRef = useRef(baseConfig);
-  const accumulator = useRef<Accumulator_T>([]);
+  const accRef = useRef(generateDefaultAccContainer());
+  const accumulator = accRef.current;
 
   // internal variables
   const _cancel = useRef(() => {});
@@ -158,12 +154,12 @@ export function useResource<T>(
     }
   }, [isMounted, useGlobalContext]);
 
-  const defaultNext: PushToAcc_T = (data) => {
-    if (data) {
-      accumulator.current.push(data);
-    }
-    return accumulator;
-  };
+  const defaultPushToAcc: PushToAcc_T = useCallback(
+    (data, meta) => {
+      return generateDefaultPushToAcc(accumulator)(data, meta);
+    },
+    [accumulator]
+  );
 
   const pushToDebug = useCallback(
     (message: string = "", data: object | null = null) => {
@@ -212,9 +208,14 @@ export function useResource<T>(
   );
 
   const beforeEvent: BeforeEvent_T = useCallback(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    (acc = accumulator, next = defaultNext, disableStateUpdate = false) => {
-      pushToDebug("[FETCHING RESOURCE] BEFORE TASK");
+    (
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      _acc = accumulator,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      _pushToAcc = defaultPushToAcc,
+      disableStateUpdate = false
+    ) => {
+      pushToDebug("[FETCHING RESOURCE] BEFORE EVENT");
       if (!disableStateUpdate) {
         // isLoading is set only for the first time
         // Rest all the times we should be using isFetching
@@ -234,24 +235,41 @@ export function useResource<T>(
         forceRefresh();
       }
     },
-    [forceRefresh, pushToDebug, setData, updateGlobalState]
+    [
+      forceRefresh,
+      pushToDebug,
+      setData,
+      updateGlobalState,
+      accumulator,
+      defaultPushToAcc
+    ]
   );
 
   const event: Event_T = useCallback(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    async (customConfig, acc = accumulator, next = defaultNext) => {
+    async (
+      customConfig,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      acc = accumulator,
+      pushToAcc = defaultPushToAcc,
+      requestMetadata = {}
+    ) => {
       const axiosConfig = {
         signal: controllerInstance.current?.signal,
         ...defaultConfigRef.current,
         ...customConfig
       };
       pushToDebug("[FETCHING RESOURCE] TASK TRIGGERED", axiosConfig);
-      pushToAcc(next, axiosConfig);
+      const meta: PushToAcc_Meta_T = {
+        eventKeycode: "onEvent",
+        ...requestMetadata
+      };
+      checkAndPushToAcc(pushToAcc, [axiosConfig, meta]);
       const res = await axiosInstance.current(axiosConfig);
       // await new Promise((resolve) => setTimeout(resolve, 2000));
       return res;
     },
-    [pushToDebug]
+    [accumulator, defaultPushToAcc, pushToDebug]
   );
 
   const onSuccess: OnSuccess_T = useCallback(
@@ -259,8 +277,9 @@ export function useResource<T>(
       res,
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       acc = accumulator,
-      next = defaultNext,
-      disableStateUpdate = false
+      pushToAcc = defaultPushToAcc,
+      disableStateUpdate = false,
+      requestMetadata = {}
     ) => {
       const _res: AxiosResponse = res;
       const _data = _res?.data;
@@ -269,20 +288,41 @@ export function useResource<T>(
         setData(_data);
         forceRefresh();
       }
-      pushToAcc(next, _res);
+      const meta: PushToAcc_Meta_T = {
+        eventKeycode: "onSuccess",
+        ...requestMetadata
+      };
+      checkAndPushToAcc(pushToAcc, [_res, meta]);
       pushToDebug("[FETCHING RESOURCE] TASK SUCCESS", _res);
     },
-    [forceRefresh, pushToDebug, setData, updateGlobalState]
+    [
+      accumulator,
+      defaultPushToAcc,
+      forceRefresh,
+      pushToDebug,
+      setData,
+      updateGlobalState
+    ]
   );
 
   const onFailure: OnFailure_T = useCallback(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    (error, acc = accumulator, next = defaultNext) => {
+    (
+      error,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      acc = accumulator,
+      pushToAcc = defaultPushToAcc,
+      requestMetadata = {}
+    ) => {
       if (!error) {
         return;
       }
       const _error: AxiosError = error;
-      pushToAcc(next, _error);
+      const meta: PushToAcc_Meta_T = {
+        eventKeycode: "onFailure",
+        ...requestMetadata
+      };
+      checkAndPushToAcc(pushToAcc, [_error, meta]);
       if (_error.response) {
         pushToDebug(
           "[FETCHING RESOURCE] RESPONSE ERROR RECEIVED",
@@ -313,7 +353,13 @@ export function useResource<T>(
       }
       forceRefresh();
     },
-    [forceRefresh, pushToDebug, updateGlobalState]
+    [
+      accumulator,
+      defaultPushToAcc,
+      forceRefresh,
+      pushToDebug,
+      updateGlobalState
+    ]
   );
 
   const onFinish: OnFinish_T = useCallback(
@@ -333,7 +379,7 @@ export function useResource<T>(
     (customConfig?: BaseConfig_T) =>
       refetchFunction({
         accumulator,
-        defaultNext,
+        defaultPushToAcc,
         beforeEvent,
         event,
         onSuccess,
@@ -347,6 +393,8 @@ export function useResource<T>(
         resourceName
       })(customConfig),
     [
+      accumulator,
+      defaultPushToAcc,
       beforeEvent,
       event,
       onSuccess,

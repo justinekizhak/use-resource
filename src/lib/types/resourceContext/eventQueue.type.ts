@@ -1,18 +1,16 @@
 import { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
 import type {
-  Accumulator_T,
   BeforeEvent_T,
   Event_T,
   FullTask_T,
   PushToAcc_T,
   OnFailure_T,
   OnFinish_T,
-  OnSuccess_T
+  OnSuccess_T,
+  AccumulatorContainer_T
 } from "../main.type";
 
-export type EventQueue_AccumulatorContainer_T = Array<{
-  current: Accumulator_T;
-}>;
+export type EventQueue_AccumulatorContainer_T = Array<AccumulatorContainer_T>;
 export type EventQueue_PushToAcc_T = (index: number) => PushToAcc_T;
 
 export type EventQueue_BeforeEvent_T = (

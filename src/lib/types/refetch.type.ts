@@ -13,7 +13,7 @@ import type {
 
 export interface RefetchFunctionArg_T {
   accumulator: AccumulatorContainer_T;
-  defaultNext: PushToAcc_T;
+  defaultPushToAcc: PushToAcc_T;
   beforeEvent: BeforeEvent_T;
   event: Event_T;
   onSuccess: OnSuccess_T;
