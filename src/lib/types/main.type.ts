@@ -201,7 +201,7 @@ export type BaseConfig_T = AxiosRequestConfig | ChainedRequestConfig_T[];
 export type ChainResponse_T = object | AxiosResponse | void;
 export type Accumulator_T = (object | AxiosResponse)[];
 export type AccumulatorContainer_T = { current: Accumulator_T };
-export type NextCallback_T = (data: ChainResponse_T) => AccumulatorContainer_T;
+export type PushToAcc_T = (data: ChainResponse_T) => AccumulatorContainer_T;
 
 /**
  * This the lifecycle hook which runs before the event is initiated.
@@ -210,7 +210,7 @@ export type NextCallback_T = (data: ChainResponse_T) => AccumulatorContainer_T;
  */
 export type BeforeEvent_T = (
   accumulator?: AccumulatorContainer_T,
-  next?: NextCallback_T,
+  pushToAcc?: PushToAcc_T,
   disableStateUpdate?: boolean
 ) => void;
 
@@ -222,7 +222,7 @@ export type BeforeEvent_T = (
 export type Event_T = (
   customConfig: AxiosRequestConfig,
   accumulator?: AccumulatorContainer_T,
-  next?: NextCallback_T
+  pushToAcc?: PushToAcc_T
 ) => Promise<AxiosResponse>;
 
 /**
@@ -233,7 +233,7 @@ export type Event_T = (
 export type OnSuccess_T = (
   response: AxiosResponse,
   accumulator?: AccumulatorContainer_T,
-  next?: NextCallback_T,
+  pushToAcc?: PushToAcc_T,
   disableStateUpdate?: boolean
 ) => void;
 
@@ -245,7 +245,7 @@ export type OnSuccess_T = (
 export type OnFailure_T = (
   error: any | AxiosError,
   accumulator?: AccumulatorContainer_T,
-  next?: NextCallback_T
+  pushToAcc?: PushToAcc_T
 ) => void;
 
 /**
@@ -255,14 +255,14 @@ export type OnFailure_T = (
  */
 export type OnFinish_T = (
   accumulator?: AccumulatorContainer_T,
-  next?: NextCallback_T,
+  pushToAcc?: PushToAcc_T,
   disableStateUpdate?: boolean
 ) => void;
 
 export type FullTask_T = (customConfig: AxiosRequestConfig) => void;
 
 export type PushToAccumulator_T = (
-  next: NextCallback_T | undefined,
+  pushToAcc: PushToAcc_T | undefined,
   res: ChainResponse_T | undefined
 ) => void;
 

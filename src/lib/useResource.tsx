@@ -13,7 +13,7 @@ import type {
   Event_T,
   OnFailure_T,
   OnFinish_T,
-  NextCallback_T,
+  PushToAcc_T,
   BaseConfig_T,
   Accumulator_T,
   Resource_T
@@ -158,7 +158,7 @@ export function useResource<T>(
     }
   }, [isMounted, useGlobalContext]);
 
-  const defaultNext: NextCallback_T = (data) => {
+  const defaultNext: PushToAcc_T = (data) => {
     if (data) {
       accumulator.current.push(data);
     }

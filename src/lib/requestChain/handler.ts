@@ -1,7 +1,4 @@
-import type {
-  NextCallback_T,
-  AccumulatorContainer_T
-} from "../types/main.type";
+import type { PushToAcc_T, AccumulatorContainer_T } from "../types/main.type";
 import type { RequestChainHandler_T } from "../types/refetch.type";
 import type { ChainedRequestConfig_T } from "../types/useResource.type";
 import { getFinalRequestChain } from "../utils/helpers";
@@ -20,7 +17,7 @@ export const requestChainHandler: RequestChainHandler_T =
   }) =>
   async () => {
     const cr_acc: AccumulatorContainer_T = { current: [] };
-    const cr_next: NextCallback_T = (data: any) => {
+    const cr_next: PushToAcc_T = (data: any) => {
       if (data) {
         cr_acc.current.push(data);
       }
