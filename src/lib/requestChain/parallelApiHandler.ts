@@ -58,7 +58,7 @@ function getRequestIndexMap(
 ): RequestIndexMap_T {
   const map: RequestIndexMap_T = {};
   requestChain.forEach((request, index) => {
-    const name = getName(request);
+    const name = getName(request, index);
     map[name] = index;
   });
   return map;

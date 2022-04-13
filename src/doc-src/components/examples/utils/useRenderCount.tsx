@@ -13,7 +13,7 @@ export const useRenderCount = () => {
     return (
       <div
         title="render-container"
-        className="px-3 py-2 my-2 text-white bg-zinc-700"
+        className="px-3 py-2 my-2 text-white rounded bg-zinc-700"
       >
         <div title="render-count-heading">
           Total render count(including initial render):

@@ -22,7 +22,7 @@ export default function ApiInvoker() {
   };
 
   return (
-    <div>
+    <div className="component">
       <h1 className="display-6">API Invoker</h1>
       <RenderContainer />
       <div className="px-3 py-2 font-mono bg-gray-300">

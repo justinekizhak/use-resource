@@ -20,7 +20,7 @@ export default function ApiConsumer() {
   const fullData: Resource_T<any> = useSelector("test") || {};
 
   return (
-    <div>
+    <div className="component">
       <h1 className="display-6">API consumer</h1>
       <RenderContainer />
       <div className="px-3 py-2 font-mono bg-gray-300">

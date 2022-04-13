@@ -7,6 +7,7 @@ import Navigation from "./navigation";
 import BasicExample from "../components/examples/basic";
 import ContextSync from "../components/examples/context-sync";
 import EventQueue from "../components/examples/event-queue";
+import RequestChain from "../components/examples/request-chain";
 import { HashRouter } from "react-router-dom";
 
 function Home() {
@@ -16,7 +17,7 @@ function Home() {
 export default function App() {
   return (
     <div className="px-8 py-4">
-      <HashRouter basename="examples">
+      <HashRouter>
         <h1 className="display-1">Use Resource Hook</h1>
         <h2 className="display-5">Examples</h2>
         <Navigation />
@@ -25,6 +26,7 @@ export default function App() {
           <Route path="basic" element={<BasicExample />} />
           <Route path="context-sync" element={<ContextSync />} />
           <Route path="event-queue" element={<EventQueue />} />
+          <Route path="request-chain" element={<RequestChain />} />
         </Routes>
       </HashRouter>
     </div>

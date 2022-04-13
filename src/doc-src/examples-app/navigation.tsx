@@ -4,6 +4,7 @@ export default function Navigation() {
   const links = [
     { href: "/", label: "Home" },
     { href: "/basic", label: "Basic" },
+    { href: "/request-chain", label: "Request Chain" },
     { href: "/context-sync", label: "Context sync" },
     { href: "/event-queue", label: "Event queue" }
   ];
