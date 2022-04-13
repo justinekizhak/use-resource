@@ -21,14 +21,11 @@ export default function ApiConsumer() {
 
   return (
     <div>
-      <h1>Api consumer</h1>
+      <h1 className="display-6">API consumer</h1>
       <RenderContainer />
-      {/* {`Loading: ${isLoading}`}
-      {`Fetching: ${isFetching}`}
-      {JSON.stringify(data)} */}
-      {JSON.stringify(fullData?.data)}
-      {fullData?.isLoading + " "}
-      {fullData?.isFetching + " "}
+      <div className="px-3 py-2 font-mono bg-gray-300">
+        {JSON.stringify(fullData?.data)}
+      </div>
     </div>
   );
 }

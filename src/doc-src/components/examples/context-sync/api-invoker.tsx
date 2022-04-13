@@ -11,7 +11,7 @@ export default function ApiInvoker() {
     url: `https://jsonplaceholder.typicode.com/todos/${todoIndex}`
   });
 
-  const { data, refetch, isFetching } = useResource(getConfig(), "test", {
+  const { data, refetch } = useResource(getConfig(), "test", {
     useGlobalContext: true
   });
 
@@ -23,11 +23,14 @@ export default function ApiInvoker() {
 
   return (
     <div>
-      <h1>Api Invoker</h1>
+      <h1 className="display-6">API Invoker</h1>
       <RenderContainer />
-      {JSON.stringify(data)}
-      {isFetching + ""}
-      <button onClick={handleClick}>Next item</button>
+      <div className="px-3 py-2 font-mono bg-gray-300">
+        {JSON.stringify(data)}
+      </div>
+      <button onClick={handleClick} className="mt-2 btn btn-primary">
+        Next item
+      </button>
     </div>
   );
 }
