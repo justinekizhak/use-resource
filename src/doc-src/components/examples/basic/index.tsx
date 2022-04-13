@@ -10,7 +10,7 @@ export default function App() {
   const { data, Container } = useResource(config, "todoDetails");
 
   return (
-    <div className="App">
+    <div className="App component">
       <RenderContainer />
       <Container hideWhenLoading>
         <div className="px-3 py-2 font-mono bg-gray-300">

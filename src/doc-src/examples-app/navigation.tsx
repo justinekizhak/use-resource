@@ -1,16 +1,25 @@
-import { Link, useLocation } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 export default function Navigation() {
-  const { pathname } = useLocation();
+  const links = [
+    { href: "/", label: "Home" },
+    { href: "/basic", label: "Basic" },
+    { href: "/request-chain", label: "Request Chain" },
+    { href: "/context-sync", label: "Context sync" },
+    { href: "/event-queue", label: "Event queue" }
+  ];
 
   return (
-    pathname !== "/" && (
-      <nav>
-        <Link to="/">Home</Link>
-        <Link to="/basic">Basic</Link>
-        <Link to="/context-sync">Context sync</Link>
-        <Link to="/event-queue">Event Queue</Link>
-      </nav>
-    )
+    <nav>
+      <ul className="nav nav-tabs">
+        {links.map(({ href, label }) => (
+          <li key={href} className="nav-item">
+            <NavLink to={href} className="nav-link">
+              {label}
+            </NavLink>
+          </li>
+        ))}
+      </ul>
+    </nav>
   );
 }

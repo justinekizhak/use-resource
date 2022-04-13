@@ -50,9 +50,9 @@ const config = {
         items: [
           {
             type: "doc",
-            docId: "intro",
+            docId: "index",
             position: "left",
-            label: "Tutorial"
+            label: "Docs"
           },
           {
             href: "pathname:///api/index.html",

@@ -1,42 +1,40 @@
 import { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
 import type {
-  Accumulator_T,
   BeforeEvent_T,
   Event_T,
   FullTask_T,
-  NextCallback_T,
+  PushToAcc_T,
   OnFailure_T,
   OnFinish_T,
-  OnSuccess_T
+  OnSuccess_T,
+  AccumulatorContainer_T
 } from "../main.type";
 
-export type EventQueue_AccumulatorContainer = Array<{
-  current: Accumulator_T;
-}>;
-export type EventQueue_NextCallback_T = (index: number) => NextCallback_T;
+export type EventQueue_AccumulatorContainer_T = Array<AccumulatorContainer_T>;
+export type EventQueue_PushToAcc_T = (index: number) => PushToAcc_T;
 
 export type EventQueue_BeforeEvent_T = (
-  accumulator?: EventQueue_AccumulatorContainer,
-  next?: EventQueue_NextCallback_T,
+  accumulator: EventQueue_AccumulatorContainer_T,
+  pushToAcc: EventQueue_PushToAcc_T,
   disableStateUpdate?: boolean
 ) => void;
 
 export type EventQueue_OnSuccess_T = (
   response: AxiosResponse,
-  accumulator?: EventQueue_AccumulatorContainer,
-  next?: EventQueue_NextCallback_T,
+  accumulator: EventQueue_AccumulatorContainer_T,
+  pushToAcc: EventQueue_PushToAcc_T,
   disableStateUpdate?: boolean
 ) => void;
 
 export type EventQueue_OnFailure_T = (
   error: any | AxiosError,
-  accumulator?: EventQueue_AccumulatorContainer,
-  next?: EventQueue_NextCallback_T
+  accumulator: EventQueue_AccumulatorContainer_T,
+  pushToAcc: EventQueue_PushToAcc_T
 ) => void;
 
 export type EventQueue_OnFinish_T = (
-  accumulator?: EventQueue_AccumulatorContainer,
-  next?: EventQueue_NextCallback_T,
+  accumulator: EventQueue_AccumulatorContainer_T,
+  pushToAcc: EventQueue_PushToAcc_T,
   disableStateUpdate?: boolean
 ) => void;
 

@@ -1,7 +1,8 @@
-import type {
-  NextCallback_T,
-  AccumulatorContainer_T
-} from "../types/main.type";
+import {
+  generateDefaultAccContainer,
+  generateDefaultPushToAcc
+} from "lib/utils/defaultValues";
+import type { AccumulatorContainer_T } from "../types/main.type";
 import type { RequestChainHandler_T } from "../types/refetch.type";
 import type { ChainedRequestConfig_T } from "../types/useResource.type";
 import { getFinalRequestChain } from "../utils/helpers";
@@ -19,13 +20,8 @@ export const requestChainHandler: RequestChainHandler_T =
     eventMaster
   }) =>
   async () => {
-    const cr_acc: AccumulatorContainer_T = { current: [] };
-    const cr_next: NextCallback_T = (data: any) => {
-      if (data) {
-        cr_acc.current.push(data);
-      }
-      return cr_acc;
-    };
+    const cr_acc: AccumulatorContainer_T = generateDefaultAccContainer();
+    const cr_pushToAcc = generateDefaultPushToAcc(cr_acc);
     // @ts-ignore
     const baseConfigList: ChainedRequestConfig_T[] = baseConfigRef.current;
     await execute(baseConfigList, async (requestConfig, index) => {
@@ -51,7 +47,7 @@ export const requestChainHandler: RequestChainHandler_T =
       await eventMaster(
         index,
         cr_acc,
-        cr_next,
+        cr_pushToAcc,
         cr_baseConfig,
         cr_beforeEvent,
         cr_event,

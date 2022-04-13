@@ -1,21 +1,34 @@
 import { AxiosRequestConfig } from "axios";
-import type { AccumulatorContainer_T, NextCallback_T } from "../types";
+import {
+  generateDefaultAccContainer,
+  generateDefaultPushToAcc
+} from "lib/utils/defaultValues";
+import type { AccumulatorContainer_T, PushToAcc_T } from "../types";
 import type {
   EventQueue_T,
-  EventQueue_AccumulatorContainer,
+  EventQueue_AccumulatorContainer_T,
   EventQueue_BeforeEvent_T,
   EventQueue_Data_T,
   EventQueue_DeDup_Data_T,
-  EventQueue_NextCallback_T,
+  EventQueue_PushToAcc_T,
   EventQueue_OnFailure_T,
   EventQueue_OnFinish_T,
   EventQueue_OnSuccess_T
 } from "../types/resourceContext/eventQueue.type";
 
+/**
+ * This function will merge all the events with the same resource name into a single
+ * event. And the new merged event will update all corresponding states.
+ *
+ * @param queueSlice Array of events to be processed
+ * @returns
+ */
 const getDeDuplicatedEventSlice = (queueSlice: EventQueue_Data_T[]) => {
+  // Defining an event map object for merging events
   const eventMap: {
     [key: string]: EventQueue_Data_T[];
   } = {};
+  // Grouping logic. First we group all the events by their resource name.
   queueSlice?.forEach((event) => {
     const key = event.resourceName;
     if (!eventMap[key]) {
@@ -23,65 +36,63 @@ const getDeDuplicatedEventSlice = (queueSlice: EventQueue_Data_T[]) => {
     }
     eventMap[key].push(event);
   });
+
+  // Now we will do the merge for all the grouped events.
   const output: EventQueue_DeDup_Data_T[] = [];
   Object.values(eventMap).forEach((duplicatedEvents, index) => {
     const lastIndex = duplicatedEvents.length - 1;
     const lastEvent = duplicatedEvents[lastIndex];
 
     const beforeEvent: EventQueue_BeforeEvent_T = (
-      accList,
-      nextList,
+      accContainer,
+      pushToAcc,
       disableStateUpdate
     ) => {
       duplicatedEvents.forEach((event) => {
-        const acc: AccumulatorContainer_T = (accList && accList[index]) || {
-          current: []
-        };
-        const next: NextCallback_T =
-          (nextList && nextList(index)) || (() => ({ current: [] }));
-        event.beforeEvent(acc, next, disableStateUpdate);
+        const acc: AccumulatorContainer_T =
+          accContainer[index] || generateDefaultAccContainer();
+        const _push: PushToAcc_T = pushToAcc(index);
+        event.beforeEvent(acc, _push, disableStateUpdate);
       });
     };
 
     const onSuccess: EventQueue_OnSuccess_T = (
       res,
-      accList,
-      nextList,
+      accContainer,
+      pushToAcc,
       disableStateUpdate
     ) => {
       duplicatedEvents.forEach((event) => {
-        const acc: AccumulatorContainer_T = (accList && accList[index]) || {
-          current: []
-        };
-        const next: NextCallback_T =
-          (nextList && nextList(index)) || (() => ({ current: [] }));
-        event.onSuccess(res, acc, next, disableStateUpdate);
+        const acc: AccumulatorContainer_T =
+          accContainer[index] || generateDefaultAccContainer();
+        const _push: PushToAcc_T = pushToAcc(index);
+        event.onSuccess(res, acc, _push, disableStateUpdate);
       });
     };
 
-    const onFailure: EventQueue_OnFailure_T = (error, accList, nextList) => {
+    const onFailure: EventQueue_OnFailure_T = (
+      error,
+      accContainer,
+      pushToAcc
+    ) => {
       duplicatedEvents.forEach((event) => {
-        const acc: AccumulatorContainer_T = (accList && accList[index]) || {
-          current: []
-        };
-        const next: NextCallback_T =
-          (nextList && nextList(index)) || (() => ({ current: [] }));
-        event.onFailure(error, acc, next);
+        const acc: AccumulatorContainer_T =
+          accContainer[index] || generateDefaultAccContainer();
+        const _push: PushToAcc_T = pushToAcc(index);
+        event.onFailure(error, acc, _push);
       });
     };
 
     const onFinish: EventQueue_OnFinish_T = (
-      accList,
-      nextList,
+      accContainer,
+      pushToAcc,
       disableStateUpdate
     ) => {
       duplicatedEvents.forEach((event) => {
-        const acc: AccumulatorContainer_T = (accList && accList[index]) || {
-          current: []
-        };
-        const next: NextCallback_T =
-          (nextList && nextList(index)) || (() => ({ current: [] }));
-        event.onFinish(acc, next, disableStateUpdate);
+        const acc: AccumulatorContainer_T =
+          accContainer[index] || generateDefaultAccContainer();
+        const _push: PushToAcc_T = pushToAcc(index);
+        event.onFinish(acc, _push, disableStateUpdate);
       });
     };
 
@@ -91,29 +102,26 @@ const getDeDuplicatedEventSlice = (queueSlice: EventQueue_Data_T[]) => {
       const lastIndex = totalTask - 1;
       const isFirstInChain = index === 0;
       const isLastInChain = index === totalTask - 1;
-      const accList: EventQueue_AccumulatorContainer = [{ current: [] }];
+      const acc: EventQueue_AccumulatorContainer_T = [
+        generateDefaultAccContainer()
+      ];
 
-      const nextList: EventQueue_NextCallback_T = (index: number) => {
-        const callback: NextCallback_T = (data) => {
-          if (data) {
-            accList[index].current.push(data);
-          }
-          return accList[index];
-        };
+      const pushToAcc: EventQueue_PushToAcc_T = (index: number) => {
+        const callback = generateDefaultPushToAcc(acc[index]);
         return callback;
       };
       try {
-        beforeEvent(accList, nextList, !isFirstInChain);
+        beforeEvent(acc, pushToAcc, !isFirstInChain);
         const res = await lastEvent.event(
           customConfig,
-          accList[lastIndex],
-          nextList(lastIndex)
+          acc[lastIndex],
+          pushToAcc(lastIndex)
         );
-        onSuccess(res, accList, nextList, !isLastInChain);
+        onSuccess(res, acc, pushToAcc, !isLastInChain);
       } catch (error) {
-        onFailure(error, accList, nextList);
+        onFailure(error, acc, pushToAcc);
       } finally {
-        onFinish(accList, nextList, !isLastInChain);
+        onFinish(acc, pushToAcc, !isLastInChain);
       }
     };
 

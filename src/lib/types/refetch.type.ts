@@ -4,7 +4,7 @@ import type {
   AccumulatorContainer_T,
   BaseConfig_T,
   BeforeEvent_T,
-  NextCallback_T,
+  PushToAcc_T,
   OnFailure_T,
   OnFinish_T,
   OnSuccess_T,
@@ -13,7 +13,7 @@ import type {
 
 export interface RefetchFunctionArg_T {
   accumulator: AccumulatorContainer_T;
-  defaultNext: NextCallback_T;
+  defaultPushToAcc: PushToAcc_T;
   beforeEvent: BeforeEvent_T;
   event: Event_T;
   onSuccess: OnSuccess_T;
@@ -34,7 +34,7 @@ export type RefetchFunction_T = (
 export type EventMasterFunc_T = (
   index?: number,
   em_acc?: AccumulatorContainer_T,
-  em_next?: NextCallback_T,
+  em_next?: PushToAcc_T,
   em_baseConfig?: AxiosRequestConfig,
   em_beforeEvent?: BeforeEvent_T,
   em_event?: Event_T,

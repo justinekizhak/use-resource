@@ -5,6 +5,6 @@
     "./src/lib/external-index.ts"
   ],
   "out": "static/api",
-  "name": "Use Resource Hook",
+  "name": "Use Resource Hook API docs",
   "readme": "./src/doc-src/typedoc/api-doc-landing-page.md"
 }

@@ -26,5 +26,7 @@ export * from "./utils/defaultComponents";
 export * from "./utils/helpers";
 export * from "./utils/refetch";
 export * from "./utils/requestChain";
+export * from "./utils/defaultValues";
 
+// hook entry file
 export * from "./useResource";

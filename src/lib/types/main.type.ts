@@ -189,6 +189,7 @@ export interface ContextContainerProps_T {
   children?: Internal_JsxComponent_T;
   contentWrapper?: ContentWrapper_T;
   containerOptions?: UseResource_ContainerOptions__T;
+  hideWhenLoading: boolean;
 }
 
 export type ContextContainer_T = (
@@ -198,9 +199,95 @@ export type ContextContainer_T = (
 export type BaseConfig_T = AxiosRequestConfig | ChainedRequestConfig_T[];
 
 export type ChainResponse_T = object | AxiosResponse | void;
-export type Accumulator_T = (object | AxiosResponse)[];
-export type AccumulatorContainer_T = { current: Accumulator_T };
-export type NextCallback_T = (data: ChainResponse_T) => AccumulatorContainer_T;
+
+/**
+ * The AccumulatorContainer or Accumulator is used for storing data for a single/chained request.
+ *
+ * The Accumulator lifecycle is between when the start of the request and the end of the request.
+ * Once the request ends the Accumulator is cleared.
+ *
+ * To understand the use of Accumulator we need to understand the working of the event hooks of a request.
+ *
+ * All the event hooks of a request are designed in a functional paradigm way, this way all the event-hooks are isolated and runs
+ * independent of each other.
+ * This makes it very easy to understand and reason about event-hooks.
+ * As long as the input for the event-hooks are the same they will always return the same output.
+ *
+ * But this makes any inter-event communication and handling any inter-event use-cases difficult.
+ *
+ * So for those use cases, we use the `Accumulator` and its corresponding `pushToAcc` method.
+ *
+ * The `Accumulator` is a mutable object which is used to store the data.
+ * And the `pushToAcc` is a method is the recommended way to push the data to the accumulator.
+ *
+ * All the event-hooks gets both `pushToAcc` and `accumulator` as its props.
+ *
+ * Accumulator fields:
+ *
+ * - `data`: The `data` field contains all the data objects in the order they are pushed to the accumulator.
+ * There is no grouping of the data objects for this field. They are just an array of objects.
+ * You can use this to get exactly the data object pushed at a particular index(lifecycle point).
+ *
+ * - `events`: If the `data` field doesn't provide much information then you can use this field.
+ * Here the data objects are grouped by their event key-code. Inside each event key-code it will contain only the data-objects
+ * for that particular event.
+ *
+ * - `requestsByName`: When you are doing a chained request and you want the data-object for a particular request, for that we can
+ * use this field. Here all the data-objects are grouped by their request key-code.
+ * Inside each request it will contains the data-objects again grouped by their event key-code.
+ *
+ * - `requestsByIndex`: When you are doing a chained request and you want the data-object for a particular request-index, for that we can
+ * use this field. Here all the data-objects are grouped by their request index.
+ * Inside each request it will contains the data-objects again grouped by their event key-code.
+ *
+ * - `customData`: Store any custom object you want.
+ */
+export type AccumulatorContainer_T = {
+  data: object[];
+  events: AccumulatorContainer_Events_T;
+  requestsByName: {
+    [key: string]: AccumulatorContainer_Events_T;
+  };
+  requestsByIndex: {
+    [key: number]: AccumulatorContainer_Events_T;
+  };
+  customData: object;
+};
+
+export type EventKeyCodes_T =
+  | "beforeEvent"
+  | "onEvent"
+  | "onSuccess"
+  | "onFailure"
+  | "onFinish";
+
+/**
+ * This the schema used to store the data-objects grouped by their event key-code.
+ */
+export type AccumulatorContainer_Events_T = {
+  // eslint-disable-next-line no-unused-vars
+  [key in EventKeyCodes_T]?: object[];
+};
+
+export interface PushToAcc_Meta_T {
+  eventKeycode?: EventKeyCodes_T;
+  requestName?: string;
+  requestIndex?: number;
+  customObject?: object;
+}
+
+/**
+ * PushToAcc is the preferred method for pushing data into the accumulator.
+ 
+ * Of course you can directly mutate the accumulator object, if you understand how it works.
+ * Otherwise feel free to use the `pushToAcc` method.
+ *
+ * This method is very easy to use. It takes in the data as the argument and pushes it to the accumulator.
+ */
+export type PushToAcc_T = (
+  data: ChainResponse_T,
+  meta?: PushToAcc_Meta_T
+) => AccumulatorContainer_T;
 
 /**
  * This the lifecycle hook which runs before the event is initiated.
@@ -209,8 +296,9 @@ export type NextCallback_T = (data: ChainResponse_T) => AccumulatorContainer_T;
  */
 export type BeforeEvent_T = (
   accumulator?: AccumulatorContainer_T,
-  next?: NextCallback_T,
-  disableStateUpdate?: boolean
+  pushToAcc?: PushToAcc_T,
+  disableStateUpdate?: boolean,
+  requestMetadata?: PushToAcc_Meta_T
 ) => void;
 
 /**
@@ -221,7 +309,8 @@ export type BeforeEvent_T = (
 export type Event_T = (
   customConfig: AxiosRequestConfig,
   accumulator?: AccumulatorContainer_T,
-  next?: NextCallback_T
+  pushToAcc?: PushToAcc_T,
+  requestMetadata?: PushToAcc_Meta_T
 ) => Promise<AxiosResponse>;
 
 /**
@@ -232,8 +321,9 @@ export type Event_T = (
 export type OnSuccess_T = (
   response: AxiosResponse,
   accumulator?: AccumulatorContainer_T,
-  next?: NextCallback_T,
-  disableStateUpdate?: boolean
+  pushToAcc?: PushToAcc_T,
+  disableStateUpdate?: boolean,
+  requestMetadata?: PushToAcc_Meta_T
 ) => void;
 
 /**
@@ -244,7 +334,8 @@ export type OnSuccess_T = (
 export type OnFailure_T = (
   error: any | AxiosError,
   accumulator?: AccumulatorContainer_T,
-  next?: NextCallback_T
+  pushToAcc?: PushToAcc_T,
+  requestMetadata?: PushToAcc_Meta_T
 ) => void;
 
 /**
@@ -254,15 +345,16 @@ export type OnFailure_T = (
  */
 export type OnFinish_T = (
   accumulator?: AccumulatorContainer_T,
-  next?: NextCallback_T,
-  disableStateUpdate?: boolean
+  pushToAcc?: PushToAcc_T,
+  disableStateUpdate?: boolean,
+  requestMetadata?: PushToAcc_Meta_T
 ) => void;
 
 export type FullTask_T = (customConfig: AxiosRequestConfig) => void;
 
-export type PushToAccumulator_T = (
-  next: NextCallback_T | undefined,
-  res: ChainResponse_T | undefined
+export type CheckAndPushToAcc_T = (
+  pushToAcc: PushToAcc_T | undefined,
+  args: any[]
 ) => void;
 
 /**

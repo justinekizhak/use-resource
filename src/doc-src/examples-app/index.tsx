@@ -1,39 +1,34 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../css/examples-app.css";
 
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import Navigation from "./navigation";
-import { Link } from "react-router-dom";
 
 import BasicExample from "../components/examples/basic";
 import ContextSync from "../components/examples/context-sync";
 import EventQueue from "../components/examples/event-queue";
+import RequestChain from "../components/examples/request-chain";
+import { HashRouter } from "react-router-dom";
 
 function Home() {
-  return (
-    <div>
-      <div>Please select one of the examples</div>
-      <Link to="/basic">Basic</Link>
-      <Link to="/context-sync">Context sync</Link>
-      <Link to="/event-queue">Event Queue</Link>
-    </div>
-  );
+  return <h3 className="display-6">Please select one of the examples</h3>;
 }
 
 export default function App() {
   return (
     <div className="px-8 py-4">
-      <BrowserRouter basename="/examples">
+      <HashRouter>
         <h1 className="display-1">Use Resource Hook</h1>
-        <h6 className="display-6">Examples</h6>
+        <h2 className="display-5">Examples</h2>
         <Navigation />
         <Routes>
           <Route path="" element={<Home />} />
           <Route path="basic" element={<BasicExample />} />
           <Route path="context-sync" element={<ContextSync />} />
           <Route path="event-queue" element={<EventQueue />} />
+          <Route path="request-chain" element={<RequestChain />} />
         </Routes>
-      </BrowserRouter>
+      </HashRouter>
     </div>
   );
 }
